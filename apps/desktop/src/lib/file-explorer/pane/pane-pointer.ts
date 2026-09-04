@@ -1,7 +1,7 @@
 /**
  * What the mouse does to a file pane: selecting a row, the context menu, the
- * click that focuses the pane, and the background double-click that goes up a
- * folder.
+ * middle-click that opens a folder in a background tab, the click that focuses
+ * the pane, and the background double-click that goes up a folder.
  *
  * Keyboard equivalents live in `pane-key-router.ts`; the two stay separate
  * because the mouse carries state the keyboard doesn't (a range anchor, a
@@ -10,7 +10,7 @@
  * each with its own rule.
  */
 
-import { getPathsAtIndices, showFileContextMenu, showParentRowContextMenu } from '$lib/tauri-commands'
+import { getPathsAtIndices, showFileContextMenu, showParentRowContextMenu, type Location } from '$lib/tauri-commands'
 import type { FileEntry, SelectPayload } from '../types'
 import { getSetting, setSetting } from '$lib/settings'
 import { addToast } from '$lib/ui/toast'
@@ -45,11 +45,14 @@ export interface PanePointerDeps {
   /** Cancel an in-flight type-to-jump. */
   clearJump: () => void
   navigateToParent: () => void
+  /** Middle-click on a folder: open it in a background tab of this pane. */
+  openFolderInNewTab: (location: Location) => void
 }
 
 export interface PanePointer {
   handleSelect: (args: SelectPayload) => void
   handleContextMenu: (entry: FileEntry) => Promise<void>
+  handleMiddleClick: (entry: FileEntry) => void
   handlePaneClick: (event: MouseEvent) => void
   handlePaneBackgroundDblClick: (event: MouseEvent) => void
 }
@@ -102,6 +105,25 @@ export function createPanePointer(deps: PanePointerDeps): PanePointer {
     await showFileContextMenu(entry.path, entry.name, entry.isDirectory, paths, false, listingId)
   }
 
+  /**
+   * Middle-clicking a folder opens it in a background tab, the way a browser
+   * opens a link. Files have no such gesture, so they're ignored rather than
+   * given a surprising one. `..` counts as a folder (its `path` is the parent
+   * dir), so the gesture also works for going up in a new tab.
+   *
+   * Deliberately leaves the cursor and selection alone: this is a "take that
+   * with me" gesture, not a click on the row.
+   */
+  function handleMiddleClick(entry: FileEntry): void {
+    if (!entry.isDirectory) return
+    // A snapshot pane's rows live on the virtual `search-results` volume, which
+    // a fresh tab has no way to list.
+    const volumeId = deps.getVolumeId()
+    if (volumeId === 'search-results') return
+    deps.clearJump()
+    deps.openFolderInNewTab({ volumeId, path: entry.path })
+  }
+
   function handlePaneClick(event: MouseEvent): void {
     // Clicks inside the inline rename editor are the user placing the caret or
     // selecting text. Focusing the pane here would blur the input and end the
@@ -132,5 +154,5 @@ export function createPanePointer(deps: PanePointerDeps): PanePointer {
     }
   }
 
-  return { handleSelect, handleContextMenu, handlePaneClick, handlePaneBackgroundDblClick }
+  return { handleSelect, handleContextMenu, handleMiddleClick, handlePaneClick, handlePaneBackgroundDblClick }
 }

@@ -5,6 +5,8 @@ import {
   createTabManager,
   getActiveTab,
   addTab,
+  addTabAfter,
+  moveTab,
   closeTab,
   closeOtherTabs,
   closeTabRecording,
@@ -130,6 +132,104 @@ describe('tab-state-manager', () => {
       addTab(mgr, 'nonexistent', tab2)
 
       expect(getAllTabs(mgr)[1].id).toBe('tab-2')
+    })
+  })
+
+  describe('addTabAfter', () => {
+    it('inserts to the right of the given tab without changing activeTabId', () => {
+      const mgr = createTabManager(makeTab({ id: 'tab-1' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-0' })) // [tab-0, tab-1], active tab-1
+
+      const result = addTabAfter(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
+
+      expect(result).toBe(true)
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-0', 'tab-1', 'tab-2'])
+      // The background open leaves the user on the tab they were reading.
+      expect(mgr.activeTabId).toBe('tab-1')
+    })
+
+    it('keeps repeated opens in click order', () => {
+      const mgr = createTabManager(makeTab({ id: 'tab-1' }))
+      addTabAfter(mgr, 'tab-1', makeTab({ id: 'first' }))
+      addTabAfter(mgr, 'tab-1', makeTab({ id: 'second' }))
+
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-1', 'second', 'first'])
+    })
+
+    it('appends at end when afterTabId is not found', () => {
+      const mgr = createTabManager(makeTab({ id: 'tab-1' }))
+      addTabAfter(mgr, 'nonexistent', makeTab({ id: 'tab-2' }))
+
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-1', 'tab-2'])
+    })
+
+    it('returns false at cap (10 tabs)', () => {
+      const mgr = createTabManager(makeTab({ id: 'tab-0' }))
+      for (let i = 1; i < MAX_TABS_PER_PANE; i++) {
+        addTab(mgr, mgr.activeTabId, makeTab({ id: `tab-${String(i)}` }))
+      }
+
+      expect(addTabAfter(mgr, mgr.activeTabId, makeTab({ id: 'tab-extra' }))).toBe(false)
+      expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
+    })
+  })
+
+  describe('moveTab', () => {
+    /** A manager with `tab-0 … tab-(n-1)` in order, `tab-0` active. */
+    function managerWithTabs(count: number) {
+      const mgr = createTabManager(makeTab({ id: 'tab-0' }))
+      for (let i = 1; i < count; i++) {
+        addTabAfter(mgr, `tab-${String(i - 1)}`, makeTab({ id: `tab-${String(i)}` }))
+      }
+      return mgr
+    }
+
+    it('moves a tab later in the strip, shifting the rest', () => {
+      const mgr = managerWithTabs(4)
+
+      expect(moveTab(mgr, 'tab-0', 2)).toBe(true)
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-1', 'tab-2', 'tab-0', 'tab-3'])
+    })
+
+    it('moves a tab earlier in the strip', () => {
+      const mgr = managerWithTabs(4)
+
+      expect(moveTab(mgr, 'tab-3', 1)).toBe(true)
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-0', 'tab-3', 'tab-1', 'tab-2'])
+    })
+
+    it('leaves activeTabId alone, whichever tab moved', () => {
+      const mgr = managerWithTabs(3)
+      switchTab(mgr, 'tab-1', null)
+
+      // The moved tab is the active one …
+      moveTab(mgr, 'tab-1', 2)
+      expect(mgr.activeTabId).toBe('tab-1')
+      // … and an inactive one dragged past it doesn't steal the pane either.
+      moveTab(mgr, 'tab-0', 2)
+      expect(mgr.activeTabId).toBe('tab-1')
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-2', 'tab-1', 'tab-0'])
+    })
+
+    it('carries pin state with the tab', () => {
+      const mgr = managerWithTabs(3)
+      pinTab(mgr, 'tab-0')
+
+      moveTab(mgr, 'tab-0', 2)
+
+      const moved = getAllTabs(mgr)[2]
+      expect(moved.id).toBe('tab-0')
+      expect(moved.pinned).toBe(true)
+    })
+
+    it('returns false for a no-op move, an unknown tab, or an out-of-range index', () => {
+      const mgr = managerWithTabs(3)
+
+      expect(moveTab(mgr, 'tab-1', 1)).toBe(false)
+      expect(moveTab(mgr, 'nonexistent', 0)).toBe(false)
+      expect(moveTab(mgr, 'tab-0', 3)).toBe(false)
+      expect(moveTab(mgr, 'tab-0', -1)).toBe(false)
+      expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-0', 'tab-1', 'tab-2'])
     })
   })
 

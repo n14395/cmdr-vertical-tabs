@@ -17,6 +17,7 @@ import {
   type AppColor,
   type TabBarPosition,
   type SideTabPlacement,
+  type SideTabPanes,
   densityMappings,
 } from '$lib/settings'
 import { formatDateForDisplay, type FormattedDate } from './format-utils'
@@ -35,6 +36,7 @@ let useAppIconsForDocuments = $state<boolean>(true)
 let showFunctionKeyBar = $state<boolean>(true)
 let tabBarPosition = $state<TabBarPosition>('top')
 let sideTabPlacement = $state<SideTabPlacement>('left')
+let sideTabPanes = $state<SideTabPanes>('both')
 let showHiddenFiles = $state<boolean>(false)
 let directorySortMode = $state<DirectorySortMode>('likeFiles')
 let appColor = $state<AppColor>('cmdr-gold')
@@ -92,6 +94,7 @@ async function runInit(options?: { restrictedWindow?: boolean }): Promise<void> 
     showFunctionKeyBar = getSetting('appearance.showFunctionKeyBar')
     tabBarPosition = getSetting('appearance.tabBarPosition')
     sideTabPlacement = getSetting('appearance.sideTabPlacement')
+    sideTabPanes = getSetting('appearance.sideTabPanes')
     showHiddenFiles = getSetting('listing.showHiddenFiles')
     directorySortMode = getSetting('listing.directorySortMode')
     appColor = getSetting('appearance.appColor')
@@ -158,6 +161,9 @@ function applySettingChange(id: string, value: unknown): void {
       break
     case 'appearance.sideTabPlacement':
       sideTabPlacement = value as SideTabPlacement
+      break
+    case 'appearance.sideTabPanes':
+      sideTabPanes = value as SideTabPanes
       break
     case 'listing.showHiddenFiles':
       showHiddenFiles = value as boolean
@@ -273,6 +279,11 @@ export function getTabBarPosition(): TabBarPosition {
 /** Get which pane edge the side (vertical) tab strips sit on. Only consulted while `getTabBarPosition()` is `'side'`. */
 export function getSideTabPlacement(): SideTabPlacement {
   return sideTabPlacement
+}
+
+/** Get which panes show a side (vertical) tab strip. Only consulted while `getTabBarPosition()` is `'side'`. */
+export function getSideTabPanes(): SideTabPanes {
+  return sideTabPanes
 }
 
 /**

@@ -18,8 +18,8 @@
 
 import { trackEvent } from '$lib/tauri-commands'
 
-/** How a tab came to exist. */
-export type TabOpenSource = 'new' | 'reopened'
+/** How a tab came to exist. `folder` is the middle-click on a folder row. */
+export type TabOpenSource = 'new' | 'reopened' | 'folder'
 
 /** How a tab (or a set of them) was asked to close. */
 export type TabCloseSource = 'single' | 'others'
@@ -62,6 +62,15 @@ export function reportTabClosed(
 /** Reports a move of the active tab. */
 export function reportTabSwitched(method: TabSwitchMethod): void {
   void trackEvent('tab_switched', { method })
+}
+
+/**
+ * Reports a tab dragged to a new position in the side strip. Only real moves count; a
+ * grab that lands back in its own slot never reaches here, so a zero means the gesture
+ * goes unused rather than unfinished.
+ */
+export function reportTabReordered(openTabs: number): void {
+  void trackEvent('tab_reordered', { open_tabs: openTabs })
 }
 
 /** Reports a pin toggle. `pinned` is the state the tab ends in. */

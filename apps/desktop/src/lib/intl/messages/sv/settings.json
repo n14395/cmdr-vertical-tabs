@@ -363,6 +363,26 @@
   "@settings.appearance.tabBarPosition.opt.side": {
     "sourceHash": "630ef00"
   },
+  "settings.appearance.sideTabPanes.label": "Paneler med sidoflikar",
+  "@settings.appearance.sideTabPanes.label": {
+    "sourceHash": "7b889de"
+  },
+  "settings.appearance.sideTabPanes.description": "Vilka paneler som visar ett lodrätt flikfält; panelen som lämnas utanför behåller sitt flikfält överst. Gäller när flikfältets placering är ”Vid sidan”.",
+  "@settings.appearance.sideTabPanes.description": {
+    "sourceHash": "2d0b8c4"
+  },
+  "settings.appearance.sideTabPanes.opt.both": "Båda panelerna",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "sourceHash": "0b3678d"
+  },
+  "settings.appearance.sideTabPanes.opt.left": "Vänster panel",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "sourceHash": "1c5078a"
+  },
+  "settings.appearance.sideTabPanes.opt.right": "Höger panel",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "sourceHash": "b2d98e6"
+  },
   "settings.appearance.sideTabPlacement.label": "Sidoflikarnas placering",
   "@settings.appearance.sideTabPlacement.label": {
     "sourceHash": "00e45fd"

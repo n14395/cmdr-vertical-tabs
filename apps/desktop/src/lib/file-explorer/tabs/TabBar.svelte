@@ -8,6 +8,8 @@
     import { getFirstShortcutReactive } from '$lib/shortcuts/reactive-shortcuts.svelte'
     import { useInlineSize } from '$lib/utils/inline-size-action'
     import { SvelteSet } from 'svelte/reactivity'
+    import { onDestroy } from 'svelte'
+    import { createTabReorderController } from './tab-reorder.svelte'
 
     interface Props {
         tabs: TabState[]
@@ -24,6 +26,8 @@
         onNewTab: () => void
         onContextMenu: (tabId: TabId, event: MouseEvent) => void
         onPaneFocus: () => void
+        /** Drag reorder committed: put `tabId` at `toIndex`. Vertical mode only (see `tab-reorder.svelte.ts`). */
+        onTabReorder: (tabId: TabId, toIndex: number) => void
     }
 
     const {
@@ -39,9 +43,25 @@
         onNewTab,
         onContextMenu,
         onPaneFocus,
+        onTabReorder,
     }: Props = $props()
 
     const vertical = $derived(orientation === 'vertical')
+
+    /** The tab list element, measured row by row while a reorder drag is in flight. */
+    let tabListEl = $state<HTMLElement | undefined>(undefined)
+
+    // Drag reorder of the side strip's rows. The controller owns the gesture (threshold,
+    // drop-line slot, click-vs-drag); the bar just renders what it reports.
+    const reorder = createTabReorderController({
+        getTabs: () => tabs,
+        getListRef: () => tabListEl,
+        onReorder: (tabId: TabId, toIndex: number) => {
+            onTabReorder(tabId, toIndex)
+        },
+    })
+
+    onDestroy(reorder.destroy)
 
     const isSingleTab = $derived(tabs.length === 1)
     const isAtMax = $derived(tabs.length >= maxTabs)
@@ -89,12 +109,21 @@
         if (event.button === 1) {
             event.preventDefault()
             onTabMiddleClick(tabId)
+            return
         }
+        // A press on the close button is a close, never the start of a drag —
+        // otherwise a few px of wobble on the × both moves the tab and closes it.
+        if ((event.target as Element | null)?.closest('.close-btn')) return
+        // Only the side strip reorders: the horizontal bar's tabs stay click-only.
+        if (vertical) reorder.handleMouseDown(tabId, event)
     }
 
     function handleTabClick(event: MouseEvent, tabId: TabId) {
         // Only respond to primary click
         if (event.button !== 0) return
+        // The click closing a drag belongs to the drag: dropping a tab back where it
+        // started shouldn't also switch to it.
+        if (reorder.consumeDragClick()) return
         if (tabId !== activeTabId) {
             onTabSwitch(tabId)
         }
@@ -127,12 +156,13 @@
 <div
     class="tab-bar"
     class:vertical
-    style:width={vertical && stripWidth !== undefined ? `${stripWidth}px` : undefined}
+    style:width={vertical && stripWidth !== undefined ? `${String(stripWidth)}px` : undefined}
     onclick={onPaneFocus}
     ondblclick={handleTabBarDblClick}
 >
     <div
         class="tab-list"
+        bind:this={tabListEl}
         role="tablist"
         aria-orientation={vertical ? 'vertical' : undefined}
         aria-label={tString('fileExplorer.tabBar.paneTabsAriaLabel', { paneId })}
@@ -147,8 +177,12 @@
                 class:unreachable={!!tab.unreachable}
                 class:after-active={isAfterActive}
                 class:narrow={narrowTabs.has(tab.id)}
+                class:is-dragging={reorder.draggingTabId === tab.id}
+                class:is-drop-before={reorder.dropSlot === index}
+                class:is-drop-end={reorder.dropSlot === tabs.length && index === tabs.length - 1}
                 role="tab"
                 aria-selected={isActive}
+                data-tab-id={tab.id}
                 use:tooltip={tabTooltipText(tab)}
                 use:useInlineSize={{
                     onResize: (inlineSize: number) => {
@@ -638,6 +672,25 @@
     /* Rows read as a list: labels align left, not centered. */
     .tab-bar.vertical .tab-label {
         text-align: start;
+    }
+
+    /* Drag reorder cues, side strip only (the horizontal bar has no reorder gesture).
+       The grabbed row fades and takes the grabbing cursor; a 2px accent line marks the
+       gap it would drop into, drawn as an inset shadow on the row below the gap — or on
+       the BOTTOM of the last row when the drop lands past the end of the list. Inset
+       rather than a border so the row's height and text position don't shift as the cue
+       moves, and inside `.tab`'s own box so it follows the row's rounded corners. */
+    .tab-bar.vertical .tab.is-dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+    }
+
+    .tab-bar.vertical .tab.is-drop-before {
+        box-shadow: inset 0 2px 0 0 var(--color-accent);
+    }
+
+    .tab-bar.vertical .tab.is-drop-end {
+        box-shadow: inset 0 -2px 0 0 var(--color-accent);
     }
 
     /* Below the tab list, indented to line up with the rows' labels. */

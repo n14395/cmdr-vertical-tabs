@@ -363,6 +363,26 @@
   "@settings.appearance.tabBarPosition.opt.side": {
     "sourceHash": "630ef00"
   },
+  "settings.appearance.sideTabPanes.label": "Panelen met tabbladen aan de zijkant",
+  "@settings.appearance.sideTabPanes.label": {
+    "sourceHash": "7b889de"
+  },
+  "settings.appearance.sideTabPanes.description": "Welke panelen een verticale strook met tabbladen tonen; een paneel dat je overslaat houdt zijn tabbladbalk bovenaan. Geldt zolang de positie van de tabbladbalk op Zijkant staat.",
+  "@settings.appearance.sideTabPanes.description": {
+    "sourceHash": "2d0b8c4"
+  },
+  "settings.appearance.sideTabPanes.opt.both": "Beide panelen",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "sourceHash": "0b3678d"
+  },
+  "settings.appearance.sideTabPanes.opt.left": "Linkerpaneel",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "sourceHash": "1c5078a"
+  },
+  "settings.appearance.sideTabPanes.opt.right": "Rechterpaneel",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "sourceHash": "b2d98e6"
+  },
   "settings.appearance.sideTabPlacement.label": "Plaatsing van tabbladen aan de zijkant",
   "@settings.appearance.sideTabPlacement.label": {
     "sourceHash": "00e45fd"

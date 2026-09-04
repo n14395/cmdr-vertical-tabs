@@ -10,8 +10,10 @@ tabs.
   closed-tab stack
 - **`TabBar.svelte`**: Tab bar UI (always visible, Chrome-style shrinking tabs, pins, close buttons, context menu). Two
   orientations: horizontal (top, default) and vertical (the side strip, per `appearance.tabBarPosition`)
-- **`tab-strip-layout.ts`** + **`TabStripResizer.svelte`**: side-strip layout rules (per-pane edge from
-  `appearance.sideTabPlacement`, width bounds) and the drag handle resizing the strip
+- **`tab-strip-layout.ts`** + **`TabStripResizer.svelte`**: side-strip layout rules (which panes get a strip from
+  `appearance.sideTabPanes`, the per-pane edge from `appearance.sideTabPlacement`, width bounds) and the drag handle
+  resizing the strip
+- **`tab-reorder.svelte.ts`**: the side strip's drag-to-reorder gesture, on the shared `$lib/utils/list-reorder` math
 - **`tab-label.ts`**: `deriveTabLabel(path)`, the tab title
 - **`tab-analytics.ts`**: the event vocabulary. Emitted from `pane/tab-operations.ts`, ❌ never from the pure state
   manager (unit tests drive it directly).
@@ -25,26 +27,25 @@ Architecture, decision rationale, persistence, and closed-tab-history detail: `D
   because the listing may change while a tab is inactive. Selection is cleared on switch (intentional v1
   simplification).
 - **`addTab` inserts to the LEFT without changing `activeTabId`** (the clone trick), so no remount happens and the user
-  stays on their current tab; switching to the new tab is a separate explicit action.
+  stays on their current tab; switching to the new tab is a separate explicit action. `addTabAfter` is the same trick
+  facing right, for the background open (middle-clicking a folder row); neither moves the active tab.
 - **Ctrl+Tab cycling uses a leading-edge debounce (50ms).** It fires the first press immediately, then batches and
   commits only the final target, so rapid cycling doesn't mount/destroy many FilePanes.
 - **Pinned-tab navigation auto-creates a new tab instead of navigating in-place** (pinning preserves a location).
   Inherits the target path, appears after the pinned tab; falls back to in-place only at the 10-tab cap.
-- **Tab context menu must use the async event path, not a synchronous channel.** Tauri 2's `Menu::popup()` returns
-  before `on_menu_event` fires, and macOS's NSEvent tracking loop consumes the wakeup, so a `mpsc::channel` with timeout
-  always races and loses. `on_menu_event` emits a `tab-context-action` event; the frontend uses a one-shot listener
-  (`onTabContextAction`) registered before showing the popup. Do NOT switch to a synchronous channel.
+- **The tab context menu must use the async event path (`tab-context-action` + a one-shot `onTabContextAction` listener
+  registered before the popup), ❌ never a synchronous channel.** `Menu::popup()` returns before `on_menu_event` fires
+  and macOS's NSEvent loop eats the wakeup, so an `mpsc::channel` with a timeout always loses.
 - **`getActiveTab` silently falls back to the first tab when `activeTabId` is stale** (after close or restore). Throwing
   would crash the UI; auto-correcting keeps the pane usable.
-- **Closed-tab history (Cmd+Shift+T) transfers search-results snapshot refs on close, releases on eviction.**
-  `closeTabRecording` / `closeOtherTabsRecording` do NOT decrement refs for `search-results://<id>` history paths (they
-  transfer ownership to the stack entry, keeping the snapshot alive for reopen); the actual decrement is the stack's own
-  eviction (cap overflow or `trimClosedStack`). The non-recording `closeTab` / `closeOtherTabs` release immediately. All
-  bookkeeping flows through `transferSnapshotRefs(closedTab, 'transfer' | 'release')`. See `lib/search/DETAILS.md` §
-  "Snapshot store".
-- **`tab-label.ts` special-cases only the MTP scheme.** For `mtp://…` paths it derives from the within-storage path
-  (`getMtpDisplayPath`) so the storage root shows "/" instead of the raw storage id (`65537`); normal paths and mounted
-  volume roots (`/Volumes/USB`) keep their basename. Pinned by `tab-label.test.ts`.
+- **Closed-tab history (Cmd+Shift+T) TRANSFERS search-results snapshot refs on close and releases them on eviction.**
+  The recording closes keep the refs alive for a reopen; only the stack's own eviction decrements, while the
+  non-recording `closeTab` / `closeOtherTabs` release immediately. It all flows through `transferSnapshotRefs`.
+- **Side-strip rows reorder by POINTER drag, ❌ never HTML5 `draggable`** (Tauri's `dragDropEnabled` eats
+  `dragstart`/`drop`, so it looks wired up and never fires — and synthetic MCP events won't tell you). A drop leaves
+  `activeTabId` alone, so rearranging never costs a FilePane remount.
+- **`tab-label.ts` special-cases only the MTP scheme**: an `mtp://…` label comes from the within-storage path, so a
+  storage root reads "/" rather than the raw storage id. Everything else keeps its basename.
 
 ## MCP
 

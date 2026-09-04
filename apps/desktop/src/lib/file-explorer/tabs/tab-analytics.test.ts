@@ -5,7 +5,13 @@ const { trackEventSpy } = vi.hoisted(() => ({
 }))
 vi.mock('$lib/tauri-commands', () => ({ trackEvent: trackEventSpy }))
 
-import { reportTabClosed, reportTabOpened, reportTabPinToggled, reportTabSwitched } from './tab-analytics'
+import {
+  reportTabClosed,
+  reportTabOpened,
+  reportTabPinToggled,
+  reportTabReordered,
+  reportTabSwitched,
+} from './tab-analytics'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -47,11 +53,17 @@ describe('tab analytics', () => {
     expect(sent()).toEqual(['tab_pin_toggled', { pinned: true }])
   })
 
+  it('counts a drag reorder with the tabs open at the time', () => {
+    reportTabReordered(4)
+    expect(sent()).toEqual(['tab_reordered', { open_tabs: 4 }])
+  })
+
   it('carries no path anywhere, since a path is a tab whole identity', () => {
     reportTabOpened('new', 'opened', 1)
     reportTabClosed('others', 'closed', 1, false)
     reportTabSwitched('pick')
     reportTabPinToggled(false)
+    reportTabReordered(2)
     const everyValue = trackEventSpy.mock.calls.flatMap(([, props]) => Object.values(props))
     for (const value of everyValue) {
       expect(typeof value === 'string' ? value.includes('/') : false).toBe(false)

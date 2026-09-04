@@ -462,6 +462,27 @@
     "description": "Tab-bar-position option: a vertical tab strip beside each file list. Short toggle-button label."
   },
 
+  "settings.appearance.sideTabPanes.label": "Panes with side tabs",
+  "@settings.appearance.sideTabPanes.label": {
+    "description": "Label for the picker controlling which of the two file panes show a vertical tab strip: both of them, or just one (a mixed layout). Only active while the tab bar position is \"Side\". In Settings > Appearance > Tabs."
+  },
+  "settings.appearance.sideTabPanes.description": "Which panes show a vertical tab strip; a pane left out keeps its tab bar on top. Applies while the tab bar position is Side.",
+  "@settings.appearance.sideTabPanes.description": {
+    "description": "Help text for the panes-with-side-tabs setting. \"Side\" names an option of the tab-bar-position setting (translate consistently with it)."
+  },
+  "settings.appearance.sideTabPanes.opt.both": "Both panes",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "description": "Panes-with-side-tabs option: both file panes get a vertical tab strip (the default). Short toggle-button label."
+  },
+  "settings.appearance.sideTabPanes.opt.left": "Left pane",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "description": "Panes-with-side-tabs option: only the left file pane gets a vertical tab strip; the right one keeps its tab bar on top. Short toggle-button label."
+  },
+  "settings.appearance.sideTabPanes.opt.right": "Right pane",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "description": "Panes-with-side-tabs option: only the right file pane gets a vertical tab strip; the left one keeps its tab bar on top. Short toggle-button label."
+  },
+
   "settings.appearance.sideTabPlacement.label": "Side tab placement",
   "@settings.appearance.sideTabPlacement.label": {
     "description": "Label for the picker controlling which edge of each pane the vertical tab strip sits on. Only active while the tab bar position is \"Side\". In Settings > Appearance > Tabs."

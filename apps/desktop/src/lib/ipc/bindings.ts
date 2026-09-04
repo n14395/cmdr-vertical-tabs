@@ -4210,6 +4210,7 @@ export const events = {
   mediaIndexFolderExclusion: makeEvent<MediaIndexFolderExclusion>('media-index-folder-exclusion'),
   menuBarRebuilt: makeEvent<MenuBarRebuilt>('menu-bar-rebuilt'),
   menuSort: makeEvent<MenuSort>('menu-sort'),
+  mouseNav: makeEvent<MouseNav>('mouse-nav'),
   mtpDeviceConnected: makeEvent<MtpDeviceConnected>('mtp-device-connected'),
   mtpDeviceDisconnected: makeEvent<MtpDeviceDisconnected>('mtp-device-disconnected'),
   mtpExclusiveAccessError: makeEvent<MtpExclusiveAccessError>('mtp-exclusive-access-error'),
@@ -8487,6 +8488,24 @@ export type MountResult = {
   mountPath: string
   alreadyMounted: boolean
 }
+
+/**
+ *  `mouse-nav`: a mouse's dedicated back / forward side button (X1/X2) was
+ *  released over the main window. macOS only, emitted by the AppKit event
+ *  monitor in `mouse_nav.rs`; on Linux the frontend reads the buttons straight
+ *  off the DOM. Emitted to the main window, which dispatches `nav.back` /
+ *  `nav.forward` on the same bus as `⌘[` / `⌘]`.
+ */
+export type MouseNav = {
+  direction: MouseNavDirection
+}
+
+/**
+ *  Which way a mouse's side button walks the pane history. A typed direction
+ *  rather than a raw button number: the frontend dispatches a command from it,
+ *  and the button-number-to-direction mapping is `mouse_nav.rs`'s alone.
+ */
+export type MouseNavDirection = 'back' | 'forward'
 
 // Error types for MTP connection operations.
 export type MtpConnectionError =

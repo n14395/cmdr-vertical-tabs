@@ -362,6 +362,26 @@
   "@settings.appearance.tabBarPosition.opt.side": {
     "sourceHash": "630ef00"
   },
+  "settings.appearance.sideTabPanes.label": "Painéis com abas laterais",
+  "@settings.appearance.sideTabPanes.label": {
+    "sourceHash": "7b889de"
+  },
+  "settings.appearance.sideTabPanes.description": "Quais painéis mostram uma faixa vertical de abas; o painel que ficar de fora mantém a barra de abas no topo. Vale enquanto a posição da barra de abas for Lateral.",
+  "@settings.appearance.sideTabPanes.description": {
+    "sourceHash": "2d0b8c4"
+  },
+  "settings.appearance.sideTabPanes.opt.both": "Ambos os painéis",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "sourceHash": "0b3678d"
+  },
+  "settings.appearance.sideTabPanes.opt.left": "Painel esquerdo",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "sourceHash": "1c5078a"
+  },
+  "settings.appearance.sideTabPanes.opt.right": "Painel direito",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "sourceHash": "b2d98e6"
+  },
   "settings.appearance.sideTabPlacement.label": "Posicionamento das abas laterais",
   "@settings.appearance.sideTabPlacement.label": {
     "sourceHash": "00e45fd"

@@ -362,6 +362,26 @@
   "@settings.appearance.tabBarPosition.opt.side": {
     "sourceHash": "630ef00"
   },
+  "settings.appearance.sideTabPanes.label": "Paneles con pestañas laterales",
+  "@settings.appearance.sideTabPanes.label": {
+    "sourceHash": "7b889de"
+  },
+  "settings.appearance.sideTabPanes.description": "Qué paneles muestran una franja vertical de pestañas; el panel que quede fuera conserva su barra de pestañas arriba. Se aplica mientras la posición de la barra de pestañas sea Lateral.",
+  "@settings.appearance.sideTabPanes.description": {
+    "sourceHash": "2d0b8c4"
+  },
+  "settings.appearance.sideTabPanes.opt.both": "Ambos paneles",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "sourceHash": "0b3678d"
+  },
+  "settings.appearance.sideTabPanes.opt.left": "Panel izquierdo",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "sourceHash": "1c5078a"
+  },
+  "settings.appearance.sideTabPanes.opt.right": "Panel derecho",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "sourceHash": "b2d98e6"
+  },
   "settings.appearance.sideTabPlacement.label": "Ubicación de las pestañas laterales",
   "@settings.appearance.sideTabPlacement.label": {
     "sourceHash": "00e45fd"

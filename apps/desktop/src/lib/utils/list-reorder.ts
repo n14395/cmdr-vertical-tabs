@@ -1,7 +1,11 @@
 /**
- * Pure reorder math for the switcher's Favorites section. Kept separate from `VolumeBreadcrumb.svelte`
- * so the index arithmetic is unit-testable without a DOM. The switcher persists the result via
- * `reorderFavorites(orderedIds)` (bare ids, see `stripFavoritePrefix`).
+ * Pure reorder math for a drag- or keyboard-reorderable list: the index arithmetic behind a
+ * pointer drag, without a DOM. Callers hand it the vertical midpoints of the rows they render
+ * (in list order) and the pointer's Y; what comes back is where the grabbed row lands.
+ *
+ * Two consumers today, both pointer-drag reorders (HTML5 drag-and-drop never fires under Tauri's
+ * `dragDropEnabled`): the switcher's Favorites section (`file-explorer/navigation/`) and the
+ * vertical tab strip (`file-explorer/tabs/`).
  */
 
 /**
@@ -31,8 +35,8 @@ export function clampedReorderTarget(from: number, delta: number, length: number
 }
 
 /**
- * Pointer-drag reorder math. Given the vertical midpoints of each favorite row (in list order) and
- * the pointer's Y, returns the index the grabbed item should move TO. The pointer drops the item
+ * Pointer-drag reorder math. Given the vertical midpoints of each row (in list order) and the
+ * pointer's Y, returns the index the grabbed item should move TO. The pointer drops the item
  * AFTER every row whose midpoint sits above it, so we count midpoints below `pointerY` and place the
  * item just before the first one. The result is already a valid `moveItem(items, from, to)` target:
  * because `moveItem` removes the grabbed item first, an index past `from` still lands correctly.

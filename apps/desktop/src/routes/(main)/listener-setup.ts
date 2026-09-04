@@ -34,9 +34,11 @@ import {
   onSettingsChanged,
   onForegroundOperationRequested,
   onRevealPath,
+  onMouseNav,
 } from '$lib/tauri-commands'
 import { getAppLogger } from '$lib/logging/logger'
 import { markDispatchSource } from './dispatch-dedup'
+import { navCommandForDirection } from './mouse-nav'
 import { setFolderExcluded } from '$lib/media-index/excluded-folders'
 import { setFolderChosen } from '$lib/media-index/always-index-folders'
 import { isCommandId, type CommandId, type CommandDispatchArgs } from '$lib/commands'
@@ -81,6 +83,11 @@ export interface ListenerSetupContext {
    * reads reactive startup-modal `$state`; the E2E rerun listener calls it.
    */
   maybeRunWhatsNew: (force: boolean) => Promise<void>
+  /**
+   * Whether a modal dialog or overlay is up, so a listener can stay inert while
+   * the user is answering something. Reads the component's dialog `$state`.
+   */
+  isModalDialogOpen: () => boolean
 }
 
 /** Safe wrapper for Tauri event listeners - handles non-Tauri environment. */
@@ -581,6 +588,25 @@ export async function setupDialogListeners(ctx: ListenerSetupContext): Promise<v
 }
 
 /** Sync file-scoped menu items with main window focus state. */
+/**
+ * The macOS half of the mouse's back / forward side buttons: AppKit reads the
+ * buttons (`src-tauri/src/mouse_nav.rs`) because WKWebView doesn't hand them to
+ * the DOM, and this turns the direction into the same `nav.back` / `nav.forward`
+ * dispatch the `⌘[` / `⌘]` shortcuts and the Linux DOM path make.
+ *
+ * Gated by the same modal guard as the keyboard path, so the buttons stay inert
+ * while a dialog is up. Left untagged for the cross-source dedup: a mouse button
+ * has no native-menu twin to double-fire.
+ */
+export async function setupMouseNavListener(ctx: ListenerSetupContext): Promise<void> {
+  await pushTauri(ctx.unlistenFns, () =>
+    onMouseNav((direction) => {
+      if (ctx.isModalDialogOpen()) return
+      void ctx.dispatch(navCommandForDirection(direction))
+    }),
+  )
+}
+
 export async function setupWindowFocusListener(ctx: ListenerSetupContext): Promise<void> {
   try {
     const { getCurrentWindow } = await import('@tauri-apps/api/window')

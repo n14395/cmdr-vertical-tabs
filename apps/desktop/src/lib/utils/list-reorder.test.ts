@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { moveItem, clampedReorderTarget, pointerReorderTarget, pointerInsertionSlot } from './favorites-reorder'
+import { moveItem, clampedReorderTarget, pointerReorderTarget, pointerInsertionSlot } from './list-reorder'
 
 describe('moveItem', () => {
   it('moves an item later in the list, shifting the rest', () => {

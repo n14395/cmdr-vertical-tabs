@@ -252,6 +252,14 @@ export type TabBarPosition = 'top' | 'side'
  */
 export type SideTabPlacement = 'left' | 'outer' | 'inner'
 
+/**
+ * Which panes get a side (vertical) tab strip. `'both'` is the plain vertical
+ * mode; `'left'` / `'right'` are the mixed mode, where the named pane goes
+ * vertical and the other keeps its horizontal bar. Only consulted while
+ * `appearance.tabBarPosition` is `'side'`.
+ */
+export type SideTabPanes = 'both' | 'left' | 'right'
+
 export interface SettingsValues {
   // Appearance
   'appearance.language': LanguageSetting
@@ -262,6 +270,7 @@ export interface SettingsValues {
   'appearance.showFunctionKeyBar': boolean
   'appearance.tabBarPosition': TabBarPosition
   'appearance.sideTabPlacement': SideTabPlacement
+  'appearance.sideTabPanes': SideTabPanes
   'appearance.fileSizeFormat': FileSizeFormat
   'appearance.sizeColors': SizeColorsPalette
   'appearance.dateColors': DateColorsPalette

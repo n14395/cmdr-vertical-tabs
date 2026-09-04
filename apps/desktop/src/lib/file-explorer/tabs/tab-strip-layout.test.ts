@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   clampTabStripWidth,
+  paneShowsSideTabs,
   stripIsAfterPane,
   DEFAULT_TAB_STRIP_WIDTH,
   MIN_TAB_STRIP_WIDTH,
@@ -21,6 +22,20 @@ describe('clampTabStripWidth', () => {
 
   it('clamps above the maximum', () => {
     expect(clampTabStripWidth(10_000)).toBe(MAX_TAB_STRIP_WIDTH)
+  })
+})
+
+describe('paneShowsSideTabs', () => {
+  it("gives both panes a strip for 'both'", () => {
+    expect(paneShowsSideTabs('left', 'both')).toBe(true)
+    expect(paneShowsSideTabs('right', 'both')).toBe(true)
+  })
+
+  it('gives only the named pane a strip in the mixed modes', () => {
+    expect(paneShowsSideTabs('left', 'left')).toBe(true)
+    expect(paneShowsSideTabs('right', 'left')).toBe(false)
+    expect(paneShowsSideTabs('left', 'right')).toBe(false)
+    expect(paneShowsSideTabs('right', 'right')).toBe(true)
   })
 })
 

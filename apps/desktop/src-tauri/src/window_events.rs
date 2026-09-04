@@ -112,6 +112,27 @@ pub struct TabContextAction {
     pub action: String,
 }
 
+/// Which way a mouse's side button walks the pane history. A typed direction
+/// rather than a raw button number: the frontend dispatches a command from it,
+/// and the button-number-to-direction mapping is `mouse_nav.rs`'s alone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub enum MouseNavDirection {
+    Back,
+    Forward,
+}
+
+/// `mouse-nav`: a mouse's dedicated back / forward side button (X1/X2) was
+/// released over the main window. macOS only, emitted by the AppKit event
+/// monitor in `mouse_nav.rs`; on Linux the frontend reads the buttons straight
+/// off the DOM. Emitted to the main window, which dispatches `nav.back` /
+/// `nav.forward` on the same bus as `⌘[` / `⌘]`.
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct MouseNav {
+    pub direction: MouseNavDirection,
+}
+
 /// `foreground-operation`: the operation queue asks the main window to show one
 /// operation in its progress dialog (the row's Foreground button). Carries only
 /// the id: the registry snapshot both windows already receive is the single

@@ -151,6 +151,48 @@ export function addTab(mgr: TabManager, beforeTabId: TabId, tabState: TabState):
   return true
 }
 
+/**
+ * Inserts a new tab to the right of `afterTabId`, leaving `activeTabId` alone.
+ * That's the background-open shape (middle-clicking a folder): the new tab lands
+ * next to the one it was opened from, so repeated clicks queue up in click
+ * order, and the user stays on the tab they're reading.
+ * Appends at the end if `afterTabId` isn't in this pane. Returns false at cap.
+ */
+export function addTabAfter(mgr: TabManager, afterTabId: TabId, tabState: TabState): boolean {
+  if (mgr.tabs.length >= MAX_TABS_PER_PANE) {
+    return false
+  }
+
+  const afterIndex = mgr.tabs.findIndex((t) => t.id === afterTabId)
+  if (afterIndex === -1) {
+    mgr.tabs.push(tabState)
+  } else {
+    mgr.tabs.splice(afterIndex + 1, 0, tabState)
+  }
+  return true
+}
+
+/**
+ * Moves a tab to `toIndex`, shifting the rest — the side strip's drag reorder.
+ * `activeTabId` is deliberately untouched: the tabs array is the only thing that
+ * changes, so nothing remounts (`{#key activeTabId}` never fires) and dragging an
+ * inactive tab into place doesn't cost a cold FilePane load.
+ *
+ * Splices the live `$state` array in place rather than reassigning it, so the
+ * keyed `{#each}` moves the one row instead of re-rendering every tab.
+ *
+ * Returns false for an unknown tab, an out-of-range index, or a no-op move, so
+ * callers can skip the persist and the analytics event.
+ */
+export function moveTab(mgr: TabManager, tabId: TabId, toIndex: number): boolean {
+  const from = mgr.tabs.findIndex((t) => t.id === tabId)
+  if (from === -1) return false
+  if (toIndex < 0 || toIndex >= mgr.tabs.length || toIndex === from) return false
+  const [moved] = mgr.tabs.splice(from, 1)
+  mgr.tabs.splice(toIndex, 0, moved)
+  return true
+}
+
 /** Result of closing a tab */
 export type CloseTabResult = { closed: true; newActiveTabId: TabId } | { closed: false }
 

@@ -361,6 +361,26 @@
   "@settings.appearance.tabBarPosition.opt.side": {
     "sourceHash": "630ef00"
   },
+  "settings.appearance.sideTabPanes.label": "使用侧边标签页的窗格",
+  "@settings.appearance.sideTabPanes.label": {
+    "sourceHash": "7b889de"
+  },
+  "settings.appearance.sideTabPanes.description": "哪些窗格显示垂直标签页栏；未选中的窗格会把标签页栏保留在顶部。仅在标签页栏位置为“侧边”时生效。",
+  "@settings.appearance.sideTabPanes.description": {
+    "sourceHash": "2d0b8c4"
+  },
+  "settings.appearance.sideTabPanes.opt.both": "两个窗格",
+  "@settings.appearance.sideTabPanes.opt.both": {
+    "sourceHash": "0b3678d"
+  },
+  "settings.appearance.sideTabPanes.opt.left": "左窗格",
+  "@settings.appearance.sideTabPanes.opt.left": {
+    "sourceHash": "1c5078a"
+  },
+  "settings.appearance.sideTabPanes.opt.right": "右窗格",
+  "@settings.appearance.sideTabPanes.opt.right": {
+    "sourceHash": "b2d98e6"
+  },
   "settings.appearance.sideTabPlacement.label": "侧边标签页位置",
   "@settings.appearance.sideTabPlacement.label": {
     "sourceHash": "00e45fd"

@@ -501,6 +501,23 @@ export const appearanceSettings: SettingDefinitionSource[] = [
     },
   },
   {
+    id: 'appearance.sideTabPanes',
+    section: ['Appearance', 'Tabs'],
+    labelKey: 'settings.appearance.sideTabPanes.label',
+    descriptionKey: 'settings.appearance.sideTabPanes.description',
+    keywords: ['tab', 'tabs', 'vertical', 'pane', 'panes', 'both', 'left', 'right', 'mixed', 'side'],
+    type: 'enum',
+    default: 'both',
+    component: 'toggle-group',
+    constraints: {
+      options: [
+        { value: 'both', labelKey: 'settings.appearance.sideTabPanes.opt.both' },
+        { value: 'left', labelKey: 'settings.appearance.sideTabPanes.opt.left' },
+        { value: 'right', labelKey: 'settings.appearance.sideTabPanes.opt.right' },
+      ],
+    },
+  },
+  {
     id: 'appearance.sideTabPlacement',
     section: ['Appearance', 'Tabs'],
     labelKey: 'settings.appearance.sideTabPlacement.label',

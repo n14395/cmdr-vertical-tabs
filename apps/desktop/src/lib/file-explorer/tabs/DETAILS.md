@@ -10,10 +10,13 @@ here.
   tabs per pane
 - `TabBar.svelte`: tab bar UI (always visible, Chrome-style shrinking tabs, pin icons, close buttons, context menu).
   Renders horizontally (top) or vertically (side strip); see § Vertical (side) tabs
-- `tab-strip-layout.ts`: pure side-strip layout rules: per-pane edge from `appearance.sideTabPlacement`
-  (`stripIsAfterPane`) and the width bounds/clamp (see `tab-strip-layout.test.ts`)
+- `tab-strip-layout.ts`: pure side-strip layout rules: which panes get a strip from `appearance.sideTabPanes`
+  (`paneShowsSideTabs`), the per-pane edge from `appearance.sideTabPlacement` (`stripIsAfterPane`), and the width
+  bounds/clamp (see `tab-strip-layout.test.ts`)
 - `TabStripResizer.svelte`: the drag handle between a side strip and its file pane (pointer-capture drag, double-click
   resets to the default width)
+- `tab-reorder.svelte.ts`: the side strip's drag-to-reorder gesture (`createTabReorderController(deps)`); see § Drag
+  reorder in the side strip
 - `tab-label.ts`: `deriveTabLabel(path)` (see `tab-label.test.ts`)
 - `tab-state-manager.test.ts`: unit tests for the state manager
 
@@ -43,6 +46,12 @@ here.
   cursor-by-filename restoration is fast enough that the simplicity wins.
 - **Clone trick for new tab.** `addTab` inserts to the LEFT without changing `activeTabId`; since `{#key activeTabId}`
   drives recreation, no remount happens. The user sees the new tab instantly while staying put; switching is separate.
+- **Middle-clicking a folder row opens it in a BACKGROUND tab**, the browser gesture. `pane-pointer.ts` decides what the
+  click means (folders only, `..` included, nothing on a snapshot pane, cursor and selection untouched) and
+  `tab-operations.ts::openFolderInNewTab` builds the tab: `addTabAfter` the active one, inheriting its sort + view mode,
+  `activeTabId` unmoved, so it's the clone trick facing right and just as remount-free. Repeated clicks queue in click
+  order because each lands after the same active tab. At the cap it toasts rather than no-op'ing silently, since the
+  gesture is cheap to repeat. Analytics see it as `tab_opened` with `source: 'folder'`.
 - **Cursor restored by filename, not index.** The listing may have changed while the tab was inactive (watcher events
   still apply); index-based restoration would point to the wrong file. `findFileIndex` is resilient to
   insertions/deletions.
@@ -59,15 +68,20 @@ here.
 
 ## Vertical (side) tabs
 
-`appearance.tabBarPosition = 'side'` (Settings > Appearance > Tabs) turns each pane's bar into a full-height vertical
-strip of stacked full-width rows; `appearance.sideTabPlacement` picks the edge (`'left'` both panes, `'outer'` /
-`'inner'` mirrored). Both settings are read reactively in `DualPaneExplorer`, so switching re-lays-out live with no
-remount (`{#key}` is untouched).
+`appearance.tabBarPosition = 'side'` (Settings > Appearance > Tabs) turns a pane's bar into a full-height vertical strip
+of stacked full-width rows; `appearance.sideTabPanes` picks which panes get one (`'both'`, or `'left'` / `'right'` for
+the mixed layout), and `appearance.sideTabPlacement` picks the edge (`'left'` both panes, `'outer'` / `'inner'`
+mirrored). All three are read reactively in `DualPaneExplorer`, so switching re-lays-out live with no remount (`{#key}`
+is untouched).
 
 - **The horizontal geometry tricks deliberately DON'T port.** Shoulders, the +1px seam overhang, gap absorption, and
   `align-items: end` all exist to merge the active tab with the path bar BELOW it. A side strip has no such neighbor, so
   rows are a plain list: `--radius-sm` corners, gap-separated, accent band on the LEFT edge (same self-clipping
   full-size `::after` box, gradient turned `to right`).
+- **Vertical-ness is per PANE, not per window.** `DualPaneExplorer` derives `paneSideTabs` for each side
+  (`sideTabs && paneShowsSideTabs(paneId, sideTabPanes)`) and passes it as `TabBar`'s `orientation`, so the mixed mode
+  is just one pane answering `false`: that pane renders the ordinary horizontal bar and gets no `TabStripResizer`. The
+  strip width stays shared, which costs nothing while only one strip exists.
 - **Placement is expressed in CSS, not DOM order.** `DualPaneExplorer`'s `.pane-wrapper.tabs-side` is `row`;
   `.tabs-side-after` is `row-reverse` (strip on the pane's right edge). The mapping pane+placement → before/after is the
   pure `stripIsAfterPane` in `tab-strip-layout.ts`. `row-reverse` keeps `TabStripResizer` adjacent to the strip on both
@@ -80,6 +94,47 @@ remount (`{#key}` is untouched).
 - The narrow-tab close-button drop (`useInlineSize`, 80px threshold) stays active in vertical mode: a strip dragged near
   its minimum is exactly the too-narrow-for-a-close-button case.
 - The tablist carries `aria-orientation="vertical"` in this mode.
+
+## Drag reorder in the side strip
+
+A row can be dragged to a new position in the strip. The gesture lives in `tab-reorder.svelte.ts`
+(`createTabReorderController(deps)`), instantiated by `TabBar.svelte`; the bar renders what the controller reports and
+forwards a committed move to `onTabReorder`, which `DualPaneExplorer` routes to `tab-operations.ts::reorderTab` →
+`tab-state-manager`'s `moveTab` + the usual persist.
+
+- **Pointer events, ❌ never HTML5 drag-and-drop.** Under Tauri's `dragDropEnabled` macOS intercepts drag gestures
+  before the WKWebView sees `dragstart` / `dragover` / `drop`, so a `draggable` reorder looks wired up and silently
+  never fires. Same reason the file-list drag and the favorites drag are `onmousedown`-based, and the same trap:
+  synthetic MCP/test events bypass the OS interception, so "it works under MCP" isn't proof it works with a mouse. Full
+  writeup: `../navigation/DETAILS.md` § Editable favorites.
+- **Click vs drag is decided by a 4px threshold**, so a plain click still switches tab. Below it, nothing happens and
+  the row's `onclick` runs as usual; above it the grabbed row fades and the drop line appears. The click that CLOSES a
+  drag is swallowed (`consumeDragClick`), including when the row lands back in its own slot — the press was a grab, not
+  a pick. The suppression is one-shot and is also cleared by the next `mousedown`, so a drag whose click never arrives
+  (the drop was over a different row, where the browser fires `click` on the shared ancestor instead) can't eat a later
+  real click.
+- **The index math is the shared `$lib/utils/list-reorder.ts`**, the same helpers the switcher's favorites drag uses:
+  the CUE comes from the raw `pointerInsertionSlot()` (a visual gap in `0..length`) and the COMMIT from
+  `pointerReorderTarget()` (that slot adjusted for the grabbed row being spliced out first). Driving the cue off the
+  move target instead puts the line one row too high on downward drags. The cue is hidden for the two slots that would
+  leave the row where it is, which is exactly when the commit answers null.
+- **A drop never moves `activeTabId`.** Reordering is arranging, not switching: since `{#key activeTabId}` drives
+  FilePane recreation, letting a drag change the active tab would cost a cold listing load for a gesture that only
+  rearranged the strip. Dragging an inactive row leaves the pane on the tab the user was reading. (Chrome activates the
+  tab you grab; a tab switch is much cheaper there.)
+- **`moveTab` splices the live `$state` array in place** rather than reassigning through the manager's setter, so the
+  keyed `{#each}` moves the one row instead of re-rendering every tab. It refuses a no-op, an unknown id, and an
+  out-of-range index, which is what keeps a no-op drop from persisting or emitting analytics.
+- Pinned rows drag like any other: a pin preserves a LOCATION (see § Key decisions), not a position, so there's no
+  pinned-tabs-first invariant for a reorder to break. The pin travels with the row.
+- Horizontal bars are unchanged — `TabBar` arms the gesture only while `orientation === 'vertical'`. The horizontal
+  tab's geometry (negative margins absorbing the gaps, escaping shoulder wedges) has no room for a drop-line cue, and
+  the strip is where a list long enough to want rearranging lives.
+- The cue is CSS-only: `.is-dragging` (fade + `grabbing` cursor) on the grabbed row, `.is-drop-before` (2px accent inset
+  at the top) on the row below the target gap, and `.is-drop-end` (inset at the bottom of the last row) for a drop past
+  the end. Inset shadows rather than borders so no row shifts as the line moves.
+- Pinned by `tab-reorder.svelte.test.ts` (the gesture), `TabBar.test.ts` § "vertical drag reorder" (the wiring and the
+  cue classes), and `tab-state-manager.test.ts` § `moveTab` (the array move).
 
 ## Unreachable tabs
 

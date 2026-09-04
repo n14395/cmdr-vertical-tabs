@@ -6,6 +6,8 @@
  * - a right-click inside the current selection acts on the whole selection, and
  *   outside it acts on the one entry,
  * - the `..` row gets its own one-item menu, and none at all on a snapshot pane,
+ * - middle-click opens a FOLDER in a new tab (files ignored, snapshot pane
+ *   ignored) without disturbing the cursor or the selection,
  * - opening any context menu cancels an in-flight type-to-jump,
  * - a click inside the inline rename editor does NOT steal focus (that would
  *   blur the input and end the rename mid-edit),
@@ -79,6 +81,7 @@ describe('createPanePointer', () => {
       clearRangeState: vi.fn(),
       clearJump: vi.fn(),
       navigateToParent: vi.fn(),
+      openFolderInNewTab: vi.fn(),
     }
     deps = {
       getCursorIndex: () => state.cursorIndex,
@@ -95,7 +98,38 @@ describe('createPanePointer', () => {
       clearRangeState: calls.clearRangeState,
       clearJump: calls.clearJump,
       navigateToParent: calls.navigateToParent,
+      openFolderInNewTab: calls.openFolderInNewTab,
     }
+  })
+
+  describe('middle-clicking a row', () => {
+    it("opens a folder in a new tab, on this pane's volume", () => {
+      createPanePointer(deps).handleMiddleClick(entryOf({ name: 'Docs', path: '/dir/Docs', isDirectory: true }))
+      expect(calls.openFolderInNewTab).toHaveBeenCalledWith({ volumeId: 'root', path: '/dir/Docs' })
+    })
+
+    it('opens the parent in a new tab from the `..` row', () => {
+      createPanePointer(deps).handleMiddleClick(entryOf({ name: '..', path: '/', isDirectory: true }))
+      expect(calls.openFolderInNewTab).toHaveBeenCalledWith({ volumeId: 'root', path: '/' })
+    })
+
+    it('ignores a file', () => {
+      createPanePointer(deps).handleMiddleClick(entryOf())
+      expect(calls.openFolderInNewTab).not.toHaveBeenCalled()
+    })
+
+    it('ignores a folder on a snapshot pane (nothing for a tab to list)', () => {
+      state.volumeId = 'search-results'
+      createPanePointer(deps).handleMiddleClick(entryOf({ name: 'Docs', path: '/dir/Docs', isDirectory: true }))
+      expect(calls.openFolderInNewTab).not.toHaveBeenCalled()
+    })
+
+    it('cancels an in-flight type-to-jump but leaves the cursor and selection alone', () => {
+      createPanePointer(deps).handleMiddleClick(entryOf({ name: 'Docs', path: '/dir/Docs', isDirectory: true }))
+      expect(calls.clearJump).toHaveBeenCalledTimes(1)
+      expect(calls.setCursorIndex).not.toHaveBeenCalled()
+      expect(calls.clearRangeState).not.toHaveBeenCalled()
+    })
   })
 
   describe('clicking a row', () => {

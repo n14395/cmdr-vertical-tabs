@@ -233,17 +233,29 @@ the button, and why only the id travels: `$lib/file-operations/queue/DETAILS.md`
 ## Mouse back / forward buttons
 
 A pointer's dedicated X1/X2 side buttons drive the same `nav.back` / `nav.forward` bus commands as `⌘[` / `⌘]` (issue
-#31), so history walks the same way regardless of input device. `+page.svelte` registers two document listeners that
-both consult `navCommandForMouseButton` (`mouse-nav.ts`, mapping `button === 3 → nav.back`, `4 → nav.forward`):
+#31), so history walks the same way regardless of input device. The buttons reach the dispatch by a different road per
+platform, both mapped in `mouse-nav.ts`.
+
+**macOS: from AppKit** (`navCommandForDirection`). WKWebView doesn't deliver the side buttons to the DOM, so the
+listeners below never fire there (reported against a Logitech MX Master 4, macOS 27, 2026-09-04). `mouse_nav.rs` (in
+`src-tauri/src/`) installs a local `NSEvent` monitor, reads the authoritative `buttonNumber`, and emits the typed
+`mouse-nav` event to the main window; `setupMouseNavListener` (`listener-setup.ts`) turns the direction into the
+dispatch, behind the same `isModalDialogOpen()` guard as everything else. Two properties of that monitor matter here: it
+**swallows** the events it recognizes (so no webview-side reading of an extra button can fire Cmdr's middle-click
+gestures), and it only acts while the MAIN window is focused.
+
+**Linux: from the DOM.** `+page.svelte` registers two document listeners that both consult `navCommandForMouseButton`
+(mapping `button === 3 → nav.back`, `4 → nav.forward`):
 
 - **`mouseup`** dispatches the command (gated by the same `isModalDialogOpen()` guard as the keyboard path, so the
   buttons stay inert while a dialog or overlay is up). The dispatch is left untagged for the cross-source dedup: a mouse
   button has no native-menu twin to double-fire, so it should always pass.
-- **`mousedown`** only `preventDefault`s the side buttons (no dispatch). This is what cancels WKWebView's built-in page
-  back / forward, which would otherwise pop the SvelteKit SPA history (e.g. unwinding a `/settings` visit) underneath
-  us. The suppression can't move to `mouseup` — the webview commits its default nav on the press — so the two halves
-  stay split across the two events. Suppression runs even while a modal is open (we never want the webview navigating
-  itself); only the dispatch is gated.
+- **`mousedown`** only `preventDefault`s the side buttons (no dispatch). This is what cancels the webview's built-in
+  page back / forward, which would otherwise pop the SvelteKit SPA history (e.g. unwinding a `/settings` visit)
+  underneath us. The suppression can't move to `mouseup` — the webview commits its default nav on the press — so the two
+  halves stay split across the two events. Suppression runs even while a modal is open (we never want the webview
+  navigating itself); only the dispatch is gated. On macOS the AppKit monitor above swallows the events first, so these
+  two listeners are the Linux path's alone.
 
 ## Right-click ownership
 

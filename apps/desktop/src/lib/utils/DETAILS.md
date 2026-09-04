@@ -67,6 +67,22 @@ up. The two compose.
 carries two predicates: `isTextInputFocused()` reads `document.activeElement` (keyboard events), and
 `isTextInputTarget(target)` inspects an event target (mouse, where a right-click can land on an unfocused field).
 
+## list-reorder.ts
+
+The index arithmetic behind a reorderable list, with no DOM in sight. `moveItem(items, from, to)` returns the reordered
+copy (a fresh copy unchanged for an out-of-range or no-op move); `clampedReorderTarget(from, delta, length)` is the
+keyboard nudge, `null` at an edge; `pointerInsertionSlot(midpoints, pointerY)` is the raw visual gap a drop line marks
+(`0..length`, counting the row midpoints the pointer sits below); `pointerReorderTarget(midpoints, pointerY, from)` is
+that slot adjusted for the grabbed row being spliced out first, `null` when the drop wouldn't move anything.
+
+The two pointer helpers are a pair on purpose: the CUE draws off the raw slot and the COMMIT off the adjusted target.
+Driving the cue off the target instead puts the drop line one row too high on downward drags.
+
+Two callers, both pointer drags (HTML5 drag-and-drop never fires under Tauri's `dragDropEnabled`): the switcher's
+Favorites section (`$lib/file-explorer/navigation/favorites-controller.svelte.ts`, which also uses the keyboard nudge
+for `⌥↑` / `⌥↓`) and the vertical tab strip (`$lib/file-explorer/tabs/tab-reorder.svelte.ts`). It lives here rather than
+beside either so the two lists can't drift into two different ideas of where a drop lands.
+
 ## version.ts
 
 `compareVersions(a, b)` orders two release strings by their numeric `major.minor.patch` core (negative / zero /

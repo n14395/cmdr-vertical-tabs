@@ -157,6 +157,11 @@
          * a `CommandId` (`'selection.selectFiles'` / `'selection.deselectFiles'`).
          */
         onCommand?: (commandId: CommandId) => void
+        /**
+         * Middle-clicking a folder row asks for it in a new background tab of this
+         * pane. The pane knows the location; the tab managers live in the parent.
+         */
+        onOpenInNewTab?: (location: Location) => void
     }
 
     const {
@@ -186,6 +191,7 @@
         canGoBack = false,
         onGoBack,
         onCommand,
+        onOpenInNewTab,
     }: Props = $props()
 
     let currentPath = $state(untrack(() => initialPath))
@@ -1209,9 +1215,11 @@
         clearRangeState: () => { selection.clearRangeState(); },
         clearJump: () => { jump.clear(); },
         navigateToParent: () => void navigateToParent(),
+        openFolderInNewTab: (location) => onOpenInNewTab?.(location),
     })
     const handleSelect = pointer.handleSelect
     const handleContextMenu = pointer.handleContextMenu
+    const handleMiddleClick = pointer.handleMiddleClick
 
     // Opening an entry (Enter, ⌘↓, double-click, or a popup choice): the redirect
     // arm, the archive/bundle Enter policy, the browse-in-place arm, the viewer
@@ -1779,6 +1787,7 @@
                 onSelect={handleSelect}
                 onNavigate={handleNavigate}
                 onContextMenu={handleContextMenu}
+                onMiddleClick={handleMiddleClick}
                 onSyncStatusRequest={overlays.fetchSyncStatusForPaths}
                 onIndexStatusRequest={overlays.fetchIndexStatusForPaths}
                 onFolderCoverageRequest={overlays.fetchFolderCoverageForPaths}
@@ -1823,6 +1832,7 @@
                 onSelect={handleSelect}
                 onNavigate={handleNavigate}
                 onContextMenu={handleContextMenu}
+                onMiddleClick={handleMiddleClick}
                 onSyncStatusRequest={overlays.fetchSyncStatusForPaths}
                 onIndexStatusRequest={overlays.fetchIndexStatusForPaths}
                 onFolderCoverageRequest={overlays.fetchFolderCoverageForPaths}

@@ -16,6 +16,7 @@
     const shouldShow = $derived(createShouldShow(searchQuery))
 
     const positionDef = getSettingDefinition('appearance.tabBarPosition') ?? { label: '', description: '' }
+    const panesDef = getSettingDefinition('appearance.sideTabPanes') ?? { label: '', description: '' }
     const placementDef = getSettingDefinition('appearance.sideTabPlacement') ?? { label: '', description: '' }
 
     // Read the setting directly and subscribe in-window. `reactive-settings.svelte.ts` is only
@@ -27,8 +28,8 @@
             tabBarPosition = value
         }),
     )
-    // Placement only matters for side tabs, so it greys out while the bar is on top.
-    const placementDisabled = $derived(tabBarPosition !== 'side')
+    // Panes and placement only matter for side tabs, so both grey out while the bar is on top.
+    const sideOnlyDisabled = $derived(tabBarPosition !== 'side')
 </script>
 
 <SettingsSection title={tString('settings.section.tabs')}>
@@ -42,6 +43,16 @@
             <SettingToggleGroup id="appearance.tabBarPosition" />
         </SettingRow>
     {/if}
+    {#if shouldShow('appearance.sideTabPanes')}
+        <SettingRow
+            id="appearance.sideTabPanes"
+            label={panesDef.label}
+            description={panesDef.description}
+            {searchQuery}
+        >
+            <SettingToggleGroup id="appearance.sideTabPanes" disabled={sideOnlyDisabled} />
+        </SettingRow>
+    {/if}
     {#if shouldShow('appearance.sideTabPlacement')}
         <SettingRow
             id="appearance.sideTabPlacement"
@@ -49,7 +60,7 @@
             description={placementDef.description}
             {searchQuery}
         >
-            <SettingToggleGroup id="appearance.sideTabPlacement" disabled={placementDisabled} />
+            <SettingToggleGroup id="appearance.sideTabPlacement" disabled={sideOnlyDisabled} />
         </SettingRow>
     {/if}
 </SettingsSection>

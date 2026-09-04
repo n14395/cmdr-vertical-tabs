@@ -106,6 +106,8 @@
         onSelect: (args: SelectPayload) => void
         onNavigate: (entry: FileEntry) => void
         onContextMenu?: (entry: FileEntry) => void
+        /** Middle-click on a row. The pane decides what it means (a folder opens in a new tab). */
+        onMiddleClick?: (entry: FileEntry) => void
         onSyncStatusRequest?: (paths: string[]) => void
         onIndexStatusRequest?: (paths: string[]) => void
         onFolderCoverageRequest?: (folderPaths: string[]) => void
@@ -165,6 +167,7 @@
         onSelect,
         onNavigate,
         onContextMenu,
+        onMiddleClick,
         onSyncStatusRequest,
         onIndexStatusRequest,
         onFolderCoverageRequest,
@@ -472,6 +475,14 @@
     // Selects and initiates drag tracking. `planRowMouseDown` (full-list-mouse.ts)
     // owns the decision and the drag payload; this only performs it.
     function handleMouseDown(event: MouseEvent, index: number) {
+        // Middle-click is its own gesture (open a folder in a background tab);
+        // the planner below only speaks primary-button selection and drag.
+        if (event.button === 1) {
+            const middleClicked = cache.getEntryAt(index)
+            if (middleClicked) onMiddleClick?.(middleClicked)
+            return
+        }
+
         const plan = planRowMouseDown({
             event,
             index,

@@ -1,14 +1,16 @@
 import { confirmDialog } from '$lib/utils/confirm-dialog'
-import { showTabContextMenu, onTabContextAction, updatePinTabMenu } from '$lib/tauri-commands'
+import { showTabContextMenu, onTabContextAction, updatePinTabMenu, type Location } from '$lib/tauri-commands'
 import { savePaneTabs, type ViewMode } from '$lib/app-status-store'
 import {
   createTabManager,
   getActiveTab,
   addTab,
+  addTabAfter,
   closeTabRecording,
   closeOtherTabsRecording,
   reopenLastClosedTab as reopenLastClosedTabInMgr,
   switchTab,
+  moveTab,
   cycleTab as cycleTabInManager,
   getAllTabs,
   getTabCount,
@@ -17,7 +19,13 @@ import {
   MAX_TABS_PER_PANE,
   type TabManager,
 } from '../tabs/tab-state-manager.svelte'
-import { reportTabClosed, reportTabOpened, reportTabPinToggled, reportTabSwitched } from '../tabs/tab-analytics'
+import {
+  reportTabClosed,
+  reportTabOpened,
+  reportTabPinToggled,
+  reportTabReordered,
+  reportTabSwitched,
+} from '../tabs/tab-analytics'
 import type { TabState, TabId, PersistedTab, PersistedPaneTabs } from '../tabs/tab-types'
 import { createHistory } from '../navigation/navigation-history'
 import { DEFAULT_SORT_BY, defaultSortOrders, type SortColumn } from '../types'
@@ -253,6 +261,45 @@ export function newTab(
   return success
 }
 
+/**
+ * Opens a folder in a new BACKGROUND tab of `pane` (the middle-click gesture).
+ * The tab lands to the right of the active one and inherits its sort + view
+ * mode, so the pane keeps looking the way the user set it up; `activeTabId`
+ * never moves, so no FilePane remount happens.
+ *
+ * Returns false at the tab cap, having said so in a toast — the gesture is
+ * cheap to repeat, so a silent no-op would just look broken.
+ */
+export function openFolderInNewTab(
+  pane: 'left' | 'right',
+  location: Location,
+  getTabMgr: (pane: 'left' | 'right') => TabManager,
+): boolean {
+  const mgr = getTabMgr(pane)
+  const activeTab = getActiveTab(mgr)
+  const tab: TabState = {
+    id: crypto.randomUUID(),
+    path: location.path,
+    volumeId: location.volumeId,
+    history: createHistory(location.volumeId, location.path),
+    sortBy: activeTab.sortBy,
+    sortOrder: activeTab.sortOrder,
+    viewMode: activeTab.viewMode,
+    pinned: false,
+    cursorFilename: null,
+    unreachable: null,
+  }
+
+  const success = addTabAfter(mgr, activeTab.id, tab)
+  if (success) {
+    saveTabsForPane(pane, getTabMgr)
+  } else {
+    addToast(tString('fileExplorer.tabs.limitReached'), { level: 'warn' })
+  }
+  reportTabOpened('folder', success ? 'opened' : 'atCap', getTabCount(mgr))
+  return success
+}
+
 /** Closes the active tab with pinned confirmation if needed. */
 export async function closeActiveTabWithConfirmation(
   focusedPane: 'left' | 'right',
@@ -376,6 +423,24 @@ export function switchToTab(
   reportTabSwitched('pick')
   saveTabsForPane(pane, getTabMgr)
   if (pane === focusedPane) syncPinTabMenuForPane(focusedPane, getTabMgr)
+  return true
+}
+
+/**
+ * Drops a dragged tab at `toIndex` in `pane` (the side strip's reorder gesture).
+ * The active tab is untouched, so nothing remounts; the new order is persisted like
+ * every other tab mutation. Returns false for a no-op move, which persists nothing.
+ */
+export function reorderTab(
+  pane: 'left' | 'right',
+  tabId: TabId,
+  toIndex: number,
+  getTabMgr: (pane: 'left' | 'right') => TabManager,
+): boolean {
+  const mgr = getTabMgr(pane)
+  if (!moveTab(mgr, tabId, toIndex)) return false
+  saveTabsForPane(pane, getTabMgr)
+  reportTabReordered(getTabCount(mgr))
   return true
 }
 

@@ -35,7 +35,7 @@
     import { canGoBack, type NavigationHistory } from '../navigation/navigation-history'
     import TabBar from '../tabs/TabBar.svelte'
     import TabStripResizer from '../tabs/TabStripResizer.svelte'
-    import { stripIsAfterPane, DEFAULT_TAB_STRIP_WIDTH } from '../tabs/tab-strip-layout'
+    import { paneShowsSideTabs, stripIsAfterPane, DEFAULT_TAB_STRIP_WIDTH } from '../tabs/tab-strip-layout'
     import {
         getActiveTab,
         getAllTabs,
@@ -53,6 +53,7 @@
         handleTabContextMenu as tabOpsHandleTabContextMenu,
         handleNewTab as tabOpsHandleNewTab,
         newTab as tabOpsNewTab,
+        openFolderInNewTab as tabOpsOpenFolderInNewTab,
         closeActiveTabWithConfirmation as tabOpsCloseActiveTabWithConfirmation,
         togglePinActiveTab as tabOpsTogglePinActiveTab,
         closeOtherTabsInFocusedPane as tabOpsCloseOtherTabs,
@@ -60,6 +61,7 @@
         syncPinTabMenuForPane,
         cycleTab as tabOpsCycleTab,
         switchToTab as tabOpsSwitchToTab,
+        reorderTab as tabOpsReorderTab,
     } from './tab-operations'
     import { initNetworkDiscovery, cleanupNetworkDiscovery } from '../network/network-store.svelte'
     import { initVolumeStore, getVolumes as getStoreVolumes, cleanupVolumeStore } from '$lib/stores/volume-store.svelte'
@@ -108,6 +110,7 @@
     import {
         getDirectorySortMode,
         getShowHiddenFiles,
+        getSideTabPanes,
         getSideTabPlacement,
         getTabBarPosition,
     } from '$lib/settings/reactive-settings.svelte'
@@ -172,9 +175,12 @@
     // (`setFocusedPane` / `setLeftPaneWidthPercent`).
     const focusedPane = $derived(explorerState.getFocusedPane())
     const leftPaneWidthPercent = $derived(explorerState.getLeftPaneWidthPercent())
-    // Side (vertical) tabs: the position/placement SETTINGS plus the strip width,
-    // which is layout state like the pane split (drag-resized, drag-end persisted).
+    // Side (vertical) tabs: the position/panes/placement SETTINGS plus the strip
+    // width, which is layout state like the pane split (drag-resized, drag-end
+    // persisted). `sideTabs` is the mode; whether a given pane actually shows a
+    // strip is per-pane (`paneShowsSideTabs`), for the mixed mode.
     const sideTabs = $derived(getTabBarPosition() === 'side')
+    const sideTabPanes = $derived(getSideTabPanes())
     const sideTabPlacement = $derived(getSideTabPlacement())
     const sideTabStripWidth = $derived(explorerState.getSideTabStripWidth())
     // Dotfile visibility is the `listing.showHiddenFiles` SETTING, not pane state:
@@ -1249,6 +1255,11 @@
         )
     }
 
+    /** Middle-click on a folder row: a background tab for it, in the pane that was clicked. */
+    function openFolderInNewTab(pane: 'left' | 'right', location: Location) {
+        tabOpsOpenFolderInNewTab(pane, location, getTabMgr)
+    }
+
     function handleTabContextMenu(pane: 'left' | 'right', tabId: TabId, event: MouseEvent) {
         void tabOpsHandleTabContextMenu(
             pane,
@@ -1312,10 +1323,11 @@
 
 {#snippet paneBlock(paneId: 'left' | 'right')}
     {@const tabMgr = getTabMgr(paneId)}
-    {@const stripAfter = sideTabs && stripIsAfterPane(paneId, sideTabPlacement)}
+    {@const paneSideTabs = sideTabs && paneShowsSideTabs(paneId, sideTabPanes)}
+    {@const stripAfter = paneSideTabs && stripIsAfterPane(paneId, sideTabPlacement)}
     <div
         class="pane-wrapper"
-        class:tabs-side={sideTabs}
+        class:tabs-side={paneSideTabs}
         class:tabs-side-after={stripAfter}
         class:drop-target-active={dragDrop.getDropTargetPane() === paneId}
         style="width: {getPaneWidth(paneId)}%"
@@ -1326,7 +1338,7 @@
             activeTabId={tabMgr.activeTabId}
             {paneId}
             maxTabs={MAX_TABS_PER_PANE}
-            orientation={sideTabs ? 'vertical' : 'horizontal'}
+            orientation={paneSideTabs ? 'vertical' : 'horizontal'}
             stripWidth={sideTabStripWidth}
             onTabSwitch={(tabId: TabId) => {
                 switchToTab(paneId, tabId)
@@ -1346,8 +1358,11 @@
             onPaneFocus={() => {
                 handleFocus(paneId)
             }}
+            onTabReorder={(tabId: TabId, toIndex: number) => {
+                tabOpsReorderTab(paneId, tabId, toIndex, getTabMgr)
+            }}
         />
-        {#if sideTabs}
+        {#if paneSideTabs}
             <TabStripResizer
                 currentWidth={sideTabStripWidth}
                 stripIsAfter={stripAfter}
@@ -1413,6 +1428,9 @@
                     navigateIntent({ pane: paneId, to: { history: 'back' }, source: 'user' })
                 }}
                 {onCommand}
+                onOpenInNewTab={(location: Location) => {
+                    openFolderInNewTab(paneId, location)
+                }}
             />
         {/key}
     </div>

@@ -44,6 +44,7 @@ describe('TabBar a11y', () => {
         onNewTab: noop,
         onContextMenu: noop,
         onPaneFocus: noop,
+        onTabReorder: noop,
       },
     })
     await tick()
@@ -70,6 +71,7 @@ describe('TabBar a11y', () => {
         onNewTab: noop,
         onContextMenu: noop,
         onPaneFocus: noop,
+        onTabReorder: noop,
       },
     })
     await tick()
@@ -92,6 +94,7 @@ describe('TabBar a11y', () => {
         onNewTab: noop,
         onContextMenu: noop,
         onPaneFocus: noop,
+        onTabReorder: noop,
       },
     })
     await tick()
@@ -116,6 +119,7 @@ describe('TabBar a11y', () => {
         onNewTab: noop,
         onContextMenu: noop,
         onPaneFocus: noop,
+        onTabReorder: noop,
       },
     })
     await tick()
@@ -161,6 +165,7 @@ describe('TabBar double-click empty area', () => {
         onNewTab,
         onContextMenu: noop,
         onPaneFocus: noop,
+        onTabReorder: noop,
       },
     })
     await tick()

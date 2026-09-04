@@ -16,6 +16,7 @@ export type {
   FullDiskAccessChoice,
   SettingId,
   SettingsValues,
+  SideTabPanes,
   SideTabPlacement,
   SizeColorsPalette,
   DateColorsPalette,

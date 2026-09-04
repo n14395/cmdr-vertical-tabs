@@ -5,7 +5,7 @@
  * `TabStripResizer.svelte`; wiring in `pane/DualPaneExplorer.svelte`.
  */
 
-import type { SideTabPlacement } from '$lib/settings'
+import type { SideTabPanes, SideTabPlacement } from '$lib/settings'
 
 /** Default side tab strip width in px, matching the horizontal mode's max tab width. */
 export const DEFAULT_TAB_STRIP_WIDTH = 180
@@ -19,6 +19,15 @@ export const MAX_TAB_STRIP_WIDTH = 400
 /** Clamps a dragged or persisted strip width into the allowed range. */
 export function clampTabStripWidth(px: number): number {
   return Math.max(MIN_TAB_STRIP_WIDTH, Math.min(MAX_TAB_STRIP_WIDTH, px))
+}
+
+/**
+ * Whether a pane shows a side tab strip at all, for the mixed mode where only
+ * one pane goes vertical (`appearance.sideTabPanes`) and the other keeps its
+ * horizontal bar. Only consulted while `appearance.tabBarPosition` is `'side'`.
+ */
+export function paneShowsSideTabs(paneId: 'left' | 'right', panes: SideTabPanes): boolean {
+  return panes === 'both' || panes === paneId
 }
 
 /**

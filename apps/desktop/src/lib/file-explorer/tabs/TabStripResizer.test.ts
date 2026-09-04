@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { mount, tick } from 'svelte'
 import TabStripResizer from './TabStripResizer.svelte'
 import { MAX_TAB_STRIP_WIDTH, MIN_TAB_STRIP_WIDTH } from './tab-strip-layout'
@@ -12,9 +12,11 @@ import { MAX_TAB_STRIP_WIDTH, MIN_TAB_STRIP_WIDTH } from './tab-strip-layout'
 
 describe('TabStripResizer', () => {
   let target: HTMLElement
-  let onResize: ReturnType<typeof vi.fn>
-  let onResizeEnd: ReturnType<typeof vi.fn>
-  let onReset: ReturnType<typeof vi.fn>
+  // Typed mocks, not bare `vi.fn()`: the component's props are typed callbacks,
+  // and an untyped `Mock` doesn't satisfy them.
+  let onResize: Mock<(widthPx: number) => void>
+  let onResizeEnd: Mock<() => void>
+  let onReset: Mock<() => void>
 
   // happy-dom doesn't track pointer capture; a per-file stub stands in so the
   // component's hasPointerCapture guard sees the same capture state a real
@@ -28,9 +30,9 @@ describe('TabStripResizer', () => {
     document.body.innerHTML = ''
     target = document.createElement('div')
     document.body.appendChild(target)
-    onResize = vi.fn()
-    onResizeEnd = vi.fn()
-    onReset = vi.fn()
+    onResize = vi.fn<(widthPx: number) => void>()
+    onResizeEnd = vi.fn<() => void>()
+    onReset = vi.fn<() => void>()
   })
 
   async function mountResizer(stripIsAfter: boolean): Promise<HTMLElement> {

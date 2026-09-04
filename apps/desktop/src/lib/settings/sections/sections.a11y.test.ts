@@ -445,12 +445,13 @@ describe('TabsSection a11y', () => {
   useSettings((key: string) => {
     if (key === 'appearance.tabBarPosition') return 'top'
     if (key === 'appearance.sideTabPlacement') return 'left'
+    if (key === 'appearance.sideTabPanes') return 'both'
     return undefined
   })
 
-  // Default = top position, so the placement toggle group renders DISABLED —
-  // the state the a11y contract has to hold for too.
-  it('default (placement disabled) has no a11y violations', async () => {
+  // Default = top position, so the panes + placement toggle groups render
+  // DISABLED — the state the a11y contract has to hold for too.
+  it('default (side-only rows disabled) has no a11y violations', async () => {
     const target = container()
     mount(TabsSection, { target, props: { searchQuery: '' } })
     await tick()

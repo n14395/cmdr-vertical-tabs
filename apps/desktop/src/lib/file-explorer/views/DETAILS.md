@@ -74,7 +74,9 @@ refs, and the row template). Four siblings hold the rest, each with its own suit
 - **`full-list-git-column.svelte.ts`** — the repo-relative status map and its watcher subscription. `watch()` returns a
   teardown, so the host's `$effect` cancels an in-flight load when the directory changes.
 - **`full-list-mouse.ts`** — the pure mousedown plan (ignore / select / drag) and the drag payload, including the
-  paths-by-value flavour a static-entries pane needs.
+  paths-by-value flavour a static-entries pane needs. It speaks PRIMARY button only: the middle-click branch sits above
+  the call in both views, which just hand the row's entry to `onMiddleClick` and let the pane decide what it means
+  (`pane/pane-pointer.ts`: a folder opens in a background tab).
 - **`FullListHeader.svelte`** — the column header, rendered above the scroll container. It owns `.header-row` /
   `.header-icon` / `.header-name-ext` / `.header-git` (all self-contained: no rule reaches outside the header's own
   sub-tree), and takes a `scrollbarWidth` prop it spends on its right padding (see § Key decisions).

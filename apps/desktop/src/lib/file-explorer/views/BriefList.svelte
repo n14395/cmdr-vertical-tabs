@@ -100,6 +100,8 @@
         onSelect: (args: SelectPayload) => void
         onNavigate: (entry: FileEntry) => void
         onContextMenu?: (entry: FileEntry) => void
+        /** Middle-click on a row. The pane decides what it means (a folder opens in a new tab). */
+        onMiddleClick?: (entry: FileEntry) => void
         onSyncStatusRequest?: (paths: string[]) => void
         onIndexStatusRequest?: (paths: string[]) => void
         onFolderCoverageRequest?: (folderPaths: string[]) => void
@@ -145,6 +147,7 @@
         onSelect,
         onNavigate,
         onContextMenu,
+        onMiddleClick,
         onSyncStatusRequest,
         onIndexStatusRequest,
         onFolderCoverageRequest,
@@ -479,6 +482,13 @@
 
     // Handle file mousedown - selects and initiates drag tracking
     function handleMouseDown(event: MouseEvent, index: number) {
+        // Middle-click is its own gesture (open a folder in a background tab);
+        // everything below is primary-button selection and drag.
+        if (event.button === 1) {
+            const middleClicked = getEntryAt(index)
+            if (middleClicked) onMiddleClick?.(middleClicked)
+            return
+        }
         if (event.button !== 0) return
 
         // Let clicks inside the inline rename input pass through without

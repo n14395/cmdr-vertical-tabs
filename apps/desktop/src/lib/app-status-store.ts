@@ -189,50 +189,22 @@ export function saveAppStatus(status: Partial<AppStatus>): void {
   }, SAVE_DEBOUNCE_MS)
 }
 
+/**
+ * Writes the keys the caller actually set, then saves once.
+ *
+ * Key-driven rather than a branch per field: `DEFAULT_STATUS` already names
+ * every persisted key, so walking it keeps the write set and the load set from
+ * drifting (a new `AppStatus` field is persisted the moment it has a default,
+ * with no save branch to forget), and it retires a chain of identical
+ * `if (status.x !== undefined)` arms that tripped the complexity limit as it
+ * grew. A key the caller left out stays untouched on disk.
+ */
 async function doSaveAppStatus(status: Partial<AppStatus>): Promise<void> {
   try {
     const store = await getStore()
-    if (status.leftPath !== undefined) {
-      await store.set('leftPath', status.leftPath)
-    }
-    if (status.rightPath !== undefined) {
-      await store.set('rightPath', status.rightPath)
-    }
-    if (status.focusedPane !== undefined) {
-      await store.set('focusedPane', status.focusedPane)
-    }
-    if (status.leftViewMode !== undefined) {
-      await store.set('leftViewMode', status.leftViewMode)
-    }
-    if (status.rightViewMode !== undefined) {
-      await store.set('rightViewMode', status.rightViewMode)
-    }
-    if (status.leftVolumeId !== undefined) {
-      await store.set('leftVolumeId', status.leftVolumeId)
-    }
-    if (status.rightVolumeId !== undefined) {
-      await store.set('rightVolumeId', status.rightVolumeId)
-    }
-    if (status.leftSortBy !== undefined) {
-      await store.set('leftSortBy', status.leftSortBy)
-    }
-    if (status.rightSortBy !== undefined) {
-      await store.set('rightSortBy', status.rightSortBy)
-    }
-    if (status.leftPaneWidthPercent !== undefined) {
-      await store.set('leftPaneWidthPercent', status.leftPaneWidthPercent)
-    }
-    if (status.sideTabStripWidth !== undefined) {
-      await store.set('sideTabStripWidth', status.sideTabStripWidth)
-    }
-    if (status.askCmdrRailOpen !== undefined) {
-      await store.set('askCmdrRailOpen', status.askCmdrRailOpen)
-    }
-    if (status.askCmdrRailWidth !== undefined) {
-      await store.set('askCmdrRailWidth', status.askCmdrRailWidth)
-    }
-    if (status.firstRunLayoutApplied !== undefined) {
-      await store.set('firstRunLayoutApplied', status.firstRunLayoutApplied)
+    for (const key of Object.keys(DEFAULT_STATUS) as (keyof AppStatus)[]) {
+      const value = status[key]
+      if (value !== undefined) await store.set(key, value)
     }
     await store.save()
   } catch {
