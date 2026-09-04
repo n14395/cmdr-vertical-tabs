@@ -802,6 +802,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Cerrar pestañas para la barra superior",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Mover la barra de pestañas arriba cierra {countText} pestaña. Las pestañas fijadas y la pestaña actual siguen abiertas.} many {Mover la barra de pestañas arriba cierra {countText} pestañas. Las pestañas fijadas y la pestaña actual siguen abiertas.} other {Mover la barra de pestañas arriba cierra {countText} pestañas. Las pestañas fijadas y la pestaña actual siguen abiertas.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Volumen de solo lectura",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

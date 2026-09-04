@@ -803,6 +803,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Fechar abas para a barra superior",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Mover a barra de abas para cima fecha {countText} aba. As abas fixadas e a aba atual continuam abertas.} many {Mover a barra de abas para cima fecha {countText} abas. As abas fixadas e a aba atual continuam abertas.} other {Mover a barra de abas para cima fecha {countText} abas. As abas fixadas e a aba atual continuam abertas.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Volume somente leitura",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

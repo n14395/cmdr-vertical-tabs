@@ -21,8 +21,12 @@ import { trackEvent } from '$lib/tauri-commands'
 /** How a tab came to exist. `folder` is the middle-click on a folder row. */
 export type TabOpenSource = 'new' | 'reopened' | 'folder'
 
-/** How a tab (or a set of them) was asked to close. */
-export type TabCloseSource = 'single' | 'others'
+/**
+ * How a tab (or a set of them) was asked to close. `capTrim` is the overflow
+ * closed when a pane switches from the side strip back to the horizontal bar,
+ * whose cap is lower.
+ */
+export type TabCloseSource = 'single' | 'others' | 'capTrim'
 
 /**
  * How an open attempt ended. The two refusals are counted for the same reason
@@ -41,9 +45,9 @@ export type TabSwitchMethod = 'cycle' | 'pick'
  * Reports a tab open attempt.
  *
  * `openTabs` is the RAW count, not an `item_count_bucket`: a pane caps at ten
- * tabs, and that bucketing puts the entire range into two values (`1` and
- * `2-10`), which throws the answer away for no privacy gain. Ten possible
- * integers is low cardinality and identifies nobody.
+ * tabs on the horizontal bar and fifty on the side strip, and that bucketing
+ * collapses most of the range into a couple of values, which throws the answer
+ * away for no privacy gain. A bounded small integer identifies nobody.
  */
 export function reportTabOpened(source: TabOpenSource, outcome: TabOpenOutcome, openTabs: number): void {
   void trackEvent('tab_opened', { source, outcome, open_tabs: openTabs })

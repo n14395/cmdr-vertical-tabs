@@ -799,6 +799,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "关闭标签页以适应顶部标签栏",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, other {将标签栏移到顶部会关闭 {countText} 个标签页。已固定的标签页和当前标签页会保持打开。}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "只读宗卷",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

@@ -115,7 +115,8 @@
 
 import type { FilePaneAPI } from './types'
 import type { TabManager } from '../tabs/tab-state-manager.svelte'
-import { getActiveTab, pushHistoryEntry, MAX_TABS_PER_PANE } from '../tabs/tab-state-manager.svelte'
+import { getActiveTab, pushHistoryEntry } from '../tabs/tab-state-manager.svelte'
+import { currentMaxTabsForPane } from './tab-operations'
 import type { TabState } from '../tabs/tab-types'
 import {
   pushPath,
@@ -250,7 +251,7 @@ export interface NavigateDeps {
   /** Persistence trigger fed to the single nav-state persistence subscriber (A5). */
   persist: (event: PersistEvent) => void
   /**
-   * Warn toast (the `MAX_TABS_PER_PANE` "Tab limit reached" branch). Takes the
+   * Warn toast (the per-pane tab-cap "Tab limit reached" branch). Takes the
    * forking pane so the refusal is tagged to it and clears on that pane's next
    * navigation, not the other pane's.
    */
@@ -439,7 +440,7 @@ function spliceNewUnpinnedTab(mgr: TabManager, activeTab: TabState, target: { vo
 /**
  * The VOLUME-SWITCH half of the pinned-tab fork (L7, folds `handleVolumeChange`'s
  * pinned branch, DPE:618). When the active tab is pinned and the destination
- * volume/path differs, open a NEW unpinned tab; at `MAX_TABS_PER_PANE`, toast and
+ * volume/path differs, open a NEW unpinned tab; at the pane's tab cap, toast and
  * fall through to in-place. Returns `true` when a new tab was opened (caller skips
  * the in-place commit). The OLD path's last-used-path pre-save happens in
  * `commitVolumeSwitch` (the OLD path), so the fork itself only persists tab state.
@@ -454,7 +455,7 @@ function tryPinnedVolumeFork(
 
   if (!activeTab.pinned || (target.volumeId === activeTab.volumeId && target.path === activeTab.path)) return false
 
-  if (mgr.tabs.length >= MAX_TABS_PER_PANE) {
+  if (mgr.tabs.length >= currentMaxTabsForPane(pane)) {
     deps.addToast(pane, tString('fileExplorer.tabs.limitReached'), { level: 'warn' })
     return false // fall through to in-place
   }
@@ -800,7 +801,7 @@ export function commitPathFromListing(deps: NavigateDeps, pane: 'left' | 'right'
  * The pinned-tab fork for an in-place path landing (the same-volume half of L7,
  * folded from `handlePathChange`'s pinned branch). When the active tab is pinned
  * and the landed `path` differs, open a NEW unpinned tab (same volume) carrying
- * the path; at `MAX_TABS_PER_PANE`, toast and fall through to in-place. Returns
+ * the path; at the pane's tab cap, toast and fall through to in-place. Returns
  * `true` when a new tab was opened (the caller skips the in-place commit), `false`
  * to fall through to the in-place commit (not pinned, same path, or at cap).
  */
@@ -809,7 +810,7 @@ function commitPinnedPathFork(deps: NavigateDeps, pane: 'left' | 'right', path: 
   const activeTab = getActiveTab(mgr)
   if (!activeTab.pinned || path === activeTab.path) return false
 
-  if (mgr.tabs.length >= MAX_TABS_PER_PANE) {
+  if (mgr.tabs.length >= currentMaxTabsForPane(pane)) {
     deps.addToast(pane, tString('fileExplorer.tabs.limitReached'), { level: 'warn' })
     return false // fall through to in-place
   }

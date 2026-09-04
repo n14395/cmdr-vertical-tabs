@@ -16,9 +16,12 @@ import {
   getTabCount,
   pinTab,
   unpinTab,
+  selectTabsToCloseForCap,
   MAX_TABS_PER_PANE,
   type TabManager,
 } from '../tabs/tab-state-manager.svelte'
+import { maxTabsForPane } from '../tabs/tab-strip-layout'
+import { getSideTabPanes, getTabBarPosition } from '$lib/settings/reactive-settings.svelte'
 import {
   reportTabClosed,
   reportTabOpened,
@@ -91,6 +94,15 @@ export function buildPersistedPaneTabs(mgr: TabManager): PersistedPaneTabs {
 
 export function saveTabsForPane(pane: 'left' | 'right', getTabMgr: (pane: 'left' | 'right') => TabManager) {
   void savePaneTabs(pane, buildPersistedPaneTabs(getTabMgr(pane)))
+}
+
+/**
+ * This pane's tab cap right now, resolved from the live tab-bar settings. The
+ * reactive read is why this lives here and not in the pure `tab-strip-layout.ts`;
+ * `navigate.ts` shares it so every cap check in the app agrees on one answer.
+ */
+export function currentMaxTabsForPane(pane: 'left' | 'right'): number {
+  return maxTabsForPane(pane, getTabBarPosition(), getSideTabPanes())
 }
 
 // --- Tab bar handlers ---
@@ -250,7 +262,7 @@ export function newTab(
     unreachable: null,
   }
 
-  const success = addTab(mgr, activeTab.id, cloneTab)
+  const success = addTab(mgr, activeTab.id, cloneTab, currentMaxTabsForPane(focusedPane))
   if (success && wasPinned) {
     unpinTab(mgr, activeTab.id)
   }
@@ -290,7 +302,7 @@ export function openFolderInNewTab(
     unreachable: null,
   }
 
-  const success = addTabAfter(mgr, activeTab.id, tab)
+  const success = addTabAfter(mgr, activeTab.id, tab, currentMaxTabsForPane(pane))
   if (success) {
     saveTabsForPane(pane, getTabMgr)
   } else {
@@ -348,13 +360,49 @@ export function closeOtherTabsInFocusedPane(
   saveTabsForPane(focusedPane, getTabMgr)
 }
 
+/**
+ * How many tabs a switch to the horizontal bar would close in `pane`, without
+ * touching anything. Feeds the confirmation's count; `trimPaneToHorizontalCap`
+ * then closes exactly this set, so the number the user agreed to is the number
+ * that goes.
+ */
+export function countTabsOverHorizontalCap(
+  pane: 'left' | 'right',
+  getTabMgr: (pane: 'left' | 'right') => TabManager,
+): number {
+  return selectTabsToCloseForCap(getTabMgr(pane), MAX_TABS_PER_PANE).length
+}
+
+/**
+ * Closes `pane`'s overflow so it fits the horizontal bar, once the user has
+ * confirmed. Closes are RECORDED, so Cmd+Shift+T walks them back (up to the
+ * closed-stack cap) if the switch turns out to be a mistake. Returns how many
+ * actually closed.
+ */
+export function trimPaneToHorizontalCap(
+  pane: 'left' | 'right',
+  getTabMgr: (pane: 'left' | 'right') => TabManager,
+  getClosedTabsCap: () => number,
+): number {
+  const mgr = getTabMgr(pane)
+  const toClose = selectTabsToCloseForCap(mgr, MAX_TABS_PER_PANE)
+  if (toClose.length === 0) return 0
+
+  for (const tabId of toClose) {
+    closeTabRecording(mgr, tabId, getClosedTabsCap())
+  }
+  reportTabClosed('capTrim', 'closed', getTabCount(mgr), false)
+  saveTabsForPane(pane, getTabMgr)
+  return toClose.length
+}
+
 /** Reopens the most-recently-closed tab in the focused pane. */
 export function reopenLastClosedTabInPane(
   focusedPane: 'left' | 'right',
   getTabMgr: (pane: 'left' | 'right') => TabManager,
 ): 'reopened' | 'empty' | 'cap' {
   const mgr = getTabMgr(focusedPane)
-  const result = reopenLastClosedTabInMgr(mgr, MAX_TABS_PER_PANE)
+  const result = reopenLastClosedTabInMgr(mgr, currentMaxTabsForPane(focusedPane))
   if ('reopened' in result) {
     saveTabsForPane(focusedPane, getTabMgr)
     reportTabOpened('reopened', 'opened', getTabCount(mgr))

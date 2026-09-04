@@ -1,3 +1,11 @@
+> **This is a fork of Cmdr with a few changes:**
+>
+> - Vertical tabs (limit increased to 50 tabs) and some related settings
+> - Responds to mouse back and forward buttons
+> - Middle-click to open a folder in a new tab, and to close tabs
+>
+> Please read the [LICENSE](LICENSE): this app is for non-commercial use.
+
 # Cmdr
 
 ![License](https://img.shields.io/badge/license-BSL--1.1-blue)

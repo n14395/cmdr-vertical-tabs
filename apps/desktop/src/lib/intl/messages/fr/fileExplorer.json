@@ -802,6 +802,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Fermer des onglets pour la barre du haut",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Déplacer la barre d''onglets en haut ferme {countText} onglet. Les onglets épinglés et l''onglet actuel restent ouverts.} many {Déplacer la barre d''onglets en haut ferme {countText} onglets. Les onglets épinglés et l''onglet actuel restent ouverts.} other {Déplacer la barre d''onglets en haut ferme {countText} onglets. Les onglets épinglés et l''onglet actuel restent ouverts.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Volume en lecture seule",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

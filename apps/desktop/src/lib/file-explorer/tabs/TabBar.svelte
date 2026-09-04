@@ -693,9 +693,9 @@
         box-shadow: inset 0 -2px 0 0 var(--color-accent);
     }
 
-    /* Below the tab list, indented to line up with the rows' labels. */
-    .tab-bar.vertical .new-tab-btn {
-        align-self: flex-start;
-        margin-left: var(--spacing-xxs);
-    }
+    /* The new-tab button sits below the list, centred across the strip. No rule
+       needed: the base `.new-tab-btn` already carries `align-self: center`, which
+       in this column flexbox centres it horizontally. Don't reintroduce a
+       `flex-start` + left indent — with a scrolling list above it, a centred
+       target reads as belonging to the whole strip rather than to the last row. */
 </style>

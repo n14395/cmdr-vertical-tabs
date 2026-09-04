@@ -799,6 +799,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "關閉分頁以符合頂端分頁列",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, other {將分頁列移至頂端會關閉 {countText} 個分頁。已釘選的分頁和目前分頁會保持開啟。}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "唯讀卷宗",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

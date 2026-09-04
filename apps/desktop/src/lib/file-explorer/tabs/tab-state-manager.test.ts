@@ -22,6 +22,8 @@ import {
   getAllTabs,
   getTabCount,
   MAX_TABS_PER_PANE,
+  MAX_TABS_PER_PANE_SIDE,
+  selectTabsToCloseForCap,
   pushHistoryEntry,
 } from './tab-state-manager.svelte'
 import {
@@ -77,7 +79,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       // Simulate a stale activeTabId
       mgr.activeTabId = 'nonexistent-id'
@@ -95,7 +97,7 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
 
       const tab2 = makeTab({ id: 'tab-2' })
-      const result = addTab(mgr, 'tab-1', tab2)
+      const result = addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       expect(result).toBe(true)
       expect(getTabCount(mgr)).toBe(2)
@@ -112,13 +114,13 @@ describe('tab-state-manager', () => {
 
       for (let i = 1; i < MAX_TABS_PER_PANE; i++) {
         const tab = makeTab({ id: `tab-${String(i)}` })
-        addTab(mgr, mgr.activeTabId, tab)
+        addTab(mgr, mgr.activeTabId, tab, MAX_TABS_PER_PANE)
       }
 
       expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
 
       const extraTab = makeTab({ id: 'tab-extra' })
-      const result = addTab(mgr, mgr.activeTabId, extraTab)
+      const result = addTab(mgr, mgr.activeTabId, extraTab, MAX_TABS_PER_PANE)
 
       expect(result).toBe(false)
       expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
@@ -129,7 +131,7 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
 
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'nonexistent', tab2)
+      addTab(mgr, 'nonexistent', tab2, MAX_TABS_PER_PANE)
 
       expect(getAllTabs(mgr)[1].id).toBe('tab-2')
     })
@@ -138,9 +140,9 @@ describe('tab-state-manager', () => {
   describe('addTabAfter', () => {
     it('inserts to the right of the given tab without changing activeTabId', () => {
       const mgr = createTabManager(makeTab({ id: 'tab-1' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-0' })) // [tab-0, tab-1], active tab-1
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-0' }), MAX_TABS_PER_PANE) // [tab-0, tab-1], active tab-1
 
-      const result = addTabAfter(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
+      const result = addTabAfter(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
 
       expect(result).toBe(true)
       expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-0', 'tab-1', 'tab-2'])
@@ -150,15 +152,15 @@ describe('tab-state-manager', () => {
 
     it('keeps repeated opens in click order', () => {
       const mgr = createTabManager(makeTab({ id: 'tab-1' }))
-      addTabAfter(mgr, 'tab-1', makeTab({ id: 'first' }))
-      addTabAfter(mgr, 'tab-1', makeTab({ id: 'second' }))
+      addTabAfter(mgr, 'tab-1', makeTab({ id: 'first' }), MAX_TABS_PER_PANE)
+      addTabAfter(mgr, 'tab-1', makeTab({ id: 'second' }), MAX_TABS_PER_PANE)
 
       expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-1', 'second', 'first'])
     })
 
     it('appends at end when afterTabId is not found', () => {
       const mgr = createTabManager(makeTab({ id: 'tab-1' }))
-      addTabAfter(mgr, 'nonexistent', makeTab({ id: 'tab-2' }))
+      addTabAfter(mgr, 'nonexistent', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
 
       expect(getAllTabs(mgr).map((t) => t.id)).toEqual(['tab-1', 'tab-2'])
     })
@@ -166,10 +168,10 @@ describe('tab-state-manager', () => {
     it('returns false at cap (10 tabs)', () => {
       const mgr = createTabManager(makeTab({ id: 'tab-0' }))
       for (let i = 1; i < MAX_TABS_PER_PANE; i++) {
-        addTab(mgr, mgr.activeTabId, makeTab({ id: `tab-${String(i)}` }))
+        addTab(mgr, mgr.activeTabId, makeTab({ id: `tab-${String(i)}` }), MAX_TABS_PER_PANE)
       }
 
-      expect(addTabAfter(mgr, mgr.activeTabId, makeTab({ id: 'tab-extra' }))).toBe(false)
+      expect(addTabAfter(mgr, mgr.activeTabId, makeTab({ id: 'tab-extra' }), MAX_TABS_PER_PANE)).toBe(false)
       expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
     })
   })
@@ -179,7 +181,7 @@ describe('tab-state-manager', () => {
     function managerWithTabs(count: number) {
       const mgr = createTabManager(makeTab({ id: 'tab-0' }))
       for (let i = 1; i < count; i++) {
-        addTabAfter(mgr, `tab-${String(i - 1)}`, makeTab({ id: `tab-${String(i)}` }))
+        addTabAfter(mgr, `tab-${String(i - 1)}`, makeTab({ id: `tab-${String(i)}` }), MAX_TABS_PER_PANE)
       }
       return mgr
     }
@@ -239,8 +241,8 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3' })
-      addTab(mgr, 'tab-1', tab2)
-      addTab(mgr, 'tab-1', tab3)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE)
       // Order: tab-2, tab-3, tab-1. Active is still tab-1.
       // Set active to tab-3 for this test
       mgr.activeTabId = 'tab-3'
@@ -255,7 +257,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       // Order: tab-2, tab-1. Make tab-1 active (rightmost)
       mgr.activeTabId = 'tab-1'
 
@@ -278,7 +280,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       // Active is tab-2, close tab-1
       mgr.activeTabId = 'tab-2'
 
@@ -295,8 +297,8 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3' })
-      addTab(mgr, 'tab-1', tab2)
-      addTab(mgr, 'tab-1', tab3)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE)
 
       closeOtherTabs(mgr, 'tab-1')
 
@@ -310,8 +312,8 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3', pinned: true })
-      addTab(mgr, 'tab-1', tab2)
-      addTab(mgr, 'tab-1', tab3)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE)
 
       closeOtherTabs(mgr, 'tab-1')
 
@@ -328,7 +330,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       mgr.activeTabId = 'tab-1'
 
       const result = switchTab(mgr, 'tab-2', 'document.txt')
@@ -343,7 +345,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       mgr.activeTabId = 'tab-1'
 
       const result = switchTab(mgr, 'tab-2', null)
@@ -390,8 +392,8 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3' })
-      addTab(mgr, 'tab-1', tab2)
-      addTab(mgr, 'tab-1', tab3)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE)
       // Order: tab-2, tab-3, tab-1
       mgr.activeTabId = 'tab-1'
 
@@ -407,8 +409,8 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3' })
-      addTab(mgr, 'tab-1', tab2)
-      addTab(mgr, 'tab-1', tab3)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE)
       // Order: tab-2, tab-3, tab-1
       mgr.activeTabId = 'tab-2'
 
@@ -425,9 +427,9 @@ describe('tab-state-manager', () => {
       const tab2 = makeTab({ id: 'tab-2' })
       const tab3 = makeTab({ id: 'tab-3' })
       const tab4 = makeTab({ id: 'tab-4' })
-      addTab(mgr, 'tab-1', tab2) // Order: tab-2, tab-1
-      addTab(mgr, 'tab-1', tab3) // Order: tab-2, tab-3, tab-1
-      addTab(mgr, 'tab-1', tab4) // Order: tab-2, tab-3, tab-4, tab-1
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE) // Order: tab-2, tab-1
+      addTab(mgr, 'tab-1', tab3, MAX_TABS_PER_PANE) // Order: tab-2, tab-3, tab-1
+      addTab(mgr, 'tab-1', tab4, MAX_TABS_PER_PANE) // Order: tab-2, tab-3, tab-4, tab-1
       // Active is still tab-1. Set to tab-2 for this test.
       mgr.activeTabId = 'tab-2'
 
@@ -454,7 +456,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       mgr.activeTabId = 'tab-1'
 
       cycleTab(mgr, 'next', 'myfile.txt')
@@ -469,7 +471,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       expect(getAllTabs(mgr)).toHaveLength(2)
       expect(getTabCount(mgr)).toBe(2)
@@ -485,7 +487,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2', path: '/Users/test/Downloads' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       closeTabRecording(mgr, 'tab-2', 10)
 
@@ -508,7 +510,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1', path: '/a' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTab({ id: 'tab-2', path: '/b' })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       closeTabRecording(mgr, 'tab-2', 10)
       expect(getTabCount(mgr)).toBe(1)
@@ -525,9 +527,9 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       // Build a pane with 4 tabs total so we can close 3.
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }), MAX_TABS_PER_PANE)
 
       const cap = 2
       closeTabRecording(mgr, 'tab-2', cap)
@@ -553,7 +555,7 @@ describe('tab-state-manager', () => {
       const mgr = createTabManager(tab1)
       // Build to MAX_TABS_PER_PANE − 1, close one, then push back to cap with another tab.
       for (let i = 2; i <= MAX_TABS_PER_PANE; i++) {
-        addTab(mgr, 'tab-1', makeTab({ id: `tab-${String(i)}` }))
+        addTab(mgr, 'tab-1', makeTab({ id: `tab-${String(i)}` }), MAX_TABS_PER_PANE)
       }
       expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
 
@@ -562,7 +564,7 @@ describe('tab-state-manager', () => {
       expect(getClosedStackSize(mgr)).toBe(1)
 
       // Re-fill to cap with a new tab that doesn't go on the stack.
-      addTab(mgr, mgr.activeTabId, makeTab({ id: 'tab-extra' }))
+      addTab(mgr, mgr.activeTabId, makeTab({ id: 'tab-extra' }), MAX_TABS_PER_PANE)
       expect(getTabCount(mgr)).toBe(MAX_TABS_PER_PANE)
 
       const result = reopenLastClosedTab(mgr, MAX_TABS_PER_PANE)
@@ -583,7 +585,7 @@ describe('tab-state-manager', () => {
         cursorFilename: 'cursor.txt',
         history: { stack: [{ volumeId: 'root', path: '/restore-here' }], currentIndex: 0 },
       })
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
 
       closeTabRecording(mgr, 'tab-2', 10)
       const result = reopenLastClosedTab(mgr, MAX_TABS_PER_PANE)
@@ -600,8 +602,8 @@ describe('tab-state-manager', () => {
     it('restores the tab at its original index', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }), MAX_TABS_PER_PANE)
       // Order now: tab-2 (0), tab-3 (1), tab-1 (2)
       mgr.activeTabId = 'tab-2' // active so closing doesn't affect index of tab-3
       // Close the middle tab (tab-3 at index 1).
@@ -618,9 +620,9 @@ describe('tab-state-manager', () => {
     it('pushes closed tabs right-to-left so popping restores the original order', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }), MAX_TABS_PER_PANE)
       // Order: tab-2 (0), tab-3 (1), tab-4 (2), tab-1 (3)
       const originalOrder = getAllTabs(mgr).map((t) => t.id)
       expect(originalOrder).toEqual(['tab-2', 'tab-3', 'tab-4', 'tab-1'])
@@ -644,8 +646,8 @@ describe('tab-state-manager', () => {
     it('does not push pinned tabs (they stay open)', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3', pinned: true }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3', pinned: true }), MAX_TABS_PER_PANE)
 
       closeOtherTabsRecording(mgr, 'tab-1', 10)
 
@@ -659,9 +661,9 @@ describe('tab-state-manager', () => {
     it('drops oldest entries from the front', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-4' }), MAX_TABS_PER_PANE)
 
       // Push three closes in a row with a generous cap.
       closeTabRecording(mgr, 'tab-2', 10)
@@ -677,7 +679,7 @@ describe('tab-state-manager', () => {
     it('is a no-op when current size <= cap', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
       closeTabRecording(mgr, 'tab-2', 10)
 
       trimClosedStack(mgr, 10)
@@ -690,7 +692,7 @@ describe('tab-state-manager', () => {
     it('non-recording closeTab does not touch the closed stack', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
 
       closeTab(mgr, 'tab-2')
 
@@ -700,8 +702,8 @@ describe('tab-state-manager', () => {
     it('non-recording closeOtherTabs does not touch the closed stack', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }))
-      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }))
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-2' }), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTab({ id: 'tab-3' }), MAX_TABS_PER_PANE)
 
       closeOtherTabs(mgr, 'tab-1')
 
@@ -785,7 +787,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTabWithSnapshotRef('tab-2', 'sr-1')
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       expect(getRefCount('sr-1')).toBe(1)
 
       closeTabRecording(mgr, 'tab-2', 10)
@@ -800,7 +802,7 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       const tab2 = makeTabWithSnapshotRef('tab-2', 'sr-1')
-      addTab(mgr, 'tab-1', tab2)
+      addTab(mgr, 'tab-1', tab2, MAX_TABS_PER_PANE)
       expect(getRefCount('sr-1')).toBe(1)
 
       closeTabRecording(mgr, 'tab-2', 10)
@@ -817,9 +819,9 @@ describe('tab-state-manager', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
       // Build 3 tabs each pointing at a distinct snapshot.
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-a', 'sr-a'))
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-b', 'sr-b'))
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-c', 'sr-c'))
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-a', 'sr-a'), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-b', 'sr-b'), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-c', 'sr-c'), MAX_TABS_PER_PANE)
       expect(getRefCount('sr-a')).toBe(1)
       expect(getRefCount('sr-b')).toBe(1)
       expect(getRefCount('sr-c')).toBe(1)
@@ -841,9 +843,9 @@ describe('tab-state-manager', () => {
     it('trimClosedStack decrements refs for all evicted entries', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-a', 'sr-a'))
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-b', 'sr-b'))
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-c', 'sr-c'))
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-a', 'sr-a'), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-b', 'sr-b'), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-c', 'sr-c'), MAX_TABS_PER_PANE)
 
       closeTabRecording(mgr, 'tab-a', 10)
       closeTabRecording(mgr, 'tab-b', 10)
@@ -863,7 +865,7 @@ describe('tab-state-manager', () => {
     it('non-recording closeTab releases refs immediately', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-2', 'sr-1'))
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-2', 'sr-1'), MAX_TABS_PER_PANE)
       expect(getRefCount('sr-1')).toBe(1)
 
       closeTab(mgr, 'tab-2')
@@ -875,13 +877,66 @@ describe('tab-state-manager', () => {
     it('non-recording closeOtherTabs releases refs immediately for closed tabs', () => {
       const tab1 = makeTab({ id: 'tab-1' })
       const mgr = createTabManager(tab1)
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-2', 'sr-a'))
-      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-3', 'sr-b'))
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-2', 'sr-a'), MAX_TABS_PER_PANE)
+      addTab(mgr, 'tab-1', makeTabWithSnapshotRef('tab-3', 'sr-b'), MAX_TABS_PER_PANE)
 
       closeOtherTabs(mgr, 'tab-1')
 
       expect(getRefCount('sr-a')).toBe(0)
       expect(getRefCount('sr-b')).toBe(0)
     })
+  })
+})
+
+describe('selectTabsToCloseForCap', () => {
+  /** `tab-0 … tab-(n-1)` in strip order, `tab-0` active, room for all of them. */
+  function managerWith(count: number) {
+    const mgr = createTabManager(makeTab({ id: 'tab-0' }))
+    for (let i = 1; i < count; i++) {
+      addTabAfter(mgr, `tab-${String(i - 1)}`, makeTab({ id: `tab-${String(i)}` }), MAX_TABS_PER_PANE_SIDE)
+    }
+    return mgr
+  }
+
+  it('closes nothing when the pane already fits', () => {
+    expect(selectTabsToCloseForCap(managerWith(4), 10)).toEqual([])
+    // Exactly at the cap is still a fit.
+    expect(selectTabsToCloseForCap(managerWith(10), 10)).toEqual([])
+  })
+
+  it('closes the overflow, keeping the leftmost tabs', () => {
+    const mgr = managerWith(13)
+
+    // tab-0 is active and survives on that count; the trailing three go.
+    expect(selectTabsToCloseForCap(mgr, 10)).toEqual(['tab-10', 'tab-11', 'tab-12'])
+  })
+
+  it('never closes a pinned tab, even one at the far end', () => {
+    const mgr = managerWith(13)
+    pinTab(mgr, 'tab-12')
+
+    const toClose = selectTabsToCloseForCap(mgr, 10)
+
+    expect(toClose).not.toContain('tab-12')
+    expect(toClose).toHaveLength(3)
+  })
+
+  it('never closes the active tab, even one at the far end', () => {
+    const mgr = managerWith(13)
+    switchTab(mgr, 'tab-12', null)
+
+    const toClose = selectTabsToCloseForCap(mgr, 10)
+
+    expect(toClose).not.toContain('tab-12')
+    expect(toClose).toHaveLength(3)
+  })
+
+  it('leaves the pane over cap rather than dropping a pinned tab', () => {
+    // Twelve pinned tabs can't be squeezed into ten slots without breaking the
+    // promise that pinning keeps a location, so the overflow is allowed to stand.
+    const mgr = managerWith(12)
+    for (let i = 0; i < 12; i++) pinTab(mgr, `tab-${String(i)}`)
+
+    expect(selectTabsToCloseForCap(mgr, 10)).toEqual([])
   })
 })

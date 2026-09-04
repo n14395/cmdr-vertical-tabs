@@ -1376,6 +1376,8 @@ export type MessageKey =
   | 'fileExplorer.tabBar.unreachableAriaLabel'
   | 'fileExplorer.tabs.closePinnedConfirm'
   | 'fileExplorer.tabs.closePinnedTitle'
+  | 'fileExplorer.tabs.horizontalCapConfirm'
+  | 'fileExplorer.tabs.horizontalCapTitle'
   | 'fileExplorer.tabs.limitReached'
   | 'fileExplorer.typeToJump.ariaLabel'
   | 'fileExplorer.typeToJump.prefix'

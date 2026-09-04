@@ -802,6 +802,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Stäng flikar för den övre raden",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Att flytta flikraden överst stänger {countText} flik. Fästa flikar och den aktuella fliken förblir öppna.} other {Att flytta flikraden överst stänger {countText} flikar. Fästa flikar och den aktuella fliken förblir öppna.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Skrivskyddad volym",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

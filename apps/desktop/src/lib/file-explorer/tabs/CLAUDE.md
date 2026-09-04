@@ -1,7 +1,7 @@
 # Tabs
 
-Per-pane tab system for the dual-pane file explorer. Each pane side (left/right) has an independent tab bar, max 10
-tabs.
+Per-pane tab system for the dual-pane file explorer. Each pane side (left/right) has an independent tab bar, capped at
+10 tabs on the horizontal bar and 50 on the side strip.
 
 ## Module map
 
@@ -32,7 +32,11 @@ Architecture, decision rationale, persistence, and closed-tab-history detail: `D
 - **Ctrl+Tab cycling uses a leading-edge debounce (50ms).** It fires the first press immediately, then batches and
   commits only the final target, so rapid cycling doesn't mount/destroy many FilePanes.
 - **Pinned-tab navigation auto-creates a new tab instead of navigating in-place** (pinning preserves a location).
-  Inherits the target path, appears after the pinned tab; falls back to in-place only at the 10-tab cap.
+  Inherits the target path, appears after the pinned tab; falls back to in-place only at the pane's cap.
+- **The cap is PER PANE, ❌ never a bare `MAX_TABS_PER_PANE`.** Mixed mode runs one pane vertical (50) and one
+  horizontal (10). Resolve via `maxTabsForPane` / `currentMaxTabsForPane`; every add and reopen takes it as an argument.
+- **Moving the bar back to `'top'` closes the overflow, and MUST ask first** (`pane/tab-cap-sync.ts`): pinned and active
+  tabs survive, declining reverts to `'side'`, closes are recorded so Cmd+Shift+T undoes them.
 - **The tab context menu must use the async event path (`tab-context-action` + a one-shot `onTabContextAction` listener
   registered before the popup), ❌ never a synchronous channel.** `Menu::popup()` returns before `on_menu_event` fires
   and macOS's NSEvent loop eats the wakeup, so an `mpsc::channel` with a timeout always loses.

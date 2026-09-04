@@ -139,7 +139,11 @@ pub fn install<R: Runtime>(app_handle: AppHandle<R>) {
         let event_type = ns_event.r#type();
         // `deltaX` is only meaningful on the gesture events; the button branch
         // ignores it, and the mask keeps anything else out.
-        let delta_x = if event_type == NSEventType::Swipe { ns_event.deltaX() } else { 0.0 };
+        let delta_x = if event_type == NSEventType::Swipe {
+            ns_event.deltaX()
+        } else {
+            0.0
+        };
         let action = action_for(event_type, ns_event.buttonNumber(), delta_x);
         if action == Action::PassThrough {
             return event.as_ptr(); // not ours: hand it back untouched
@@ -211,7 +215,11 @@ mod tests {
     fn leaves_every_other_button_alone() {
         // 2 is the middle button, which Cmdr's own gestures use.
         for button in [0, 1, 2, 5, 6] {
-            assert_eq!(direction_for_button(button), None, "button {button} should not navigate");
+            assert_eq!(
+                direction_for_button(button),
+                None,
+                "button {button} should not navigate"
+            );
         }
     }
 
@@ -232,7 +240,10 @@ mod tests {
             action_for(NSEventType::OtherMouseUp, BUTTON_BACK, 0.0),
             Action::Navigate(MouseNavDirection::Back)
         );
-        assert_eq!(action_for(NSEventType::OtherMouseDown, BUTTON_BACK, 0.0), Action::SwallowOnly);
+        assert_eq!(
+            action_for(NSEventType::OtherMouseDown, BUTTON_BACK, 0.0),
+            Action::SwallowOnly
+        );
     }
 
     #[test]

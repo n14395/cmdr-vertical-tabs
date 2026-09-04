@@ -1206,6 +1206,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "description": "Title of the confirmation dialog for closing a pinned tab."
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Close tabs to fit the top bar",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "description": "Title of the confirmation dialog shown when the user moves the tab bar from Side back to Top, where fewer tabs fit per pane so the extras have to close. \"Top\" names the tab-bar-position option (translate consistently with it)."
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Moving the tab bar to the top closes {countText} tab. Pinned tabs and the current tab stay open.} other {Moving the tab bar to the top closes {countText} tabs. Pinned tabs and the current tab stay open.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "description": "Message in the confirmation dialog before moving the tab bar from the side strip to the top, where fewer tabs fit. {countText} is how many tabs will close. \"Top\" names the tab-bar-position option (translate consistently with it)."
+  },
   "fileExplorer.readOnly.volumeTitle": "Read-only volume",
   "@fileExplorer.readOnly.volumeTitle": {
     "description": "Alert dialog title shown when the user tries a write action on a read-only volume."

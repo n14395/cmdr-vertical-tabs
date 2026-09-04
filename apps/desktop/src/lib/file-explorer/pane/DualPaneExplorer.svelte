@@ -42,12 +42,13 @@
         pushHistoryEntry,
         trimClosedStack,
         getClosedStackSize,
-        MAX_TABS_PER_PANE,
         type TabManager,
     } from '../tabs/tab-state-manager.svelte'
+    import { createTabCapSync } from './tab-cap-sync'
     import type { TabId } from '../tabs/tab-types'
     import {
         saveTabsForPane,
+        currentMaxTabsForPane,
         handleTabClose as tabOpsHandleTabClose,
         handleTabMiddleClick as tabOpsHandleTabMiddleClick,
         handleTabContextMenu as tabOpsHandleTabContextMenu,
@@ -621,6 +622,10 @@
     function handleResizeForDevTools() {
         void recalculateWebviewOffset()
     }
+
+    // Separate from the async `onMount` below: only a synchronous one can return
+    // a cleanup function for Svelte to run on destroy.
+    onMount(() => createTabCapSync({ getTabMgr, getClosedTabsCap }))
 
     onMount(async () => {
         // Start font metrics measurement in background (non-blocking)
@@ -1337,7 +1342,7 @@
             tabs={getAllTabs(tabMgr)}
             activeTabId={tabMgr.activeTabId}
             {paneId}
-            maxTabs={MAX_TABS_PER_PANE}
+            maxTabs={currentMaxTabsForPane(paneId)}
             orientation={paneSideTabs ? 'vertical' : 'horizontal'}
             stripWidth={sideTabStripWidth}
             onTabSwitch={(tabId: TabId) => {

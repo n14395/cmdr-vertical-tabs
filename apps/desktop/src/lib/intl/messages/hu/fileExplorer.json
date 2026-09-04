@@ -801,6 +801,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Lapok bezárása a felső sávhoz",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {A lapsáv felülre helyezése {countText} lapot bezár. A rögzített lapok és az aktuális lap nyitva marad.} other {A lapsáv felülre helyezése {countText} lapot bezár. A rögzített lapok és az aktuális lap nyitva marad.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Csak olvasható kötet",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

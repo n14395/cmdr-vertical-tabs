@@ -804,6 +804,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Tabbladen sluiten voor de bovenste balk",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {De tabbalk naar boven verplaatsen sluit {countText} tabblad. Vastgezette tabbladen en het huidige tabblad blijven open.} other {De tabbalk naar boven verplaatsen sluit {countText} tabbladen. Vastgezette tabbladen en het huidige tabblad blijven open.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Alleen-lezenvolume",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

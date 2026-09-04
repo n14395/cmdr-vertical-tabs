@@ -22,6 +22,24 @@ here.
 
 ## Key decisions
 
+- **The tab cap follows the orientation, not the app.** The horizontal bar shrinks every tab to fit the pane's width, so
+  10 is where labels stop being readable; the side strip is a scrolling column (`overflow-y: auto`) whose rows keep full
+  width however many there are, so it takes 50. `maxTabsForPane` (`tab-strip-layout.ts`) resolves the pair, and it takes
+  the pane id because mixed mode (`appearance.sideTabPanes` of `'left'` / `'right'`) genuinely runs one pane at each
+  cap. The state manager stayed pure: `addTab` / `addTabAfter` / `reopenLastClosedTab` all take the number, so nothing
+  below the pane layer has to know about settings.
+- **Switching back to `'top'` confirms before it closes anything.** Going from 50 tabs to 10 destroys up to 40 of them,
+  which is too much to do silently on a settings toggle. `pane/tab-cap-sync.ts` counts the overflow with the pure
+  `selectTabsToCloseForCap`, shows the number, and only then trims — and closes through `closeTabRecording`, so
+  Cmd+Shift+T reopens as far as the closed-stack cap allows. Declining writes `'side'` straight back.
+  - **Keepers are pinned tabs plus the active tab**, then the leftmost fill the remaining slots. Pinning exists to
+    preserve a location, and closing the active tab would move the user somewhere they didn't ask to go.
+  - **The check lives on a setting subscription in the MAIN window, not in the settings window.** Tab managers are
+    main-window state; the settings window has its own JS context and can't count what a switch would cost. That's also
+    why declining is a revert rather than a veto — the setting is already committed by the time anyone can count.
+  - **When the keepers alone exceed the cap** (11+ pinned tabs) the pane is left over cap instead. Overshooting costs
+    less than breaking the pin promise, and `addTab` still refuses new tabs, so it drains rather than grows.
+
 - **Tabs sit flush with the window title-bar and the pane's left edge, no spacer on either.** Tab and bar both use
   `--spacing-tab-bar-height`; with matching heights and `align-items: end`, tabs land at the bar's bottom edge with no
   offset, so the active tab's accent band touches the title-bar at every text scale. Left padding is zero so the first

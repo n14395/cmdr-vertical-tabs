@@ -801,6 +801,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Đóng tab cho thanh trên cùng",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, other {Chuyển thanh tab lên trên cùng sẽ đóng {countText} tab. Các tab đã ghim và tab hiện tại vẫn mở.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Ổ đĩa chỉ đọc",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

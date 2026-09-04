@@ -804,6 +804,14 @@
   "@fileExplorer.tabs.closePinnedTitle": {
     "sourceHash": "5d22e58"
   },
+  "fileExplorer.tabs.horizontalCapTitle": "Tabs schließen, damit sie oben passen",
+  "@fileExplorer.tabs.horizontalCapTitle": {
+    "sourceHash": "ec66a51"
+  },
+  "fileExplorer.tabs.horizontalCapConfirm": "{count, plural, one {Die Tableiste nach oben zu verschieben schließt {countText} Tab. Fixierte Tabs und der aktuelle Tab bleiben offen.} other {Die Tableiste nach oben zu verschieben schließt {countText} Tabs. Fixierte Tabs und der aktuelle Tab bleiben offen.}}",
+  "@fileExplorer.tabs.horizontalCapConfirm": {
+    "sourceHash": "1ab2e87"
+  },
   "fileExplorer.readOnly.volumeTitle": "Schreibgeschütztes Volume",
   "@fileExplorer.readOnly.volumeTitle": {
     "sourceHash": "e2d3bf1"

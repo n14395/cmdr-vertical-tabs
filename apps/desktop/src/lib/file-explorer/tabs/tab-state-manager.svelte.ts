@@ -2,7 +2,16 @@ import type { TabId, TabState } from './tab-types'
 import { push as navHistoryPush, type HistoryEntry, type NavigationHistory } from '../navigation/navigation-history'
 import { decrementRef as decrementSnapshotRef } from '$lib/search/snapshot-store.svelte'
 
+/** Tab cap for a pane whose tabs render in the horizontal bar above the file list. */
 export const MAX_TABS_PER_PANE = 10
+
+/**
+ * Tab cap for a pane rendering the vertical side strip. Higher than the horizontal
+ * cap because the strip is a scrolling column (`overflow-y: auto`), not a fixed-width
+ * row that has to shrink every tab to fit. Resolve the two per pane with
+ * `maxTabsForPane` in `tab-strip-layout.ts`: mixed mode lets the panes disagree.
+ */
+export const MAX_TABS_PER_PANE_SIDE = 50
 
 /** URL prefix that identifies a history entry pointing at a search-results snapshot. */
 const SEARCH_RESULTS_PREFIX = 'search-results://'
@@ -131,10 +140,10 @@ export function getActiveTab(mgr: TabManager): TabState {
 
 /**
  * Inserts a new tab to the left of beforeTabId.
- * Returns false if at cap (10 tabs).
+ * Returns false if the pane is already at `maxTabs` (resolve it with `maxTabsForPane`).
  */
-export function addTab(mgr: TabManager, beforeTabId: TabId, tabState: TabState): boolean {
-  if (mgr.tabs.length >= MAX_TABS_PER_PANE) {
+export function addTab(mgr: TabManager, beforeTabId: TabId, tabState: TabState, maxTabs: number): boolean {
+  if (mgr.tabs.length >= maxTabs) {
     return false
   }
 
@@ -156,10 +165,10 @@ export function addTab(mgr: TabManager, beforeTabId: TabId, tabState: TabState):
  * That's the background-open shape (middle-clicking a folder): the new tab lands
  * next to the one it was opened from, so repeated clicks queue up in click
  * order, and the user stays on the tab they're reading.
- * Appends at the end if `afterTabId` isn't in this pane. Returns false at cap.
+ * Appends at the end if `afterTabId` isn't in this pane. Returns false at `maxTabs`.
  */
-export function addTabAfter(mgr: TabManager, afterTabId: TabId, tabState: TabState): boolean {
-  if (mgr.tabs.length >= MAX_TABS_PER_PANE) {
+export function addTabAfter(mgr: TabManager, afterTabId: TabId, tabState: TabState, maxTabs: number): boolean {
+  if (mgr.tabs.length >= maxTabs) {
     return false
   }
 
@@ -170,6 +179,40 @@ export function addTabAfter(mgr: TabManager, afterTabId: TabId, tabState: TabSta
     mgr.tabs.splice(afterIndex + 1, 0, tabState)
   }
   return true
+}
+
+/**
+ * Picks the tabs a pane has to close to come back down to `maxTabs`, for the
+ * switch from the side strip to the horizontal bar. Pure: it only reads, so the
+ * caller can show the count in a confirmation before anything is destroyed.
+ *
+ * Keepers come first — pinned tabs (pinning exists to preserve a location) and
+ * the active tab (closing it would move the user somewhere they didn't ask for)
+ * — then the leftmost remaining tabs fill the free slots. Everything left over
+ * is returned in pane order.
+ *
+ * Returns an empty array when the pane already fits, and ALSO when the keepers
+ * alone exceed `maxTabs`: overshooting the cap costs less than silently dropping
+ * a pinned tab, so the overflow is allowed to stand.
+ */
+export function selectTabsToCloseForCap(mgr: TabManager, maxTabs: number): TabId[] {
+  if (mgr.tabs.length <= maxTabs) return []
+
+  const isKeeper = (tab: TabState): boolean => tab.pinned || tab.id === mgr.activeTabId
+  const keeperCount = mgr.tabs.filter(isKeeper).length
+  if (keeperCount > maxTabs) return []
+
+  let freeSlots = maxTabs - keeperCount
+  const toClose: TabId[] = []
+  for (const tab of mgr.tabs) {
+    if (isKeeper(tab)) continue
+    if (freeSlots > 0) {
+      freeSlots--
+      continue
+    }
+    toClose.push(tab.id)
+  }
+  return toClose
 }
 
 /**

@@ -5,7 +5,8 @@
  * `TabStripResizer.svelte`; wiring in `pane/DualPaneExplorer.svelte`.
  */
 
-import type { SideTabPanes, SideTabPlacement } from '$lib/settings'
+import type { SideTabPanes, SideTabPlacement, TabBarPosition } from '$lib/settings'
+import { MAX_TABS_PER_PANE, MAX_TABS_PER_PANE_SIDE } from './tab-state-manager.svelte'
 
 /** Default side tab strip width in px, matching the horizontal mode's max tab width. */
 export const DEFAULT_TAB_STRIP_WIDTH = 180
@@ -28,6 +29,18 @@ export function clampTabStripWidth(px: number): number {
  */
 export function paneShowsSideTabs(paneId: 'left' | 'right', panes: SideTabPanes): boolean {
   return panes === 'both' || panes === paneId
+}
+
+/**
+ * How many tabs a pane may hold, which depends on where that pane's tabs render:
+ * the scrolling side strip takes far more than the horizontal bar, where every
+ * extra tab shrinks the rest. Per-pane rather than global on purpose — in mixed
+ * mode (`appearance.sideTabPanes` of `'left'` / `'right'`) one pane is vertical
+ * while the other keeps its horizontal bar, so the two caps genuinely differ.
+ */
+export function maxTabsForPane(paneId: 'left' | 'right', position: TabBarPosition, panes: SideTabPanes): number {
+  const showsSideStrip = position === 'side' && paneShowsSideTabs(paneId, panes)
+  return showsSideStrip ? MAX_TABS_PER_PANE_SIDE : MAX_TABS_PER_PANE
 }
 
 /**
