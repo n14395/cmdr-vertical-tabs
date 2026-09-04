@@ -16,83 +16,83 @@ import NetworkMountView from './NetworkMountView.svelte'
 import { expectNoA11yViolations } from '$lib/test-a11y'
 
 vi.mock('$lib/tauri-commands', () => ({
-  mountNetworkShare: vi.fn(() => Promise.resolve({ mountPath: '/Volumes/Public' })),
-  resolvePathVolume: vi.fn(() => Promise.resolve({ volume: null })),
-  updateLeftPaneState: vi.fn(() => Promise.resolve()),
-  updateRightPaneState: vi.fn(() => Promise.resolve()),
-  removeManualServer: vi.fn(() => Promise.resolve()),
-  showNetworkHostContextMenu: vi.fn(() => Promise.resolve()),
-  onNetworkHostContextAction: vi.fn(() => Promise.resolve(() => {})),
-  disconnectNetworkHost: vi.fn(() => Promise.resolve()),
-  listSharesWithCredentials: vi.fn(() => Promise.resolve([])),
-  saveSmbCredentials: vi.fn(() => Promise.resolve()),
-  getSmbCredentials: vi.fn(() => Promise.resolve(null)),
-  isUsingCredentialFileFallback: vi.fn(() => Promise.resolve(false)),
-  updateKnownShare: vi.fn(() => Promise.resolve()),
-  getUsernameHint: vi.fn(() => Promise.resolve(null)),
-  getKnownShareByName: vi.fn(() => Promise.resolve(null)),
-  connectToServer: vi.fn(() => Promise.resolve()),
-  notifyDialogOpened: vi.fn(() => Promise.resolve()),
-  notifyDialogClosed: vi.fn(() => Promise.resolve()),
+    mountNetworkShare: vi.fn(() => Promise.resolve({ mountPath: '/Volumes/Public' })),
+    resolvePathVolume: vi.fn(() => Promise.resolve({ volume: null })),
+    updateLeftPaneState: vi.fn(() => Promise.resolve()),
+    updateRightPaneState: vi.fn(() => Promise.resolve()),
+    removeManualServer: vi.fn(() => Promise.resolve()),
+    showNetworkHostContextMenu: vi.fn(() => Promise.resolve()),
+    onNetworkHostContextAction: vi.fn(() => Promise.resolve(() => {})),
+    disconnectNetworkHost: vi.fn(() => Promise.resolve()),
+    listSharesWithCredentials: vi.fn(() => Promise.resolve([])),
+    saveSmbCredentials: vi.fn(() => Promise.resolve()),
+    getSmbCredentials: vi.fn(() => Promise.resolve(null)),
+    isUsingCredentialFileFallback: vi.fn(() => Promise.resolve(false)),
+    updateKnownShare: vi.fn(() => Promise.resolve()),
+    getUsernameHint: vi.fn(() => Promise.resolve(null)),
+    getKnownShareByName: vi.fn(() => Promise.resolve(null)),
+    connectToServer: vi.fn(() => Promise.resolve()),
+    notifyDialogOpened: vi.fn(() => Promise.resolve()),
+    notifyDialogClosed: vi.fn(() => Promise.resolve()),
 }))
 
 vi.mock('$lib/settings/network-settings', () => ({
-  getMountTimeoutMs: () => 15000,
-  getNetworkTimeoutMs: () => 5000,
-  getShareCacheTtlMs: () => 300000,
+    getMountTimeoutMs: () => 15000,
+    getNetworkTimeoutMs: () => 5000,
+    getShareCacheTtlMs: () => 300000,
 }))
 
 vi.mock('$lib/logging/logger', () => ({
-  getAppLogger: () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  }),
+    getAppLogger: () => ({
+        debug: vi.fn(),
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+    }),
 }))
 
 vi.mock('../network/network-store.svelte', () => ({
-  getNetworkHosts: () => [],
-  getDiscoveryState: () => 'idle',
-  isHostResolving: () => false,
-  getShareState: () => undefined,
-  getShareCount: () => null,
-  isListingShares: () => false,
-  isShareDataStale: () => false,
-  refreshAllStaleShares: vi.fn(),
-  clearShareState: vi.fn(),
-  setShareState: vi.fn(),
-  setCredentialStatus: vi.fn(),
-  fetchShares: vi.fn(() => Promise.resolve()),
-  getCredentialStatus: () => 'unknown',
-  checkCredentialsForHost: vi.fn(() => Promise.resolve()),
-  forgetCredentials: vi.fn(() => Promise.resolve()),
+    getNetworkHosts: () => [],
+    getDiscoveryState: () => 'idle',
+    isHostResolving: () => false,
+    getShareState: () => undefined,
+    getShareCount: () => null,
+    isListingShares: () => false,
+    isShareDataStale: () => false,
+    refreshAllStaleShares: vi.fn(),
+    clearShareState: vi.fn(),
+    setShareState: vi.fn(),
+    setCredentialStatus: vi.fn(),
+    fetchShares: vi.fn(() => Promise.resolve()),
+    getCredentialStatus: () => 'unknown',
+    checkCredentialsForHost: vi.fn(() => Promise.resolve()),
+    forgetCredentials: vi.fn(() => Promise.resolve()),
 }))
 
 vi.mock('$lib/utils/confirm-dialog', () => ({
-  confirmDialog: vi.fn(() => Promise.resolve(false)),
+    confirmDialog: vi.fn(() => Promise.resolve(false)),
 }))
 
 vi.mock('$lib/ui/toast', () => ({
-  addToast: vi.fn(() => 'id'),
+    addToast: vi.fn(() => 'id'),
 }))
 
 describe('NetworkMountView a11y', () => {
-  // TODO: NetworkBrowser and ShareBrowser both emit `aria-required-parent`
-  // axe violations (host/share rows are role="listitem" without a parent
-  // role="list"). Both are tracked in their own a11y test files. Once
-  // fixed upstream, enable the "no host" and "host selected" cases here.
-  it.skip('default (no host - list browser) has no a11y violations (BLOCKED: aria-required-parent)', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(NetworkMountView, {
-      target,
-      props: {
-        paneId: 'left',
-        isFocused: true,
-      },
+    // TODO: NetworkBrowser and ShareBrowser both emit `aria-required-parent`
+    // axe violations (host/share rows are role="listitem" without a parent
+    // role="list"). Both are tracked in their own a11y test files. Once
+    // fixed upstream, enable the "no host" and "host selected" cases here.
+    it.skip('default (no host - list browser) has no a11y violations (BLOCKED: aria-required-parent)', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(NetworkMountView, {
+            target,
+            props: {
+                paneId: 'left',
+                isFocused: true,
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 })

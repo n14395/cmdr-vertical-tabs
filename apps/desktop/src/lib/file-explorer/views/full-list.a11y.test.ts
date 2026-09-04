@@ -24,10 +24,10 @@ import type { SortColumn, SortOrder } from '../types'
 vi.mock('$lib/tauri-commands', async () => (await import('./test-file-list-mocks')).tauriCommandsMock())
 vi.mock('$lib/icon-cache', async () => (await import('./test-file-list-mocks')).iconCacheMock())
 vi.mock('$lib/indexing/index-state.svelte', async () =>
-  (await import('./test-file-list-mocks')).indexStateMock({ getWalkedGround: () => ['/root/src'] }),
+    (await import('./test-file-list-mocks')).indexStateMock({ getWalkedGround: () => ['/root/src'] }),
 )
 vi.mock('$lib/settings/reactive-settings.svelte', async () =>
-  (await import('./test-file-list-mocks')).reactiveSettingsMock(),
+    (await import('./test-file-list-mocks')).reactiveSettingsMock(),
 )
 vi.mock('$lib/settings/settings-store', async () => (await import('./test-file-list-mocks')).settingsStoreMock())
 
@@ -35,7 +35,7 @@ vi.mock('$lib/settings/settings-store', async () => (await import('./test-file-l
 // document-wide. Clearing between tests keeps each audit looking at its own
 // container only.
 afterEach(() => {
-  document.body.innerHTML = ''
+    document.body.innerHTML = ''
 })
 
 /**
@@ -47,70 +47,70 @@ afterEach(() => {
  * rows rather than an empty listbox.
  */
 describe('FullList a11y', () => {
-  /** An empty listing still gets a measured surface: the empty-state branch is
-   *  about having no ENTRIES, not about having no room to show them. */
-  async function mountEmpty(props: { cursorIndex: number; isFocused?: boolean }): Promise<HTMLElement> {
-    installLayoutMock({ '[data-file-list-surface]': { clientHeight: 400, clientWidth: 800, offsetWidth: 800 } })
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(FullList, {
-      target,
-      props: {
-        listingId: 'l1',
-        volumeId: 'root',
-        totalCount: 0,
-        includeHidden: false,
-        isFocused: true,
-        hasParent: false,
-        parentPath: '',
-        currentPath: '/root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onSelect: () => {},
-        onNavigate: () => {},
-        ...props,
-      },
+    /** An empty listing still gets a measured surface: the empty-state branch is
+     *  about having no ENTRIES, not about having no room to show them. */
+    async function mountEmpty(props: { cursorIndex: number; isFocused?: boolean }): Promise<HTMLElement> {
+        installLayoutMock({ '[data-file-list-surface]': { clientHeight: 400, clientWidth: 800, offsetWidth: 800 } })
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(FullList, {
+            target,
+            props: {
+                listingId: 'l1',
+                volumeId: 'root',
+                totalCount: 0,
+                includeHidden: false,
+                isFocused: true,
+                hasParent: false,
+                parentPath: '',
+                currentPath: '/root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onSelect: () => {},
+                onNavigate: () => {},
+                ...props,
+            },
+        })
+        await tick()
+        return target
+    }
+
+    // Pins the `aria-activedescendant` gate: the cursor exists but no row is
+    // rendered, so the attribute must be absent rather than name a missing id.
+    it('empty folder with cursor at 0 has no a11y violations', async () => {
+        const target = await mountEmpty({ cursorIndex: 0 })
+        expect(target.querySelector('[role="listbox"]')?.getAttribute('aria-activedescendant')).toBeNull()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    return target
-  }
 
-  // Pins the `aria-activedescendant` gate: the cursor exists but no row is
-  // rendered, so the attribute must be absent rather than name a missing id.
-  it('empty folder with cursor at 0 has no a11y violations', async () => {
-    const target = await mountEmpty({ cursorIndex: 0 })
-    expect(target.querySelector('[role="listbox"]')?.getAttribute('aria-activedescendant')).toBeNull()
-    await expectNoA11yViolations(target)
-  })
-
-  // Pins the empty-state text staying OUTSIDE the listbox: an empty listbox
-  // passes `aria-required-children`, one holding a non-option child does not.
-  it('empty folder with no cursor has no a11y violations', async () => {
-    const target = await mountEmpty({ cursorIndex: -1 })
-    expect(target.querySelector('.empty-folder-message')).toBeTruthy()
-    await expectNoA11yViolations(target)
-  })
-
-  it('populated (parent row, a walked folder, and a file) has no a11y violations', async () => {
-    const list = await mountFullList({
-      entries: [dirEntry({ name: 'src' }), fileEntry({ name: 'report.md', iconId: 'ext:md', size: 2048 })],
-      props: { hasParent: true, parentPath: '/root/..', totalCount: 3 },
+    // Pins the empty-state text staying OUTSIDE the listbox: an empty listbox
+    // passes `aria-required-children`, one holding a non-option child does not.
+    it('empty folder with no cursor has no a11y violations', async () => {
+        const target = await mountEmpty({ cursorIndex: -1 })
+        expect(target.querySelector('.empty-folder-message')).toBeTruthy()
+        await expectNoA11yViolations(target)
     })
-    // `..` plus the two entries, one of them wearing the size-updating hourglass
-    // — so axe is checking the row chrome, not an empty listbox.
-    expect(list.rowNames()).toEqual(['..', 'src', 'report.md'])
-    expect(list.hourglassRowNames()).toEqual(['src'])
-    await expectNoA11yViolations(list.target)
-  })
 
-  it('unfocused pane has no a11y violations', async () => {
-    const list = await mountFullList({
-      entries: [fileEntry({ name: 'report.md' })],
-      props: { isFocused: false, cursorIndex: -1 },
+    it('populated (parent row, a walked folder, and a file) has no a11y violations', async () => {
+        const list = await mountFullList({
+            entries: [dirEntry({ name: 'src' }), fileEntry({ name: 'report.md', iconId: 'ext:md', size: 2048 })],
+            props: { hasParent: true, parentPath: '/root/..', totalCount: 3 },
+        })
+        // `..` plus the two entries, one of them wearing the size-updating hourglass
+        // — so axe is checking the row chrome, not an empty listbox.
+        expect(list.rowNames()).toEqual(['..', 'src', 'report.md'])
+        expect(list.hourglassRowNames()).toEqual(['src'])
+        await expectNoA11yViolations(list.target)
     })
-    expect(list.rowNames()).toEqual(['report.md'])
-    await expectNoA11yViolations(list.target)
-  })
+
+    it('unfocused pane has no a11y violations', async () => {
+        const list = await mountFullList({
+            entries: [fileEntry({ name: 'report.md' })],
+            props: { isFocused: false, cursorIndex: -1 },
+        })
+        expect(list.rowNames()).toEqual(['report.md'])
+        await expectNoA11yViolations(list.target)
+    })
 })
 
 /**
@@ -130,62 +130,69 @@ describe('FullList a11y', () => {
  * what the `FullList` block above covers.
  */
 describe('FullListHeader a11y', () => {
-  interface HeaderProps {
-    gridTemplate: string
-    isFocused: boolean
-    sortBy: SortColumn
-    sortOrder: SortOrder
-    showExtensionInName: boolean
-    gitColumnVisible: boolean
-    skipTransition: boolean
-    scrollbarWidth: number
-    onSortChange?: (column: SortColumn) => void
-  }
+    interface HeaderProps {
+        gridTemplate: string
+        isFocused: boolean
+        sortBy: SortColumn
+        sortOrder: SortOrder
+        showExtensionInName: boolean
+        gitColumnVisible: boolean
+        skipTransition: boolean
+        scrollbarWidth: number
+        onSortChange?: (column: SortColumn) => void
+    }
 
-  async function mountHeader(overrides: Partial<HeaderProps> = {}): Promise<HTMLElement> {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(FullListHeader, {
-      target,
-      props: {
-        gridTemplate: '16px 1fr 60px 115px 80px',
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        showExtensionInName: false,
-        gitColumnVisible: false,
-        skipTransition: false,
-        scrollbarWidth: 0,
-        onSortChange: vi.fn(),
-        ...overrides,
-      } satisfies HeaderProps,
+    async function mountHeader(overrides: Partial<HeaderProps> = {}): Promise<HTMLElement> {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(FullListHeader, {
+            target,
+            props: {
+                gridTemplate: '16px 1fr 60px 115px 80px',
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                showExtensionInName: false,
+                gitColumnVisible: false,
+                skipTransition: false,
+                scrollbarWidth: 0,
+                onSortChange: vi.fn(),
+                ...overrides,
+            } satisfies HeaderProps,
+        })
+        await tick()
+        return target
+    }
+
+    it('default four columns have no a11y violations', async () => {
+        await expectNoA11yViolations(await mountHeader())
     })
-    await tick()
-    return target
-  }
 
-  it('default four columns have no a11y violations', async () => {
-    await expectNoA11yViolations(await mountHeader())
-  })
+    it('the split Name+Ext header has no a11y violations', async () => {
+        // Two sort triggers share the single `1fr` Name track here, so both must
+        // still be reachable and named.
+        await expectNoA11yViolations(await mountHeader({ showExtensionInName: true, sortBy: 'extension' }))
+    })
 
-  it('the split Name+Ext header has no a11y violations', async () => {
-    // Two sort triggers share the single `1fr` Name track here, so both must
-    // still be reachable and named.
-    await expectNoA11yViolations(await mountHeader({ showExtensionInName: true, sortBy: 'extension' }))
-  })
+    it('the optional Git column has no a11y violations', async () => {
+        // The Git cell is a label, not a trigger: it carries a `title` and no role.
+        await expectNoA11yViolations(await mountHeader({ gitColumnVisible: true }))
+    })
 
-  it('the optional Git column has no a11y violations', async () => {
-    // The Git cell is a label, not a trigger: it carries a `title` and no role.
-    await expectNoA11yViolations(await mountHeader({ gitColumnVisible: true }))
-  })
+    it('an unfocused pane has no a11y violations', async () => {
+        await expectNoA11yViolations(
+            await mountHeader({ isFocused: false, sortBy: 'modified', sortOrder: 'descending' }),
+        )
+    })
 
-  it('an unfocused pane has no a11y violations', async () => {
-    await expectNoA11yViolations(await mountHeader({ isFocused: false, sortBy: 'modified', sortOrder: 'descending' }))
-  })
-
-  it('every branch at once has no a11y violations', async () => {
-    await expectNoA11yViolations(
-      await mountHeader({ showExtensionInName: true, gitColumnVisible: true, skipTransition: true, sortBy: 'size' }),
-    )
-  })
+    it('every branch at once has no a11y violations', async () => {
+        await expectNoA11yViolations(
+            await mountHeader({
+                showExtensionInName: true,
+                gitColumnVisible: true,
+                skipTransition: true,
+                sortBy: 'size',
+            }),
+        )
+    })
 })

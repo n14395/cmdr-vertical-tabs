@@ -27,26 +27,27 @@ import type { FileEntry } from '../types'
  * with one that serves the requested `(start, count)` slice.
  */
 export function tauriCommandsMock(overrides: Record<string, unknown> = {}) {
-  return {
-    getFileRange: vi.fn(() => Promise.resolve([] as FileEntry[])),
-    // An ARRAY, positionally matching the requested paths — `syncParentDirStats`
-    // reads `results[0]`, so an object here silently leaves the `..` row blank.
-    getDirStatsBatch: vi.fn(() => Promise.resolve([null])),
-    enrichTags: vi.fn(() => Promise.resolve()),
-    ...overrides,
-  }
+    return {
+        getFileRange: vi.fn(() => Promise.resolve([] as FileEntry[])),
+        // An ARRAY, positionally matching the requested paths — `syncParentDirStats`
+        // reads `results[0]`, so an object here silently leaves the `..` row blank.
+        getDirStatsBatch: vi.fn(() => Promise.resolve([null])),
+        enrichTags: vi.fn(() => Promise.resolve()),
+        ...overrides,
+    }
 }
 
 /** `$lib/icon-cache`. Every export the listing path touches, all inert. */
 export function iconCacheMock(overrides: Record<string, unknown> = {}) {
-  return {
-    getCachedIcon: () => undefined,
-    iconCacheVersion: writable(0),
-    iconCacheCleared: writable(0),
-    prefetchIcons: vi.fn(),
-    prefetchCustomFolderIcons: vi.fn(),
-    ...overrides,
-  }
+    return {
+        getCachedIcon: () => undefined,
+        getCachedCustomFolderIcon: () => undefined,
+        iconCacheVersion: writable(0),
+        iconCacheCleared: writable(0),
+        prefetchIcons: vi.fn(),
+        prefetchCustomFolderIcons: vi.fn(),
+        ...overrides,
+    }
 }
 
 /**
@@ -54,37 +55,37 @@ export function iconCacheMock(overrides: Record<string, unknown> = {}) {
  * `getWalkedGround` / `isVolumeAggregating` to put a drive under a walker.
  */
 export function indexStateMock(overrides: Record<string, unknown> = {}) {
-  return {
-    isVolumeScanning: () => false,
-    isVolumeAggregating: () => false,
-    getWalkedGround: () => [],
-    ...overrides,
-  }
+    return {
+        isVolumeScanning: () => false,
+        isVolumeAggregating: () => false,
+        getWalkedGround: () => [],
+        ...overrides,
+    }
 }
 
 /** `$lib/settings/reactive-settings.svelte` at its shipped defaults. */
 export function reactiveSettingsMock(overrides: Record<string, unknown> = {}) {
-  return {
-    getRowHeight: () => 20,
-    getIconSize: () => 16,
-    getIsCompactDensity: () => false,
-    getIsCmdrGold: () => false,
-    getUseAppIconsForDocuments: () => true,
-    formatDateTime: (t: number | undefined) => (t ? '2025-03-14 10:30' : ''),
-    formattedDate: (t: number | undefined) =>
-      t
-        ? { text: '2025-03-14 10:30', segments: [{ text: '2025-03-14 10:30', ageClass: null }] }
-        : { text: '', segments: [] },
-    formatFileSize: (n: number) => `${String(n)} B`,
-    getSizeDisplayMode: () => 'smart',
-    getSizeMismatchWarning: () => false,
-    getStripedRows: () => false,
-    getShowExtensionInName: () => false,
-    getShowTags: () => false,
-    getFileSizeUnit: () => 'bytes',
-    getFileSizeFormat: () => 'binary',
-    ...overrides,
-  }
+    return {
+        getRowHeight: () => 20,
+        getIconSize: () => 16,
+        getIsCompactDensity: () => false,
+        getIsCmdrGold: () => false,
+        getUseAppIconsForDocuments: () => true,
+        formatDateTime: (t: number | undefined) => (t ? '2025-03-14 10:30' : ''),
+        formattedDate: (t: number | undefined) =>
+            t
+                ? { text: '2025-03-14 10:30', segments: [{ text: '2025-03-14 10:30', ageClass: null }] }
+                : { text: '', segments: [] },
+        formatFileSize: (n: number) => `${String(n)} B`,
+        getSizeDisplayMode: () => 'smart',
+        getSizeMismatchWarning: () => false,
+        getStripedRows: () => false,
+        getShowExtensionInName: () => false,
+        getShowTags: () => false,
+        getFileSizeUnit: () => 'bytes',
+        getFileSizeFormat: () => 'binary',
+        ...overrides,
+    }
 }
 
 /**
@@ -93,10 +94,10 @@ export function reactiveSettingsMock(overrides: Record<string, unknown> = {}) {
  * nothing and leaves the list empty with no complaint.
  */
 export function settingsStoreMock(values: Record<string, unknown> = {}) {
-  const settings: Record<string, unknown> = {
-    'advanced.virtualizationBufferRows': 20,
-    'advanced.prefetchBufferSize': 0,
-    ...values,
-  }
-  return { getSetting: (key: string) => settings[key] }
+    const settings: Record<string, unknown> = {
+        'advanced.virtualizationBufferRows': 20,
+        'advanced.prefetchBufferSize': 0,
+        ...values,
+    }
+    return { getSetting: (key: string) => settings[key] }
 }

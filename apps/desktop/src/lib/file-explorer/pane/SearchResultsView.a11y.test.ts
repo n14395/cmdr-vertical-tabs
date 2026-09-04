@@ -21,138 +21,138 @@ import { expectNoA11yViolations } from '$lib/test-a11y'
 // Mirror the platform stubs from `SearchResultsView.svelte.test.ts` so the
 // FullList subtree mounts cleanly under jsdom.
 vi.mock('$lib/tooltip/tooltip', () => ({
-  tooltip: () => ({ destroy() {} }),
+    tooltip: () => ({ destroy() {} }),
 }))
 vi.mock('$lib/utils/shorten-middle-action', () => ({
-  useShortenMiddle: () => ({ destroy() {} }),
+    useShortenMiddle: () => ({ destroy() {} }),
 }))
 vi.mock('$lib/text-size.svelte', () => ({
-  getEffectiveScale: () => 1,
-  onDebouncedScaleChange: () => () => {},
+    getEffectiveScale: () => 1,
+    onDebouncedScaleChange: () => () => {},
 }))
 vi.mock('$lib/tauri-commands', () => ({
-  getDirStatsBatch: () => Promise.resolve([]),
-  listen: () => Promise.resolve(() => {}),
-  showFileContextMenu: () => Promise.resolve(),
+    getDirStatsBatch: () => Promise.resolve([]),
+    listen: () => Promise.resolve(() => {}),
+    showFileContextMenu: () => Promise.resolve(),
 }))
 vi.mock('$lib/icon-cache', () => ({
-  iconCacheCleared: {
-    subscribe: (fn: (v: number) => void) => {
-      fn(0)
-      return () => {}
+    iconCacheCleared: {
+        subscribe: (fn: (v: number) => void) => {
+            fn(0)
+            return () => {}
+        },
     },
-  },
-  iconCacheVersion: {
-    subscribe: (fn: (v: number) => void) => {
-      fn(0)
-      return () => {}
+    iconCacheVersion: {
+        subscribe: (fn: (v: number) => void) => {
+            fn(0)
+            return () => {}
+        },
     },
-  },
-  getCachedIcon: () => null,
-  prefetchIcons: () => Promise.resolve(),
+    getCachedIcon: () => null,
+    prefetchIcons: () => Promise.resolve(),
 }))
 vi.mock('$lib/stores/restricted-paths-store.svelte', () => ({
-  isRestricted: () => false,
+    isRestricted: () => false,
 }))
 vi.mock('$lib/system-strings.svelte', () => ({
-  restrictedFolderTooltip: () => 'restricted',
+    restrictedFolderTooltip: () => 'restricted',
 }))
 vi.mock('$lib/indexing/index-state.svelte', () => ({
-  isVolumeScanning: () => false,
-  isVolumeAggregating: () => false,
-  getWalkedGround: () => [],
+    isVolumeScanning: () => false,
+    isVolumeAggregating: () => false,
+    getWalkedGround: () => [],
 }))
 vi.mock('../git/status-column', () => ({
-  fetchStatusMap: () => Promise.resolve(null),
-  glyphFor: () => '',
-  labelFor: () => '',
+    fetchStatusMap: () => Promise.resolve(null),
+    glyphFor: () => '',
+    labelFor: () => '',
 }))
 vi.mock('$lib/settings/reactive-settings.svelte', () => ({
-  getRowHeight: () => 24,
-  getIconSize: () => 16,
-  getIsCompactDensity: () => false,
-  formattedDate: () => ({ text: '', segments: [] }),
-  formatFileSize: () => '',
-  getSizeDisplayMode: () => 'smart',
-  getSizeMismatchWarning: () => false,
-  getStripedRows: () => false,
-  getShowExtensionInName: () => false,
-  getShowTags: () => false,
-  getFileSizeUnit: () => 'bytes',
-  getFileSizeFormat: () => 'binary',
-  getUseAppIconsForDocuments: () => false,
+    getRowHeight: () => 24,
+    getIconSize: () => 16,
+    getIsCompactDensity: () => false,
+    formattedDate: () => ({ text: '', segments: [] }),
+    formatFileSize: () => '',
+    getSizeDisplayMode: () => 'smart',
+    getSizeMismatchWarning: () => false,
+    getStripedRows: () => false,
+    getShowExtensionInName: () => false,
+    getShowTags: () => false,
+    getFileSizeUnit: () => 'bytes',
+    getFileSizeFormat: () => 'binary',
+    getUseAppIconsForDocuments: () => false,
 }))
 
 function makeEntry(name: string): SearchResultEntry {
-  return {
-    name,
-    path: `/Users/test/${name}`,
-    parentPath: '/Users/test',
-    isDirectory: false,
-    size: 100,
-    modifiedAt: 1_700_000_000,
-    iconId: 'ext:txt',
-  }
+    return {
+        name,
+        path: `/Users/test/${name}`,
+        parentPath: '/Users/test',
+        isDirectory: false,
+        size: 100,
+        modifiedAt: 1_700_000_000,
+        iconId: 'ext:txt',
+    }
 }
 
 function makeSnapshot(id: string, entries: SearchResultEntry[]): SearchSnapshot {
-  return {
-    id,
-    query: 'foo',
-    mode: 'filename',
-    filters: {},
-    scope: '',
-    caseSensitive: false,
-    excludeSystemDirs: true,
-    entries,
-    totalCount: entries.length,
-    createdAt: Date.now(),
-    label: 'foo',
-  }
+    return {
+        id,
+        query: 'foo',
+        mode: 'filename',
+        filters: {},
+        scope: '',
+        caseSensitive: false,
+        excludeSystemDirs: true,
+        entries,
+        totalCount: entries.length,
+        createdAt: Date.now(),
+        label: 'foo',
+    }
 }
 
 describe('SearchResultsView a11y', () => {
-  it('snapshot-missing pane has no a11y violations', async () => {
-    _resetForTesting()
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: 'search-results://nonexistent',
-        cursorIndex: 0,
-        isFocused: false,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+    it('snapshot-missing pane has no a11y violations', async () => {
+        _resetForTesting()
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: 'search-results://nonexistent',
+                cursorIndex: 0,
+                isFocused: false,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
     })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
 
-  it('populated snapshot view has no a11y violations', async () => {
-    _resetForTesting()
-    const id = 'sr-1'
-    getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt'), makeEntry('beta.txt')]))
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: `search-results://${id}`,
-        cursorIndex: 0,
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+    it('populated snapshot view has no a11y violations', async () => {
+        _resetForTesting()
+        const id = 'sr-1'
+        getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt'), makeEntry('beta.txt')]))
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: `search-results://${id}`,
+                cursorIndex: 0,
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
     })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
 })

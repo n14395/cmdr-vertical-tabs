@@ -2,117 +2,117 @@ import { describe, it, expect } from 'vitest'
 import { buildAiSummary, patternRowLabel, resolveAiPattern, type AiSummaryInput } from './ai-summary'
 
 function baseInput(overrides: Partial<AiSummaryInput> = {}): AiSummaryInput {
-  return {
-    pattern: null,
-    patternKind: null,
-    sizeFilter: 'any',
-    sizeValue: '',
-    sizeUnit: 'MB',
-    sizeValueMax: '',
-    sizeUnitMax: 'MB',
-    dateFilter: 'any',
-    dateValue: '',
-    dateValueMax: '',
-    typeFilter: 'both',
-    ...overrides,
-  }
+    return {
+        pattern: null,
+        patternKind: null,
+        sizeFilter: 'any',
+        sizeValue: '',
+        sizeUnit: 'MB',
+        sizeValueMax: '',
+        sizeUnitMax: 'MB',
+        dateFilter: 'any',
+        dateValue: '',
+        dateValueMax: '',
+        typeFilter: 'both',
+        ...overrides,
+    }
 }
 
 describe('buildAiSummary', () => {
-  it('surfaces the produced pattern verbatim with its kind', () => {
-    const s = buildAiSummary(baseInput({ pattern: '*.{jpg,png,heic}', patternKind: 'glob' }))
-    expect(s.pattern).toBe('*.{jpg,png,heic}')
-    expect(s.patternKind).toBe('glob')
-  })
-
-  it('drops a blank pattern to null and clears the kind', () => {
-    const s = buildAiSummary(baseInput({ pattern: '   ', patternKind: 'glob' }))
-    expect(s.pattern).toBeNull()
-    expect(s.patternKind).toBeNull()
-  })
-
-  it('renders the size filter line when configured', () => {
-    const s = buildAiSummary(baseInput({ sizeFilter: 'gte', sizeValue: '5', sizeUnit: 'MB' }))
-    expect(s.filters).toContainEqual({ label: 'Size', value: '> 5 MB' })
-  })
-
-  it('renders an exact (eq) size as "= N"', () => {
-    const s = buildAiSummary(baseInput({ sizeFilter: 'eq', sizeValue: '0', sizeUnit: 'B' }))
-    expect(s.filters).toContainEqual({ label: 'Size', value: '= 0 B' })
-  })
-
-  it('renders the modified filter line when configured', () => {
-    const s = buildAiSummary(baseInput({ dateFilter: 'after', dateValue: '2026-01-01' }))
-    expect(s.filters).toContainEqual({ label: 'Modified', value: 'after 2026-01-01' })
-  })
-
-  it('renders Files only / Folders only but omits the default Both', () => {
-    expect(buildAiSummary(baseInput({ typeFilter: 'file' })).filters).toContainEqual({
-      label: 'Type',
-      value: 'Files only',
+    it('surfaces the produced pattern verbatim with its kind', () => {
+        const s = buildAiSummary(baseInput({ pattern: '*.{jpg,png,heic}', patternKind: 'glob' }))
+        expect(s.pattern).toBe('*.{jpg,png,heic}')
+        expect(s.patternKind).toBe('glob')
     })
-    expect(buildAiSummary(baseInput({ typeFilter: 'folder' })).filters).toContainEqual({
-      label: 'Type',
-      value: 'Folders only',
+
+    it('drops a blank pattern to null and clears the kind', () => {
+        const s = buildAiSummary(baseInput({ pattern: '   ', patternKind: 'glob' }))
+        expect(s.pattern).toBeNull()
+        expect(s.patternKind).toBeNull()
     })
-    expect(buildAiSummary(baseInput({ typeFilter: 'both' })).filters).toEqual([])
-  })
 
-  it('orders filters as Size, Modified, Type', () => {
-    const s = buildAiSummary(
-      baseInput({
-        sizeFilter: 'gte',
-        sizeValue: '1',
-        sizeUnit: 'MB',
-        dateFilter: 'before',
-        dateValue: '2026-05-01',
-        typeFilter: 'file',
-      }),
-    )
-    expect(s.filters.map((f) => f.label)).toEqual(['Size', 'Modified', 'Type'])
-  })
+    it('renders the size filter line when configured', () => {
+        const s = buildAiSummary(baseInput({ sizeFilter: 'gte', sizeValue: '5', sizeUnit: 'MB' }))
+        expect(s.filters).toContainEqual({ label: 'Size', value: '> 5 MB' })
+    })
 
-  it('returns no filter lines when nothing is configured', () => {
-    expect(buildAiSummary(baseInput()).filters).toEqual([])
-  })
+    it('renders an exact (eq) size as "= N"', () => {
+        const s = buildAiSummary(baseInput({ sizeFilter: 'eq', sizeValue: '0', sizeUnit: 'B' }))
+        expect(s.filters).toContainEqual({ label: 'Size', value: '= 0 B' })
+    })
+
+    it('renders the modified filter line when configured', () => {
+        const s = buildAiSummary(baseInput({ dateFilter: 'after', dateValue: '2026-01-01' }))
+        expect(s.filters).toContainEqual({ label: 'Modified', value: 'after 2026-01-01' })
+    })
+
+    it('renders Files only / Folders only but omits the default Both', () => {
+        expect(buildAiSummary(baseInput({ typeFilter: 'file' })).filters).toContainEqual({
+            label: 'Type',
+            value: 'Files only',
+        })
+        expect(buildAiSummary(baseInput({ typeFilter: 'folder' })).filters).toContainEqual({
+            label: 'Type',
+            value: 'Folders only',
+        })
+        expect(buildAiSummary(baseInput({ typeFilter: 'both' })).filters).toEqual([])
+    })
+
+    it('orders filters as Size, Modified, Type', () => {
+        const s = buildAiSummary(
+            baseInput({
+                sizeFilter: 'gte',
+                sizeValue: '1',
+                sizeUnit: 'MB',
+                dateFilter: 'before',
+                dateValue: '2026-05-01',
+                typeFilter: 'file',
+            }),
+        )
+        expect(s.filters.map((f) => f.label)).toEqual(['Size', 'Modified', 'Type'])
+    })
+
+    it('returns no filter lines when nothing is configured', () => {
+        expect(buildAiSummary(baseInput()).filters).toEqual([])
+    })
 })
 
 describe('patternRowLabel', () => {
-  it('names the flavor when known and falls back to Pattern', () => {
-    expect(patternRowLabel('glob')).toBe('Glob')
-    expect(patternRowLabel('regex')).toBe('Regex')
-    expect(patternRowLabel(null)).toBe('Pattern')
-  })
+    it('names the flavor when known and falls back to Pattern', () => {
+        expect(patternRowLabel('glob')).toBe('Glob')
+        expect(patternRowLabel('regex')).toBe('Regex')
+        expect(patternRowLabel(null)).toBe('Pattern')
+    })
 })
 
 describe('resolveAiPattern', () => {
-  const empty = { extrasPattern: null, extrasPatternKind: null, regexBuffer: '', globBuffer: '' }
+    const empty = { extrasPattern: null, extrasPatternKind: null, regexBuffer: '', globBuffer: '' }
 
-  it('prefers the dedicated Pattern-chip slot the consumer passes, kind and all', () => {
-    expect(
-      resolveAiPattern({ ...empty, extrasPattern: '*.heic', extrasPatternKind: 'glob', regexBuffer: '\\.png$' }),
-    ).toEqual({ pattern: '*.heic', kind: 'glob' })
-  })
-
-  it('falls back to the regex buffer before the glob one, matching the matcher order', () => {
-    expect(resolveAiPattern({ ...empty, regexBuffer: '\\.png$', globBuffer: '*.png' })).toEqual({
-      pattern: '\\.png$',
-      kind: 'regex',
+    it('prefers the dedicated Pattern-chip slot the consumer passes, kind and all', () => {
+        expect(
+            resolveAiPattern({ ...empty, extrasPattern: '*.heic', extrasPatternKind: 'glob', regexBuffer: '\\.png$' }),
+        ).toEqual({ pattern: '*.heic', kind: 'glob' })
     })
-  })
 
-  it('falls back to the glob buffer when there is no regex', () => {
-    expect(resolveAiPattern({ ...empty, globBuffer: '*.png' })).toEqual({ pattern: '*.png', kind: 'glob' })
-  })
-
-  it('treats whitespace-only slots as absent', () => {
-    expect(resolveAiPattern({ ...empty, extrasPattern: '   ', regexBuffer: '  ', globBuffer: '   ' })).toEqual({
-      pattern: null,
-      kind: null,
+    it('falls back to the regex buffer before the glob one, matching the matcher order', () => {
+        expect(resolveAiPattern({ ...empty, regexBuffer: '\\.png$', globBuffer: '*.png' })).toEqual({
+            pattern: '\\.png$',
+            kind: 'regex',
+        })
     })
-  })
 
-  it('reports nothing for a filter-only translation', () => {
-    expect(resolveAiPattern(empty)).toEqual({ pattern: null, kind: null })
-  })
+    it('falls back to the glob buffer when there is no regex', () => {
+        expect(resolveAiPattern({ ...empty, globBuffer: '*.png' })).toEqual({ pattern: '*.png', kind: 'glob' })
+    })
+
+    it('treats whitespace-only slots as absent', () => {
+        expect(resolveAiPattern({ ...empty, extrasPattern: '   ', regexBuffer: '  ', globBuffer: '   ' })).toEqual({
+            pattern: null,
+            kind: null,
+        })
+    })
+
+    it('reports nothing for a filter-only translation', () => {
+        expect(resolveAiPattern(empty)).toEqual({ pattern: null, kind: null })
+    })
 })

@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, tick } from 'svelte'
 import SearchResultsView from './SearchResultsView.svelte'
 import {
-  _resetForTesting,
-  appendSnapshotEntries,
-  getOrCreate,
-  type SearchSnapshot,
+    _resetForTesting,
+    appendSnapshotEntries,
+    getOrCreate,
+    type SearchSnapshot,
 } from '$lib/search/snapshot-store.svelte'
 import type { SearchResultEntry } from '$lib/ipc/bindings'
 import type { FileEntry, SelectPayload } from '../types'
@@ -15,292 +15,292 @@ import type { FileEntry, SelectPayload } from '../types'
 // expose the snapshot's `entries` to its children. Stub the heaviest internals so the
 // test environment stays happy.
 vi.mock('$lib/tooltip/tooltip', () => ({
-  tooltip: () => ({ destroy() {} }),
+    tooltip: () => ({ destroy() {} }),
 }))
 vi.mock('$lib/utils/shorten-middle-action', () => ({
-  useShortenMiddle: () => ({ destroy() {} }),
+    useShortenMiddle: () => ({ destroy() {} }),
 }))
 vi.mock('$lib/text-size.svelte', () => ({
-  getEffectiveScale: () => 1,
-  onDebouncedScaleChange: () => () => {},
+    getEffectiveScale: () => 1,
+    onDebouncedScaleChange: () => () => {},
 }))
 vi.mock('$lib/tauri-commands', () => ({
-  getDirStatsBatch: () => Promise.resolve([]),
-  listen: () => Promise.resolve(() => {}),
+    getDirStatsBatch: () => Promise.resolve([]),
+    listen: () => Promise.resolve(() => {}),
 }))
 vi.mock('$lib/icon-cache', () => ({
-  iconCacheCleared: {
-    subscribe: (fn: (v: number) => void) => {
-      fn(0)
-      return () => {}
+    iconCacheCleared: {
+        subscribe: (fn: (v: number) => void) => {
+            fn(0)
+            return () => {}
+        },
     },
-  },
-  iconCacheVersion: {
-    subscribe: (fn: (v: number) => void) => {
-      fn(0)
-      return () => {}
+    iconCacheVersion: {
+        subscribe: (fn: (v: number) => void) => {
+            fn(0)
+            return () => {}
+        },
     },
-  },
-  getCachedIcon: () => null,
-  prefetchIcons: () => Promise.resolve(),
+    getCachedIcon: () => null,
+    prefetchIcons: () => Promise.resolve(),
 }))
 vi.mock('$lib/stores/restricted-paths-store.svelte', () => ({
-  isRestricted: () => false,
+    isRestricted: () => false,
 }))
 vi.mock('$lib/system-strings.svelte', () => ({
-  restrictedFolderTooltip: () => 'restricted',
+    restrictedFolderTooltip: () => 'restricted',
 }))
 vi.mock('$lib/indexing/index-state.svelte', () => ({
-  isVolumeScanning: () => false,
-  isVolumeAggregating: () => false,
-  getWalkedGround: () => [],
+    isVolumeScanning: () => false,
+    isVolumeAggregating: () => false,
+    getWalkedGround: () => [],
 }))
 vi.mock('../git/status-column', () => ({
-  fetchStatusMap: () => Promise.resolve(null),
-  glyphFor: () => '',
-  labelFor: () => '',
+    fetchStatusMap: () => Promise.resolve(null),
+    glyphFor: () => '',
+    labelFor: () => '',
 }))
 vi.mock('$lib/settings/reactive-settings.svelte', () => ({
-  getRowHeight: () => 24,
-  getIconSize: () => 16,
-  getIsCompactDensity: () => false,
-  formattedDate: () => ({ text: '', segments: [] }),
-  formatFileSize: () => '',
-  getSizeDisplayMode: () => 'smart',
-  getSizeMismatchWarning: () => false,
-  getStripedRows: () => false,
-  getShowExtensionInName: () => false,
-  getShowTags: () => false,
-  getFileSizeUnit: () => 'bytes',
-  getFileSizeFormat: () => 'binary',
-  getUseAppIconsForDocuments: () => false,
+    getRowHeight: () => 24,
+    getIconSize: () => 16,
+    getIsCompactDensity: () => false,
+    formattedDate: () => ({ text: '', segments: [] }),
+    formatFileSize: () => '',
+    getSizeDisplayMode: () => 'smart',
+    getSizeMismatchWarning: () => false,
+    getStripedRows: () => false,
+    getShowExtensionInName: () => false,
+    getShowTags: () => false,
+    getFileSizeUnit: () => 'bytes',
+    getFileSizeFormat: () => 'binary',
+    getUseAppIconsForDocuments: () => false,
 }))
 
 function makeEntry(name: string, parentPath = '/Users/test'): SearchResultEntry {
-  return {
-    name,
-    path: `${parentPath}/${name}`,
-    parentPath,
-    isDirectory: false,
-    size: 100,
-    modifiedAt: 1_700_000_000,
-    iconId: 'ext:txt',
-  }
+    return {
+        name,
+        path: `${parentPath}/${name}`,
+        parentPath,
+        isDirectory: false,
+        size: 100,
+        modifiedAt: 1_700_000_000,
+        iconId: 'ext:txt',
+    }
 }
 
 function makeSnapshot(id: string, entries: SearchResultEntry[]): SearchSnapshot {
-  return {
-    id,
-    query: 'foo',
-    mode: 'filename',
-    filters: {},
-    scope: '',
-    caseSensitive: false,
-    excludeSystemDirs: true,
-    entries,
-    totalCount: entries.length,
-    createdAt: Date.now(),
-    label: 'foo',
-  }
+    return {
+        id,
+        query: 'foo',
+        mode: 'filename',
+        filters: {},
+        scope: '',
+        caseSensitive: false,
+        excludeSystemDirs: true,
+        entries,
+        totalCount: entries.length,
+        createdAt: Date.now(),
+        label: 'foo',
+    }
 }
 
 describe('SearchResultsView', () => {
-  beforeEach(() => {
-    _resetForTesting()
-  })
-
-  it('renders rows from a stored snapshot', async () => {
-    const id = 'sr-1'
-    getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt'), makeEntry('beta.txt')]))
-
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: `search-results://${id}`,
-        cursorIndex: 0,
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+    beforeEach(() => {
+        _resetForTesting()
     })
-    await tick()
-    // The snapshot-missing pane shouldn't appear when the id resolves.
-    expect(target.querySelector('.snapshot-missing')).toBeNull()
-    target.remove()
-  })
 
-  it('grows when a still-running walk appends to the snapshot it is rendering', async () => {
-    // "Open in pane" hands a pane a snapshot the walk is still filling
-    // (`search/walk-handoff.svelte.ts`). The rows land through
-    // `appendSnapshotEntries`; this is the only tier that can say whether they reach
-    // the screen. Found end to end: the pane kept the two rows it opened with while
-    // the toast counted up to 24.
-    const id = 'sr-growing'
-    getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt')]))
+    it('renders rows from a stored snapshot', async () => {
+        const id = 'sr-1'
+        getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt'), makeEntry('beta.txt')]))
 
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: `search-results://${id}`,
-        cursorIndex: 0,
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: `search-results://${id}`,
+                cursorIndex: 0,
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        // The snapshot-missing pane shouldn't appear when the id resolves.
+        expect(target.querySelector('.snapshot-missing')).toBeNull()
+        target.remove()
     })
-    await tick()
-    const rowsAtOpen = target.querySelectorAll('.file-entry').length
-    expect(rowsAtOpen).toBeGreaterThan(0)
 
-    appendSnapshotEntries(id, [makeEntry('beta.txt'), makeEntry('gamma.txt')], 3)
-    await tick()
-    expect(target.querySelectorAll('.file-entry').length).toBe(rowsAtOpen + 2)
-    target.remove()
-  })
+    it('grows when a still-running walk appends to the snapshot it is rendering', async () => {
+        // "Open in pane" hands a pane a snapshot the walk is still filling
+        // (`search/walk-handoff.svelte.ts`). The rows land through
+        // `appendSnapshotEntries`; this is the only tier that can say whether they reach
+        // the screen. Found end to end: the pane kept the two rows it opened with while
+        // the toast counted up to 24.
+        const id = 'sr-growing'
+        getOrCreate(id, makeSnapshot(id, [makeEntry('alpha.txt')]))
 
-  it('renders the friendly missing-snapshot pane when the id does not resolve', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: 'search-results://nonexistent-id',
-        cursorIndex: 0,
-        isFocused: false,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: `search-results://${id}`,
+                cursorIndex: 0,
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        const rowsAtOpen = target.querySelectorAll('.file-entry').length
+        expect(rowsAtOpen).toBeGreaterThan(0)
+
+        appendSnapshotEntries(id, [makeEntry('beta.txt'), makeEntry('gamma.txt')], 3)
+        await tick()
+        expect(target.querySelectorAll('.file-entry').length).toBe(rowsAtOpen + 2)
+        target.remove()
     })
-    await tick()
-    const missing = target.querySelector('.snapshot-missing')
-    expect(missing).not.toBeNull()
-    expect(missing?.textContent).toContain('no longer available')
-    target.remove()
-  })
 
-  it('forwards `selectedIndices` to FullList without crashing (M8d)', async () => {
-    const id = 'sr-sel'
-    getOrCreate(id, makeSnapshot(id, [makeEntry('a.txt'), makeEntry('b.txt'), makeEntry('c.txt')]))
-
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    let selectArgs: SelectPayload | null = null
-    mount(SearchResultsView, {
-      target,
-      props: {
-        path: `search-results://${id}`,
-        cursorIndex: 1,
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        // Pre-select the middle row; M8d wires this through to FullList.
-        selectedIndices: new Set([1]),
-        onNavigate: () => {},
-        onSelect: (args: SelectPayload) => {
-          selectArgs = args
-        },
-      },
+    it('renders the friendly missing-snapshot pane when the id does not resolve', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: 'search-results://nonexistent-id',
+                cursorIndex: 0,
+                isFocused: false,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        const missing = target.querySelector('.snapshot-missing')
+        expect(missing).not.toBeNull()
+        expect(missing?.textContent).toContain('no longer available')
+        target.remove()
     })
-    await tick()
-    expect(target.querySelector('.snapshot-missing')).toBeNull()
-    // Callback wiring sanity: the prop is the same shape FullList already accepts.
-    expect(selectArgs).toBeNull()
-    target.remove()
-  })
 
-  it('exposes findItemIndex, openCursorItem, and isMissing on the public API', async () => {
-    const id = 'sr-api'
-    getOrCreate(id, makeSnapshot(id, [makeEntry('first.txt'), makeEntry('second.txt')]))
+    it('forwards `selectedIndices` to FullList without crashing (M8d)', async () => {
+        const id = 'sr-sel'
+        getOrCreate(id, makeSnapshot(id, [makeEntry('a.txt'), makeEntry('b.txt'), makeEntry('c.txt')]))
 
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    // The `name` field on the adapted entry is the friendly full path
-    // (`~/second.txt`). We assert against `path` so the test pins navigation
-    // routing rather than the display string.
-    let navigatedPath: string | null = null
-    const component = mount(SearchResultsView, {
-      target,
-      props: {
-        path: `search-results://${id}`,
-        cursorIndex: 1,
-        isFocused: true,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: (entry: FileEntry) => {
-          navigatedPath = entry.path
-        },
-        onSelect: () => {},
-      },
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        let selectArgs: SelectPayload | null = null
+        mount(SearchResultsView, {
+            target,
+            props: {
+                path: `search-results://${id}`,
+                cursorIndex: 1,
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                // Pre-select the middle row; M8d wires this through to FullList.
+                selectedIndices: new Set([1]),
+                onNavigate: () => {},
+                onSelect: (args: SelectPayload) => {
+                    selectArgs = args
+                },
+            },
+        })
+        await tick()
+        expect(target.querySelector('.snapshot-missing')).toBeNull()
+        // Callback wiring sanity: the prop is the same shape FullList already accepts.
+        expect(selectArgs).toBeNull()
+        target.remove()
     })
-    await tick()
 
-    // The component's exported API is what FilePane reads via `bind:this`. We
-    // mirror that here. `findItemIndex` matches by basename (post-fixup); the
-    // adapted `name` field is the friendly full path.
-    const api = component as unknown as {
-      findItemIndex: (name: string) => number
-      openCursorItem: () => void
-      isMissing: () => boolean
-    }
-    expect(api.findItemIndex('second.txt')).toBe(1)
-    expect(api.findItemIndex('missing.txt')).toBe(-1)
-    expect(api.isMissing()).toBe(false)
+    it('exposes findItemIndex, openCursorItem, and isMissing on the public API', async () => {
+        const id = 'sr-api'
+        getOrCreate(id, makeSnapshot(id, [makeEntry('first.txt'), makeEntry('second.txt')]))
 
-    api.openCursorItem()
-    expect(navigatedPath).toBe('/Users/test/second.txt')
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        // The `name` field on the adapted entry is the friendly full path
+        // (`~/second.txt`). We assert against `path` so the test pins navigation
+        // routing rather than the display string.
+        let navigatedPath: string | null = null
+        const component = mount(SearchResultsView, {
+            target,
+            props: {
+                path: `search-results://${id}`,
+                cursorIndex: 1,
+                isFocused: true,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: (entry: FileEntry) => {
+                    navigatedPath = entry.path
+                },
+                onSelect: () => {},
+            },
+        })
+        await tick()
 
-    target.remove()
-  })
+        // The component's exported API is what FilePane reads via `bind:this`. We
+        // mirror that here. `findItemIndex` matches by basename (post-fixup); the
+        // adapted `name` field is the friendly full path.
+        const api = component as unknown as {
+            findItemIndex: (name: string) => number
+            openCursorItem: () => void
+            isMissing: () => boolean
+        }
+        expect(api.findItemIndex('second.txt')).toBe(1)
+        expect(api.findItemIndex('missing.txt')).toBe(-1)
+        expect(api.isMissing()).toBe(false)
 
-  it('reports isMissing() === true when the snapshot lookup fails', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    const component = mount(SearchResultsView, {
-      target,
-      props: {
-        path: 'search-results://not-there',
-        cursorIndex: 0,
-        isFocused: false,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+        api.openCursorItem()
+        expect(navigatedPath).toBe('/Users/test/second.txt')
+
+        target.remove()
     })
-    await tick()
-    const api = component as unknown as { isMissing: () => boolean }
-    expect(api.isMissing()).toBe(true)
-    target.remove()
-  })
 
-  it('renders nothing usable when the path is malformed (no prefix)', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchResultsView, {
-      target,
-      props: {
-        // Wrong prefix: SearchResultsView extracts null and treats it as missing.
-        path: '/not/a/snapshot/url',
-        cursorIndex: 0,
-        isFocused: false,
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onNavigate: () => {},
-        onSelect: () => {},
-      },
+    it('reports isMissing() === true when the snapshot lookup fails', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        const component = mount(SearchResultsView, {
+            target,
+            props: {
+                path: 'search-results://not-there',
+                cursorIndex: 0,
+                isFocused: false,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        const api = component as unknown as { isMissing: () => boolean }
+        expect(api.isMissing()).toBe(true)
+        target.remove()
     })
-    await tick()
-    expect(target.querySelector('.snapshot-missing')).not.toBeNull()
-    target.remove()
-  })
+
+    it('renders nothing usable when the path is malformed (no prefix)', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchResultsView, {
+            target,
+            props: {
+                // Wrong prefix: SearchResultsView extracts null and treats it as missing.
+                path: '/not/a/snapshot/url',
+                cursorIndex: 0,
+                isFocused: false,
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onNavigate: () => {},
+                onSelect: () => {},
+            },
+        })
+        await tick()
+        expect(target.querySelector('.snapshot-missing')).not.toBeNull()
+        target.remove()
+    })
 })

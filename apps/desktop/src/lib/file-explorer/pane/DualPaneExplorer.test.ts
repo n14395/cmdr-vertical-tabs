@@ -5,253 +5,253 @@ import DualPaneExplorer from './DualPaneExplorer.svelte'
 
 // Mock the app-status-store to avoid Tauri dependency in tests
 vi.mock('$lib/app-status-store', () => ({
-  loadAppStatus: vi.fn().mockResolvedValue({
-    leftPath: '~',
-    rightPath: '~',
-    focusedPane: 'left',
-    leftVolumeId: 'root',
-    rightVolumeId: 'root',
-    leftSortBy: 'name',
-    rightSortBy: 'name',
-    leftViewMode: 'brief',
-    rightViewMode: 'brief',
-    leftPaneWidthPercent: 50,
-    firstRunLayoutApplied: true,
-  }),
-  saveAppStatus: vi.fn(),
-  saveAppStatusNow: vi.fn().mockResolvedValue(undefined),
-  hasPersistedPaneState: vi.fn().mockResolvedValue(true),
-  getLastUsedPathForVolume: vi.fn().mockResolvedValue(undefined),
-  saveLastUsedPathForVolume: vi.fn().mockResolvedValue(undefined),
-  loadPaneTabs: vi.fn().mockResolvedValue({
-    tabs: [
-      {
-        id: 'mock-tab-id',
-        path: '~',
-        volumeId: 'root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        viewMode: 'brief',
-        pinned: false,
-      },
-    ],
-    activeTabId: 'mock-tab-id',
-  }),
-  savePaneTabs: vi.fn().mockResolvedValue(undefined),
+    loadAppStatus: vi.fn().mockResolvedValue({
+        leftPath: '~',
+        rightPath: '~',
+        focusedPane: 'left',
+        leftVolumeId: 'root',
+        rightVolumeId: 'root',
+        leftSortBy: 'name',
+        rightSortBy: 'name',
+        leftViewMode: 'brief',
+        rightViewMode: 'brief',
+        leftPaneWidthPercent: 50,
+        firstRunLayoutApplied: true,
+    }),
+    saveAppStatus: vi.fn(),
+    saveAppStatusNow: vi.fn().mockResolvedValue(undefined),
+    hasPersistedPaneState: vi.fn().mockResolvedValue(true),
+    getLastUsedPathForVolume: vi.fn().mockResolvedValue(undefined),
+    saveLastUsedPathForVolume: vi.fn().mockResolvedValue(undefined),
+    loadPaneTabs: vi.fn().mockResolvedValue({
+        tabs: [
+            {
+                id: 'mock-tab-id',
+                path: '~',
+                volumeId: 'root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                viewMode: 'brief',
+                pinned: false,
+            },
+        ],
+        activeTabId: 'mock-tab-id',
+    }),
+    savePaneTabs: vi.fn().mockResolvedValue(undefined),
 }))
 
 // @tauri-apps/api/event is mocked globally in test-setup.ts
 
 vi.mock('@tauri-apps/api/core', () => ({
-  invoke: vi.fn(),
+    invoke: vi.fn(),
 }))
 
 // Mock pathExists
 vi.mock('$lib/tauri-commands', () => ({
-  pathExists: vi.fn().mockResolvedValue(true),
-  listDirectoryStartSession: vi.fn().mockResolvedValue({
-    sessionId: 'mock-session-id',
-    totalCount: 0,
-    entries: [],
-    hasMore: false,
-  }),
-  listDirectoryNextChunk: vi.fn().mockResolvedValue({
-    entries: [],
-    hasMore: false,
-  }),
-  listDirectoryEndSession: vi.fn().mockResolvedValue(undefined),
-  // The pane tears an abandoned listing down with BOTH of these (see
-  // `listing-loader.ts::abandonListing`), so both have to exist here.
-  cancelListing: vi.fn().mockResolvedValue(undefined),
-  listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
-  openFile: vi.fn().mockResolvedValue(undefined),
-  getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  listen: vi.fn(() => Promise.resolve(() => {})),
-  showFileContextMenu: vi.fn(() => Promise.resolve()),
-  updateMenuContext: vi.fn(() => Promise.resolve()),
-  getRestrictedPaths: vi.fn().mockResolvedValue([]),
-  checkFullDiskAccessQuiet: vi.fn().mockResolvedValue(true),
-  hasFontMetrics: vi.fn().mockResolvedValue(true),
-  storeFontMetrics: vi.fn().mockResolvedValue(undefined),
-  listVolumes: vi.fn().mockResolvedValue({
-    data: [{ id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false }],
-    timedOut: false,
-  }),
-  getBusyVolumeIds: vi.fn().mockResolvedValue([]),
-  resolvePathVolume: vi.fn().mockResolvedValue({
-    volume: {
-      id: 'root',
-      name: 'Macintosh HD',
-      path: '/',
-      category: 'main_volume',
-      isEjectable: false,
-    },
-    timedOut: false,
-  }),
-  getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
-  getVolumeSpace: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
-  getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  // FilePane's onMount registers these image-enrichment listeners.
-  onMediaEnrichProgress: vi.fn().mockResolvedValue(() => {}),
-  onMediaEnrichTerminal: vi.fn().mockResolvedValue(() => {}),
-  refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
-  DEFAULT_VOLUME_ID: 'root',
-  getE2eStartPath: vi.fn().mockResolvedValue(null),
-  getFileAt: vi.fn().mockResolvedValue(null),
-  updateFocusedPane: vi.fn().mockResolvedValue(undefined),
-  findFileIndex: vi.fn().mockResolvedValue(null),
-  resortListing: vi.fn().mockResolvedValue({}),
-  // Network discovery mocks
-  listNetworkHosts: vi.fn().mockResolvedValue([]),
-  getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
-  resolveNetworkHost: vi.fn().mockResolvedValue(null),
-  // MTP device mocks
-  listMtpDevices: vi.fn().mockResolvedValue([]),
-  onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
-  onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
-  onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
-  onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
-  onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
-  onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
-  // Tab mocks
-  updatePaneTabs: vi.fn().mockResolvedValue(undefined),
-  updatePinTabMenu: vi.fn().mockResolvedValue(undefined),
-  setReopenClosedTabEnabled: vi.fn().mockResolvedValue(undefined),
-  showTabContextMenu: vi.fn().mockResolvedValue(null),
-  updateViewModeMenu: vi.fn().mockResolvedValue(undefined),
-  // The menu bar was rebuilt in a new language, so this window re-pushes what
-  // only it knows (accelerators, the pin label, the reopen flag, the enable state).
-  onMenuBarRebuilt: vi.fn().mockResolvedValue(() => {}),
-  activateWindowMenu: vi.fn().mockResolvedValue(undefined),
-  // Volume space polling
-  watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
-  // Eject
-  ejectVolume: vi.fn().mockResolvedValue(undefined),
-  onVolumeContextAction: vi.fn().mockResolvedValue(() => {}),
-  onVolumeUnmounted: vi.fn().mockResolvedValue(() => {}),
-  onVolumesChanged: vi.fn().mockResolvedValue(() => {}),
-  onVolumesBusyChanged: vi.fn().mockResolvedValue(() => {}),
-  onVolumeConnectionChanged: vi.fn().mockResolvedValue(() => {}),
-  onNetworkHostFound: vi.fn().mockResolvedValue(() => {}),
-  onNetworkHostLost: vi.fn().mockResolvedValue(() => {}),
-  onNetworkHostResolved: vi.fn().mockResolvedValue(() => {}),
-  onNetworkDiscoveryStateChanged: vi.fn().mockResolvedValue(() => {}),
-  onIndexDirUpdated: vi.fn().mockResolvedValue(() => {}),
-  // Typed-event wrappers reached transitively by the mounted pane tree
-  // (listing-diff-sync, drag-drop-controller, restricted-paths store, git).
-  onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
-  onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
-  onDragImageSize: vi.fn().mockResolvedValue(() => {}),
-  onDragModifiers: vi.fn().mockResolvedValue(() => {}),
-  onRestrictedPathsChanged: vi.fn().mockResolvedValue(() => {}),
-  onGitStateChanged: vi.fn().mockResolvedValue(() => {}),
+    pathExists: vi.fn().mockResolvedValue(true),
+    listDirectoryStartSession: vi.fn().mockResolvedValue({
+        sessionId: 'mock-session-id',
+        totalCount: 0,
+        entries: [],
+        hasMore: false,
+    }),
+    listDirectoryNextChunk: vi.fn().mockResolvedValue({
+        entries: [],
+        hasMore: false,
+    }),
+    listDirectoryEndSession: vi.fn().mockResolvedValue(undefined),
+    // The pane tears an abandoned listing down with BOTH of these (see
+    // `listing-loader.ts::abandonListing`), so both have to exist here.
+    cancelListing: vi.fn().mockResolvedValue(undefined),
+    listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
+    openFile: vi.fn().mockResolvedValue(undefined),
+    getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    listen: vi.fn(() => Promise.resolve(() => {})),
+    showFileContextMenu: vi.fn(() => Promise.resolve()),
+    updateMenuContext: vi.fn(() => Promise.resolve()),
+    getRestrictedPaths: vi.fn().mockResolvedValue([]),
+    checkFullDiskAccessQuiet: vi.fn().mockResolvedValue(true),
+    hasFontMetrics: vi.fn().mockResolvedValue(true),
+    storeFontMetrics: vi.fn().mockResolvedValue(undefined),
+    listVolumes: vi.fn().mockResolvedValue({
+        data: [{ id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false }],
+        timedOut: false,
+    }),
+    getBusyVolumeIds: vi.fn().mockResolvedValue([]),
+    resolvePathVolume: vi.fn().mockResolvedValue({
+        volume: {
+            id: 'root',
+            name: 'Macintosh HD',
+            path: '/',
+            category: 'main_volume',
+            isEjectable: false,
+        },
+        timedOut: false,
+    }),
+    getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
+    getVolumeSpace: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
+    getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    // FilePane's onMount registers these image-enrichment listeners.
+    onMediaEnrichProgress: vi.fn().mockResolvedValue(() => {}),
+    onMediaEnrichTerminal: vi.fn().mockResolvedValue(() => {}),
+    refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
+    DEFAULT_VOLUME_ID: 'root',
+    getE2eStartPath: vi.fn().mockResolvedValue(null),
+    getFileAt: vi.fn().mockResolvedValue(null),
+    updateFocusedPane: vi.fn().mockResolvedValue(undefined),
+    findFileIndex: vi.fn().mockResolvedValue(null),
+    resortListing: vi.fn().mockResolvedValue({}),
+    // Network discovery mocks
+    listNetworkHosts: vi.fn().mockResolvedValue([]),
+    getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
+    resolveNetworkHost: vi.fn().mockResolvedValue(null),
+    // MTP device mocks
+    listMtpDevices: vi.fn().mockResolvedValue([]),
+    onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
+    onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
+    onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
+    onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
+    onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
+    onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
+    // Tab mocks
+    updatePaneTabs: vi.fn().mockResolvedValue(undefined),
+    updatePinTabMenu: vi.fn().mockResolvedValue(undefined),
+    setReopenClosedTabEnabled: vi.fn().mockResolvedValue(undefined),
+    showTabContextMenu: vi.fn().mockResolvedValue(null),
+    updateViewModeMenu: vi.fn().mockResolvedValue(undefined),
+    // The menu bar was rebuilt in a new language, so this window re-pushes what
+    // only it knows (accelerators, the pin label, the reopen flag, the enable state).
+    onMenuBarRebuilt: vi.fn().mockResolvedValue(() => {}),
+    activateWindowMenu: vi.fn().mockResolvedValue(undefined),
+    // Volume space polling
+    watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
+    // Eject
+    ejectVolume: vi.fn().mockResolvedValue(undefined),
+    onVolumeContextAction: vi.fn().mockResolvedValue(() => {}),
+    onVolumeUnmounted: vi.fn().mockResolvedValue(() => {}),
+    onVolumesChanged: vi.fn().mockResolvedValue(() => {}),
+    onVolumesBusyChanged: vi.fn().mockResolvedValue(() => {}),
+    onVolumeConnectionChanged: vi.fn().mockResolvedValue(() => {}),
+    onNetworkHostFound: vi.fn().mockResolvedValue(() => {}),
+    onNetworkHostLost: vi.fn().mockResolvedValue(() => {}),
+    onNetworkHostResolved: vi.fn().mockResolvedValue(() => {}),
+    onNetworkDiscoveryStateChanged: vi.fn().mockResolvedValue(() => {}),
+    onIndexDirUpdated: vi.fn().mockResolvedValue(() => {}),
+    // Typed-event wrappers reached transitively by the mounted pane tree
+    // (listing-diff-sync, drag-drop-controller, restricted-paths store, git).
+    onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
+    onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
+    onDragImageSize: vi.fn().mockResolvedValue(() => {}),
+    onDragModifiers: vi.fn().mockResolvedValue(() => {}),
+    onRestrictedPathsChanged: vi.fn().mockResolvedValue(() => {}),
+    onGitStateChanged: vi.fn().mockResolvedValue(() => {}),
 }))
 
 // Mock settings-store to avoid Tauri event API dependency in tests
 
 // Mock $lib/settings to avoid @tauri-apps/plugin-store dependency (used by network-store via initializeSettings)
 vi.mock('$lib/settings', () => ({
-  initializeSettings: vi.fn().mockResolvedValue(undefined),
-  getSetting: vi.fn().mockReturnValue(undefined),
-  onSpecificSettingChange: vi.fn(() => () => {}),
-  onSettingChange: vi.fn(() => () => {}),
+    initializeSettings: vi.fn().mockResolvedValue(undefined),
+    getSetting: vi.fn().mockReturnValue(undefined),
+    onSpecificSettingChange: vi.fn(() => () => {}),
+    onSettingChange: vi.fn(() => () => {}),
 }))
 
 describe('DualPaneExplorer', () => {
-  it('renders dual pane container', () => {
-    const target = document.createElement('div')
-    mount(DualPaneExplorer, { target })
+    it('renders dual pane container', () => {
+        const target = document.createElement('div')
+        mount(DualPaneExplorer, { target })
 
-    expect(target.querySelector('.dual-pane-explorer')).toBeTruthy()
-  })
-
-  it('renders two file panes after initialization', async () => {
-    const target = document.createElement('div')
-    mount(DualPaneExplorer, { target })
-
-    // Wait for async initialization (paths, volumes, settings, resolvePathVolume)
-    // The initialization now includes more async calls, so we need more ticks
-    for (let i = 0; i < 10; i++) {
-      await tick()
-    }
-    // Small additional delay to ensure all promises resolve
-    await new Promise((resolve) => setTimeout(resolve, 10))
-    await tick()
-
-    const panes = target.querySelectorAll('.file-pane')
-    expect(panes).toHaveLength(2)
-  })
-
-  it('shows loading state initially', () => {
-    const target = document.createElement('div')
-    mount(DualPaneExplorer, { target })
-
-    expect(target.textContent).toContain('Loading')
-  })
-
-  it('syncs the restored focused pane to the backend at startup', async () => {
-    const { loadAppStatus } = await import('$lib/app-status-store')
-    const { updateFocusedPane } = await import('$lib/tauri-commands')
-    vi.mocked(loadAppStatus).mockResolvedValue({
-      leftPath: '~/Downloads',
-      rightPath: '~/_ignored/screenshots',
-      focusedPane: 'right',
-      leftVolumeId: 'root',
-      rightVolumeId: 'root',
-      leftSortBy: 'name',
-      rightSortBy: 'name',
-      leftViewMode: 'brief',
-      rightViewMode: 'brief',
-      leftPaneWidthPercent: 50,
-      sideTabStripWidth: 180,
-      askCmdrRailOpen: false,
-      askCmdrRailWidth: 340,
-      firstRunLayoutApplied: true,
+        expect(target.querySelector('.dual-pane-explorer')).toBeTruthy()
     })
-    vi.mocked(updateFocusedPane).mockClear()
 
-    const target = document.createElement('div')
-    mount(DualPaneExplorer, { target })
-    for (let i = 0; i < 10; i++) await tick()
-    await new Promise((resolve) => setTimeout(resolve, 10))
-    await tick()
+    it('renders two file panes after initialization', async () => {
+        const target = document.createElement('div')
+        mount(DualPaneExplorer, { target })
 
-    expect(updateFocusedPane).toHaveBeenCalledWith('right')
-  })
+        // Wait for async initialization (paths, volumes, settings, resolvePathVolume)
+        // The initialization now includes more async calls, so we need more ticks
+        for (let i = 0; i < 10; i++) {
+            await tick()
+        }
+        // Small additional delay to ensure all promises resolve
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        await tick()
+
+        const panes = target.querySelectorAll('.file-pane')
+        expect(panes).toHaveLength(2)
+    })
+
+    it('shows loading state initially', () => {
+        const target = document.createElement('div')
+        mount(DualPaneExplorer, { target })
+
+        expect(target.textContent).toContain('Loading')
+    })
+
+    it('syncs the restored focused pane to the backend at startup', async () => {
+        const { loadAppStatus } = await import('$lib/app-status-store')
+        const { updateFocusedPane } = await import('$lib/tauri-commands')
+        vi.mocked(loadAppStatus).mockResolvedValue({
+            leftPath: '~/Downloads',
+            rightPath: '~/_ignored/screenshots',
+            focusedPane: 'right',
+            leftVolumeId: 'root',
+            rightVolumeId: 'root',
+            leftSortBy: 'name',
+            rightSortBy: 'name',
+            leftViewMode: 'brief',
+            rightViewMode: 'brief',
+            leftPaneWidthPercent: 50,
+            sideTabStripWidth: 180,
+            askCmdrRailOpen: false,
+            askCmdrRailWidth: 340,
+            firstRunLayoutApplied: true,
+        })
+        vi.mocked(updateFocusedPane).mockClear()
+
+        const target = document.createElement('div')
+        mount(DualPaneExplorer, { target })
+        for (let i = 0; i < 10; i++) await tick()
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        await tick()
+
+        expect(updateFocusedPane).toHaveBeenCalledWith('right')
+    })
 })
 
 describe('Sorting integration', () => {
-  it('initializes sort state from persisted app status', async () => {
-    const { loadAppStatus } = await import('$lib/app-status-store')
-    const mockLoadAppStatus = vi.mocked(loadAppStatus)
-    mockLoadAppStatus.mockResolvedValue({
-      leftPath: '~',
-      rightPath: '~',
-      focusedPane: 'left',
-      leftVolumeId: 'root',
-      rightVolumeId: 'root',
-      leftSortBy: 'size',
-      rightSortBy: 'modified',
-      leftViewMode: 'brief',
-      rightViewMode: 'brief',
-      leftPaneWidthPercent: 50,
-      sideTabStripWidth: 180,
-      askCmdrRailOpen: false,
-      askCmdrRailWidth: 340,
-      firstRunLayoutApplied: true,
+    it('initializes sort state from persisted app status', async () => {
+        const { loadAppStatus } = await import('$lib/app-status-store')
+        const mockLoadAppStatus = vi.mocked(loadAppStatus)
+        mockLoadAppStatus.mockResolvedValue({
+            leftPath: '~',
+            rightPath: '~',
+            focusedPane: 'left',
+            leftVolumeId: 'root',
+            rightVolumeId: 'root',
+            leftSortBy: 'size',
+            rightSortBy: 'modified',
+            leftViewMode: 'brief',
+            rightViewMode: 'brief',
+            leftPaneWidthPercent: 50,
+            sideTabStripWidth: 180,
+            askCmdrRailOpen: false,
+            askCmdrRailWidth: 340,
+            firstRunLayoutApplied: true,
+        })
+
+        const target = document.createElement('div')
+        mount(DualPaneExplorer, { target })
+
+        // Wait for initialization
+        for (let i = 0; i < 10; i++) {
+            await tick()
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        await tick()
+
+        // loadAppStatus should have been called during initialization
+        expect(mockLoadAppStatus).toHaveBeenCalled()
     })
-
-    const target = document.createElement('div')
-    mount(DualPaneExplorer, { target })
-
-    // Wait for initialization
-    for (let i = 0; i < 10; i++) {
-      await tick()
-    }
-    await new Promise((resolve) => setTimeout(resolve, 10))
-    await tick()
-
-    // loadAppStatus should have been called during initialization
-    expect(mockLoadAppStatus).toHaveBeenCalled()
-  })
 })

@@ -24,17 +24,17 @@ import { dirEntry, fileEntry, mountFullList } from './test-full-list'
 vi.mock('$lib/tauri-commands', async () => (await import('./test-file-list-mocks')).tauriCommandsMock())
 vi.mock('$lib/icon-cache', async () => (await import('./test-file-list-mocks')).iconCacheMock())
 vi.mock('$lib/settings/reactive-settings.svelte', async () =>
-  (await import('./test-file-list-mocks')).reactiveSettingsMock(),
+    (await import('./test-file-list-mocks')).reactiveSettingsMock(),
 )
 vi.mock('$lib/settings/settings-store', async () => (await import('./test-file-list-mocks')).settingsStoreMock())
 
 // The walked ground is per volume, so the mock answers per volume too: `root` has
 // a walker on one whole folder and deep inside another; `usb` has none.
 vi.mock('$lib/indexing/index-state.svelte', async () =>
-  (await import('./test-file-list-mocks')).indexStateMock({
-    getWalkedGround: (volumeId: string) =>
-      volumeId === 'root' ? ['/root/downloads', '/root/projects/cmdr/target'] : [],
-  }),
+    (await import('./test-file-list-mocks')).indexStateMock({
+        getWalkedGround: (volumeId: string) =>
+            volumeId === 'root' ? ['/root/downloads', '/root/projects/cmdr/target'] : [],
+    }),
 )
 
 /**
@@ -42,34 +42,34 @@ vi.mock('$lib/indexing/index-state.svelte', async () =>
  * prefix, an unrelated folder, a folder ABOVE walked ground, and a plain file.
  */
 const ENTRIES = [
-  dirEntry({ name: 'downloads' }),
-  dirEntry({ name: 'downloads-old' }),
-  dirEntry({ name: 'music' }),
-  dirEntry({ name: 'projects' }),
-  fileEntry({ name: 'notes.txt' }),
+    dirEntry({ name: 'downloads' }),
+    dirEntry({ name: 'downloads-old' }),
+    dirEntry({ name: 'music' }),
+    dirEntry({ name: 'projects' }),
+    fileEntry({ name: 'notes.txt' }),
 ]
 
 describe('FullList per-folder walk hourglass', () => {
-  it('marks the walked folder and the folder above the walked ground, and nothing else', async () => {
-    const list = await mountFullList({ entries: ENTRIES })
+    it('marks the walked folder and the folder above the walked ground, and nothing else', async () => {
+        const list = await mountFullList({ entries: ENTRIES })
 
-    // Every row is on screen: without this the negative half below would pass
-    // against an empty list.
-    expect(list.rowNames()).toEqual(['downloads', 'downloads-old', 'music', 'projects', 'notes.txt'])
+        // Every row is on screen: without this the negative half below would pass
+        // against an empty list.
+        expect(list.rowNames()).toEqual(['downloads', 'downloads-old', 'music', 'projects', 'notes.txt'])
 
-    expect(list.hourglassRowNames()).toEqual([
-      // The walker is on this folder itself.
-      'downloads',
-      // The walker is deep inside `/root/projects/cmdr/target`; the roll-up will
-      // move this ancestor's number, so it reads as in flux too.
-      'projects',
-    ])
-  })
+        expect(list.hourglassRowNames()).toEqual([
+            // The walker is on this folder itself.
+            'downloads',
+            // The walker is deep inside `/root/projects/cmdr/target`; the roll-up will
+            // move this ancestor's number, so it reads as in flux too.
+            'projects',
+        ])
+    })
 
-  it('leaves every row settled when nothing on this pane’s volume is under a walker', async () => {
-    const list = await mountFullList({ entries: ENTRIES, props: { volumeId: 'usb' } })
+    it('leaves every row settled when nothing on this pane’s volume is under a walker', async () => {
+        const list = await mountFullList({ entries: ENTRIES, props: { volumeId: 'usb' } })
 
-    expect(list.rowNames()).toHaveLength(5)
-    expect(list.hourglassRowNames()).toEqual([])
-  })
+        expect(list.rowNames()).toHaveLength(5)
+        expect(list.hourglassRowNames()).toEqual([])
+    })
 })

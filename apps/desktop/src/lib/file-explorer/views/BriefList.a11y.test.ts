@@ -14,170 +14,171 @@ import { expectNoA11yViolations } from '$lib/test-a11y'
 import type { FileEntry } from '../types'
 
 vi.mock('$lib/tauri-commands', () => ({
-  getFileRange: vi.fn(() => Promise.resolve([] as FileEntry[])),
-  getDirStatsBatch: vi.fn(() => Promise.resolve({})),
+    getFileRange: vi.fn(() => Promise.resolve([] as FileEntry[])),
+    getDirStatsBatch: vi.fn(() => Promise.resolve({})),
 }))
 
 vi.mock('$lib/icon-cache', async () => {
-  const { writable } = await import('svelte/store')
-  return {
-    getCachedIcon: () => undefined,
-    iconCacheVersion: writable(0),
-    iconCacheCleared: writable(0),
-    prefetchIcons: vi.fn(),
-  }
+    const { writable } = await import('svelte/store')
+    return {
+        getCachedIcon: () => undefined,
+        getCachedCustomFolderIcon: () => undefined,
+        iconCacheVersion: writable(0),
+        iconCacheCleared: writable(0),
+        prefetchIcons: vi.fn(),
+    }
 })
 
 vi.mock('$lib/indexing/index-state.svelte', () => ({
-  isVolumeScanning: () => false,
-  isVolumeAggregating: () => false,
-  getWalkedGround: () => [],
+    isVolumeScanning: () => false,
+    isVolumeAggregating: () => false,
+    getWalkedGround: () => [],
 }))
 
 vi.mock('$lib/settings/reactive-settings.svelte', () => ({
-  getRowHeight: () => 20,
-  getIsCompactDensity: () => false,
-  getIsCmdrGold: () => false,
-  getUseAppIconsForDocuments: () => true,
-  formatDateTime: (t: number | undefined) => (t ? '2025-03-14 10:30' : ''),
-  formatFileSize: (n: number) => `${String(n)} B`,
-  getSizeDisplayMode: () => 'smart',
-  getSizeMismatchWarning: () => false,
-  getStripedRows: () => false,
-  getShowTags: () => false,
-  getFileSizeUnit: () => 'bytes',
-  getFileSizeFormat: () => 'binary',
-  getBriefColumnWidthMode: () => 'paneWidth',
-  getBriefColumnWidthMaxPx: () => 400,
+    getRowHeight: () => 20,
+    getIsCompactDensity: () => false,
+    getIsCmdrGold: () => false,
+    getUseAppIconsForDocuments: () => true,
+    formatDateTime: (t: number | undefined) => (t ? '2025-03-14 10:30' : ''),
+    formatFileSize: (n: number) => `${String(n)} B`,
+    getSizeDisplayMode: () => 'smart',
+    getSizeMismatchWarning: () => false,
+    getStripedRows: () => false,
+    getShowTags: () => false,
+    getFileSizeUnit: () => 'bytes',
+    getFileSizeFormat: () => 'binary',
+    getBriefColumnWidthMode: () => 'paneWidth',
+    getBriefColumnWidthMaxPx: () => 400,
 }))
 
 vi.mock('$lib/settings/settings-store', () => ({
-  getSetting: (key: string) => {
-    if (key === 'advanced.virtualizationBufferColumns') return 2
-    return undefined
-  },
+    getSetting: (key: string) => {
+        if (key === 'advanced.virtualizationBufferColumns') return 2
+        return undefined
+    },
 }))
 
 describe('BriefList a11y', () => {
-  // Pins the `aria-activedescendant` gate: the cursor exists but no row is
-  // rendered, so the attribute must be absent rather than name a missing id.
-  it('empty folder with a cursor has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(BriefList, {
-      target,
-      props: {
-        listingId: 'l1',
-        volumeId: 'root',
-        totalCount: 0,
-        includeHidden: false,
-        cursorIndex: 0,
-        isFocused: true,
-        hasParent: false,
-        parentPath: '',
-        currentPath: '/root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onSelect: () => {},
-        onNavigate: () => {},
-      },
+    // Pins the `aria-activedescendant` gate: the cursor exists but no row is
+    // rendered, so the attribute must be absent rather than name a missing id.
+    it('empty folder with a cursor has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(BriefList, {
+            target,
+            props: {
+                listingId: 'l1',
+                volumeId: 'root',
+                totalCount: 0,
+                includeHidden: false,
+                cursorIndex: 0,
+                isFocused: true,
+                hasParent: false,
+                parentPath: '',
+                currentPath: '/root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onSelect: () => {},
+                onNavigate: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 
-  it('empty folder with no cursor has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(BriefList, {
-      target,
-      props: {
-        listingId: 'l1',
-        volumeId: 'root',
-        totalCount: 0,
-        includeHidden: false,
-        cursorIndex: -1,
-        isFocused: true,
-        hasParent: false,
-        parentPath: '',
-        currentPath: '/root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onSelect: () => {},
-        onNavigate: () => {},
-      },
+    it('empty folder with no cursor has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(BriefList, {
+            target,
+            props: {
+                listingId: 'l1',
+                volumeId: 'root',
+                totalCount: 0,
+                includeHidden: false,
+                cursorIndex: -1,
+                isFocused: true,
+                hasParent: false,
+                parentPath: '',
+                currentPath: '/root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onSelect: () => {},
+                onNavigate: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 
-  it('populated (with parent entry + cached row) has no a11y violations', async () => {
-    const mockEntries: FileEntry[] = [
-      {
-        name: 'report.md',
-        path: '/root/report.md',
-        isDirectory: false,
-        isSymlink: false,
-        size: 2048,
-        modifiedAt: 1710000000,
-        iconId: 'ext:md',
-        permissions: 420,
-        owner: 'test',
-        group: 'staff',
-        extendedMetadataLoaded: false,
-      },
-    ]
-    const { getFileRange } = await import('$lib/tauri-commands')
-    vi.mocked(getFileRange).mockResolvedValue(mockEntries)
+    it('populated (with parent entry + cached row) has no a11y violations', async () => {
+        const mockEntries: FileEntry[] = [
+            {
+                name: 'report.md',
+                path: '/root/report.md',
+                isDirectory: false,
+                isSymlink: false,
+                size: 2048,
+                modifiedAt: 1710000000,
+                iconId: 'ext:md',
+                permissions: 420,
+                owner: 'test',
+                group: 'staff',
+                extendedMetadataLoaded: false,
+            },
+        ]
+        const { getFileRange } = await import('$lib/tauri-commands')
+        vi.mocked(getFileRange).mockResolvedValue(mockEntries)
 
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(BriefList, {
-      target,
-      props: {
-        listingId: 'l2',
-        volumeId: 'root',
-        totalCount: 1,
-        includeHidden: false,
-        cursorIndex: 0,
-        isFocused: true,
-        hasParent: true,
-        parentPath: '/root/..',
-        currentPath: '/root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onSelect: () => {},
-        onNavigate: () => {},
-      },
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(BriefList, {
+            target,
+            props: {
+                listingId: 'l2',
+                volumeId: 'root',
+                totalCount: 1,
+                includeHidden: false,
+                cursorIndex: 0,
+                isFocused: true,
+                hasParent: true,
+                parentPath: '/root/..',
+                currentPath: '/root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onSelect: () => {},
+                onNavigate: () => {},
+            },
+        })
+        await tick()
+        await new Promise((r) => setTimeout(r, 0))
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await new Promise((r) => setTimeout(r, 0))
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 
-  it('unfocused pane has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(BriefList, {
-      target,
-      props: {
-        listingId: 'l3',
-        volumeId: 'root',
-        totalCount: 0,
-        includeHidden: false,
-        cursorIndex: -1,
-        isFocused: false,
-        hasParent: false,
-        parentPath: '',
-        currentPath: '/root',
-        sortBy: 'name',
-        sortOrder: 'ascending',
-        onSelect: () => {},
-        onNavigate: () => {},
-      },
+    it('unfocused pane has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(BriefList, {
+            target,
+            props: {
+                listingId: 'l3',
+                volumeId: 'root',
+                totalCount: 0,
+                includeHidden: false,
+                cursorIndex: -1,
+                isFocused: false,
+                hasParent: false,
+                parentPath: '',
+                currentPath: '/root',
+                sortBy: 'name',
+                sortOrder: 'ascending',
+                onSelect: () => {},
+                onNavigate: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 })

@@ -9,9 +9,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { FileEntry } from '../types'
 
 const mocks = vi.hoisted(() => ({
-  fetchStatusMap: vi.fn(),
-  onGitStateChanged: vi.fn(),
-  unlisten: vi.fn(),
+    fetchStatusMap: vi.fn(),
+    onGitStateChanged: vi.fn(),
+    unlisten: vi.fn(),
 }))
 
 vi.mock('$lib/tauri-commands', () => ({ onGitStateChanged: mocks.onGitStateChanged }))
@@ -23,179 +23,179 @@ import { createGitStatusColumn } from './full-list-git-column.svelte'
 let emitGitStateChanged: (payload: { repoRoot: string }) => void
 
 function file(path: string): FileEntry {
-  return {
-    name: path.split('/').pop() ?? '',
-    path,
-    isDirectory: false,
-    isSymlink: false,
-    permissions: 0o644,
-    owner: 'me',
-    group: 'staff',
-    iconId: 'icon',
-    extendedMetadataLoaded: false,
-  }
+    return {
+        name: path.split('/').pop() ?? '',
+        path,
+        isDirectory: false,
+        isSymlink: false,
+        permissions: 0o644,
+        owner: 'me',
+        group: 'staff',
+        iconId: 'icon',
+        extendedMetadataLoaded: false,
+    }
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
-  emitGitStateChanged = () => {}
-  mocks.fetchStatusMap.mockResolvedValue(new Map([['src/a.ts', 'M']]))
-  mocks.onGitStateChanged.mockImplementation((cb: (payload: { repoRoot: string }) => void) => {
-    emitGitStateChanged = cb
-    return Promise.resolve(mocks.unlisten)
-  })
+    vi.clearAllMocks()
+    emitGitStateChanged = () => {}
+    mocks.fetchStatusMap.mockResolvedValue(new Map([['src/a.ts', 'M']]))
+    mocks.onGitStateChanged.mockImplementation((cb: (payload: { repoRoot: string }) => void) => {
+        emitGitStateChanged = cb
+        return Promise.resolve(mocks.unlisten)
+    })
 })
 
 describe('watch', () => {
-  it('loads the map for the directory on screen', async () => {
-    const column = createGitStatusColumn()
+    it('loads the map for the directory on screen', async () => {
+        const column = createGitStatusColumn()
 
-    column.watch('/repo', '/repo/src')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/repo/src/a.ts'))).toBe('M')
-    })
-    expect(mocks.fetchStatusMap).toHaveBeenCalledWith('/repo', '/repo/src')
-  })
-
-  it('clears the map and listens to nothing outside a worktree', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/repo', '/repo/src')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/repo/src/a.ts'))).toBe('M')
+        column.watch('/repo', '/repo/src')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/repo/src/a.ts'))).toBe('M')
+        })
+        expect(mocks.fetchStatusMap).toHaveBeenCalledWith('/repo', '/repo/src')
     })
 
-    column.watch(null, '/elsewhere')
+    it('clears the map and listens to nothing outside a worktree', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/repo', '/repo/src')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/repo/src/a.ts'))).toBe('M')
+        })
 
-    expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
-    expect(mocks.fetchStatusMap).toHaveBeenCalledOnce()
-  })
+        column.watch(null, '/elsewhere')
 
-  it('reloads when the watcher reports a change in this repo', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/repo', '/repo/src')
-    await vi.waitFor(() => {
-      expect(mocks.onGitStateChanged).toHaveBeenCalled()
+        expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
+        expect(mocks.fetchStatusMap).toHaveBeenCalledOnce()
     })
 
-    emitGitStateChanged({ repoRoot: '/repo' })
+    it('reloads when the watcher reports a change in this repo', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/repo', '/repo/src')
+        await vi.waitFor(() => {
+            expect(mocks.onGitStateChanged).toHaveBeenCalled()
+        })
 
-    await vi.waitFor(() => {
-      expect(mocks.fetchStatusMap).toHaveBeenCalledTimes(2)
-    })
-  })
+        emitGitStateChanged({ repoRoot: '/repo' })
 
-  it('ignores a change in a different repo', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/repo', '/repo/src')
-    await vi.waitFor(() => {
-      expect(mocks.onGitStateChanged).toHaveBeenCalled()
-    })
-
-    emitGitStateChanged({ repoRoot: '/other-repo' })
-    await Promise.resolve()
-
-    expect(mocks.fetchStatusMap).toHaveBeenCalledOnce()
-  })
-
-  it('removes the watcher listener on teardown', async () => {
-    const column = createGitStatusColumn()
-    const stop = column.watch('/repo', '/repo/src')
-    await vi.waitFor(() => {
-      expect(mocks.onGitStateChanged).toHaveBeenCalled()
+        await vi.waitFor(() => {
+            expect(mocks.fetchStatusMap).toHaveBeenCalledTimes(2)
+        })
     })
 
-    stop()
+    it('ignores a change in a different repo', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/repo', '/repo/src')
+        await vi.waitFor(() => {
+            expect(mocks.onGitStateChanged).toHaveBeenCalled()
+        })
 
-    expect(mocks.unlisten).toHaveBeenCalledOnce()
-  })
+        emitGitStateChanged({ repoRoot: '/other-repo' })
+        await Promise.resolve()
 
-  it('drops a load that lands after teardown, so a stale folder cannot paint', async () => {
-    let land: (map: Map<string, string>) => void = () => {}
-    mocks.fetchStatusMap.mockReturnValue(
-      new Promise<Map<string, string>>((resolve) => {
-        land = resolve
-      }),
-    )
-    const column = createGitStatusColumn()
-    const stop = column.watch('/repo', '/repo/src')
-
-    stop()
-    land(new Map([['src/a.ts', 'M']]))
-    await Promise.resolve()
-
-    expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
-  })
-
-  it('unlistens immediately when the registration resolves after teardown', async () => {
-    const column = createGitStatusColumn()
-    const stop = column.watch('/repo', '/repo/src')
-
-    stop()
-    await vi.waitFor(() => {
-      expect(mocks.unlisten).toHaveBeenCalled()
+        expect(mocks.fetchStatusMap).toHaveBeenCalledOnce()
     })
-  })
 
-  it('shows no glyphs when the load fails', async () => {
-    mocks.fetchStatusMap.mockRejectedValue(new Error('not a repo'))
-    const column = createGitStatusColumn()
+    it('removes the watcher listener on teardown', async () => {
+        const column = createGitStatusColumn()
+        const stop = column.watch('/repo', '/repo/src')
+        await vi.waitFor(() => {
+            expect(mocks.onGitStateChanged).toHaveBeenCalled()
+        })
 
-    column.watch('/repo', '/repo/src')
-    await Promise.resolve()
+        stop()
 
-    expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
-  })
+        expect(mocks.unlisten).toHaveBeenCalledOnce()
+    })
+
+    it('drops a load that lands after teardown, so a stale folder cannot paint', async () => {
+        let land: (map: Map<string, string>) => void = () => {}
+        mocks.fetchStatusMap.mockReturnValue(
+            new Promise<Map<string, string>>((resolve) => {
+                land = resolve
+            }),
+        )
+        const column = createGitStatusColumn()
+        const stop = column.watch('/repo', '/repo/src')
+
+        stop()
+        land(new Map([['src/a.ts', 'M']]))
+        await Promise.resolve()
+
+        expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
+    })
+
+    it('unlistens immediately when the registration resolves after teardown', async () => {
+        const column = createGitStatusColumn()
+        const stop = column.watch('/repo', '/repo/src')
+
+        stop()
+        await vi.waitFor(() => {
+            expect(mocks.unlisten).toHaveBeenCalled()
+        })
+    })
+
+    it('shows no glyphs when the load fails', async () => {
+        mocks.fetchStatusMap.mockRejectedValue(new Error('not a repo'))
+        const column = createGitStatusColumn()
+
+        column.watch('/repo', '/repo/src')
+        await Promise.resolve()
+
+        expect(column.statusFor(file('/repo/src/a.ts'))).toBeNull()
+    })
 })
 
 describe('statusFor', () => {
-  beforeEach(() => {
-    mocks.fetchStatusMap.mockResolvedValue(
-      new Map([
-        ['src/a.ts', 'M'],
-        ['repo/nested.ts', 'A'],
-      ]),
-    )
-  })
-
-  it('keys by the path relative to the repo root', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/home/repo', '/home/repo/src')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
-    })
-  })
-
-  it('resolves a row whose path repeats the repo name below the root', async () => {
-    // Would break on a naive "strip everything before the last `repo/`" scheme.
-    const column = createGitStatusColumn()
-    column.watch('/home/repo', '/home/repo/repo')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/home/repo/repo/nested.ts'))).toBe('A')
-    })
-  })
-
-  it('tolerates a repo root with a trailing slash', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/home/repo/', '/home/repo/src')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
-    })
-  })
-
-  it('is null for a clean row and for one outside the worktree', async () => {
-    const column = createGitStatusColumn()
-    column.watch('/home/repo', '/home/repo/src')
-    await vi.waitFor(() => {
-      expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
+    beforeEach(() => {
+        mocks.fetchStatusMap.mockResolvedValue(
+            new Map([
+                ['src/a.ts', 'M'],
+                ['repo/nested.ts', 'A'],
+            ]),
+        )
     })
 
-    expect(column.statusFor(file('/home/repo/src/clean.ts'))).toBeNull()
-    expect(column.statusFor(file('/somewhere/else/a.ts'))).toBeNull()
-  })
+    it('keys by the path relative to the repo root', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/home/repo', '/home/repo/src')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
+        })
+    })
 
-  it('is null before the map lands', () => {
-    const column = createGitStatusColumn()
+    it('resolves a row whose path repeats the repo name below the root', async () => {
+        // Would break on a naive "strip everything before the last `repo/`" scheme.
+        const column = createGitStatusColumn()
+        column.watch('/home/repo', '/home/repo/repo')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/home/repo/repo/nested.ts'))).toBe('A')
+        })
+    })
 
-    expect(column.statusFor(file('/home/repo/src/a.ts'))).toBeNull()
-  })
+    it('tolerates a repo root with a trailing slash', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/home/repo/', '/home/repo/src')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
+        })
+    })
+
+    it('is null for a clean row and for one outside the worktree', async () => {
+        const column = createGitStatusColumn()
+        column.watch('/home/repo', '/home/repo/src')
+        await vi.waitFor(() => {
+            expect(column.statusFor(file('/home/repo/src/a.ts'))).toBe('M')
+        })
+
+        expect(column.statusFor(file('/home/repo/src/clean.ts'))).toBeNull()
+        expect(column.statusFor(file('/somewhere/else/a.ts'))).toBeNull()
+    })
+
+    it('is null before the map lands', () => {
+        const column = createGitStatusColumn()
+
+        expect(column.statusFor(file('/home/repo/src/a.ts'))).toBeNull()
+    })
 })

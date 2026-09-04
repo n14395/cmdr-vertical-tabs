@@ -26,7 +26,7 @@ import { expectNoA11yViolations } from '$lib/test-a11y'
 // document-wide. Clearing between tests keeps each audit looking at its own
 // container only.
 afterEach(() => {
-  document.body.innerHTML = ''
+    document.body.innerHTML = ''
 })
 
 /**
@@ -36,47 +36,47 @@ afterEach(() => {
  * button doesn't trip nested-interactive or hidden-content rules.
  */
 describe('AiTransparencyStrip a11y', () => {
-  type Props = ComponentProps<typeof AiTransparencyStrip>
+    type Props = ComponentProps<typeof AiTransparencyStrip>
 
-  function baseProps(overrides: Partial<Props> = {}): Props {
-    return {
-      aiPrompt: 'screenshots from this week',
-      caveat: '',
-      summary: { pattern: null, patternKind: null, filters: [] },
-      ...overrides,
+    function baseProps(overrides: Partial<Props> = {}): Props {
+        return {
+            aiPrompt: 'screenshots from this week',
+            caveat: '',
+            summary: { pattern: null, patternKind: null, filters: [] },
+            ...overrides,
+        }
     }
-  }
 
-  it('has no a11y violations with a prompt only', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(AiTransparencyStrip, { target, props: baseProps() })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
-
-  it('has no a11y violations with a full summary, filters, and a caveat', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(AiTransparencyStrip, {
-      target,
-      props: baseProps({
-        caveat: "I treated 'big' as larger than 10 MB.",
-        summary: {
-          pattern: '*.{jpg,png,heic}',
-          patternKind: 'glob',
-          filters: [
-            { label: 'Size', value: '> 10 MB' },
-            { label: 'Type', value: 'Files only' },
-          ],
-        },
-      }),
+    it('has no a11y violations with a prompt only', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(AiTransparencyStrip, { target, props: baseProps() })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
     })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+
+    it('has no a11y violations with a full summary, filters, and a caveat', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(AiTransparencyStrip, {
+            target,
+            props: baseProps({
+                caveat: "I treated 'big' as larger than 10 MB.",
+                summary: {
+                    pattern: '*.{jpg,png,heic}',
+                    patternKind: 'glob',
+                    filters: [
+                        { label: 'Size', value: '> 10 MB' },
+                        { label: 'Type', value: 'Files only' },
+                    ],
+                },
+            }),
+        })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 })
 
 /**
@@ -87,43 +87,43 @@ describe('AiTransparencyStrip a11y', () => {
  * a keyboard-shortcut tip. Covered variants: AI-on and AI-off chip sets.
  */
 describe('EmptyState a11y', () => {
-  type Props = ComponentProps<typeof EmptyState>
+    type Props = ComponentProps<typeof EmptyState>
 
-  function baseProps(overrides: Partial<Props> = {}): Props {
-    return {
-      aiEnabled: true,
-      indexEntryCount: 10_123_456,
-      onPick: () => {},
-      ...overrides,
+    function baseProps(overrides: Partial<Props> = {}): Props {
+        return {
+            aiEnabled: true,
+            indexEntryCount: 10_123_456,
+            onPick: () => {},
+            ...overrides,
+        }
     }
-  }
 
-  it('AI-on variant has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(EmptyState, { target, props: baseProps() })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI-on variant has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(EmptyState, { target, props: baseProps() })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('AI-off variant has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(EmptyState, { target, props: baseProps({ aiEnabled: false }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI-off variant has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(EmptyState, { target, props: baseProps({ aiEnabled: false }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('zero-entry index has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(EmptyState, { target, props: baseProps({ indexEntryCount: 0 }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('zero-entry index has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(EmptyState, { target, props: baseProps({ indexEntryCount: 0 }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 })
 
 /**
@@ -133,53 +133,53 @@ describe('EmptyState a11y', () => {
  * chip is visible-disabled, so its disabled-but-described pattern lives in every case.
  */
 describe('SearchModeChips a11y', () => {
-  type Props = ComponentProps<typeof SearchModeChips>
+    type Props = ComponentProps<typeof SearchModeChips>
 
-  function baseProps(overrides: Partial<Props> = {}): Props {
-    return {
-      mode: 'filename',
-      aiEnabled: true,
-      disabled: false,
-      onSelect: () => {},
-      ...overrides,
+    function baseProps(overrides: Partial<Props> = {}): Props {
+        return {
+            mode: 'filename',
+            aiEnabled: true,
+            disabled: false,
+            onSelect: () => {},
+            ...overrides,
+        }
     }
-  }
 
-  it('AI-on (four chips) has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchModeChips, { target, props: baseProps() })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI-on (four chips) has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchModeChips, { target, props: baseProps() })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('AI-off (three chips) has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchModeChips, { target, props: baseProps({ aiEnabled: false, mode: 'filename' }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI-off (three chips) has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchModeChips, { target, props: baseProps({ aiEnabled: false, mode: 'filename' }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('disabled state has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchModeChips, { target, props: baseProps({ disabled: true }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('disabled state has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchModeChips, { target, props: baseProps({ disabled: true }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('AI mode active has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchModeChips, { target, props: baseProps({ mode: 'ai' }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI mode active has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchModeChips, { target, props: baseProps({ mode: 'ai' }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 })
 
 /**
@@ -195,33 +195,33 @@ describe('SearchModeChips a11y', () => {
  * focus traversal walks past them.
  */
 describe('PathPills a11y', () => {
-  it('marks every pill with tabindex="-1" so Tab skips them', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(PathPills, {
-      target,
-      props: { path: '/Users/dave/code', onPick: () => {} },
+    it('marks every pill with tabindex="-1" so Tab skips them', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(PathPills, {
+            target,
+            props: { path: '/Users/dave/code', onPick: () => {} },
+        })
+        await tick()
+        const pills = Array.from(target.querySelectorAll('.pill'))
+        expect(pills.length).toBeGreaterThan(0)
+        for (const p of pills) {
+            expect(p.getAttribute('tabindex')).toBe('-1')
+        }
+        target.remove()
     })
-    await tick()
-    const pills = Array.from(target.querySelectorAll('.pill'))
-    expect(pills.length).toBeGreaterThan(0)
-    for (const p of pills) {
-      expect(p.getAttribute('tabindex')).toBe('-1')
-    }
-    target.remove()
-  })
 
-  it('renders without axe-core violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(PathPills, {
-      target,
-      props: { path: '/Users/dave/code', onPick: () => {} },
+    it('renders without axe-core violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(PathPills, {
+            target,
+            props: { path: '/Users/dave/code', onPick: () => {} },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
     })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
 })
 
 /**
@@ -232,62 +232,62 @@ describe('PathPills a11y', () => {
  * plus the disabled state.
  */
 describe('SearchBar a11y', () => {
-  type Props = ComponentProps<typeof SearchBar>
+    type Props = ComponentProps<typeof SearchBar>
 
-  function baseProps(overrides: Partial<Props> = {}): Props {
-    return {
-      inputElement: undefined,
-      query: '',
-      mode: 'filename',
-      disabled: false,
-      aiHighlight: false,
-      showRunHint: false,
-      runHintCopy: 'Press Enter to search',
-      recentOpen: false,
-      onInput: () => {},
-      onRun: () => {},
-      onToggleRecent: () => {},
-      recentTriggerLabel: 'All recent searches',
-      recentTriggerTooltip: 'Show all recent searches',
-      onCompositionStart: () => {},
-      onCompositionEnd: () => {},
-      ...overrides,
+    function baseProps(overrides: Partial<Props> = {}): Props {
+        return {
+            inputElement: undefined,
+            query: '',
+            mode: 'filename',
+            disabled: false,
+            aiHighlight: false,
+            showRunHint: false,
+            runHintCopy: 'Press Enter to search',
+            recentOpen: false,
+            onInput: () => {},
+            onRun: () => {},
+            onToggleRecent: () => {},
+            recentTriggerLabel: 'All recent searches',
+            recentTriggerTooltip: 'Show all recent searches',
+            onCompositionStart: () => {},
+            onCompositionEnd: () => {},
+            ...overrides,
+        }
     }
-  }
 
-  it('filename mode has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchBar, { target, props: baseProps() })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('filename mode has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchBar, { target, props: baseProps() })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('AI mode has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchBar, { target, props: baseProps({ mode: 'ai' }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('AI mode has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchBar, { target, props: baseProps({ mode: 'ai' }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('regex mode has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchBar, { target, props: baseProps({ mode: 'regex' }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('regex mode has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchBar, { target, props: baseProps({ mode: 'regex' }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 
-  it('disabled state has no a11y violations', async () => {
-    const target = document.createElement('div')
-    document.body.appendChild(target)
-    mount(SearchBar, { target, props: baseProps({ disabled: true }) })
-    await tick()
-    await expectNoA11yViolations(target)
-    target.remove()
-  })
+    it('disabled state has no a11y violations', async () => {
+        const target = document.createElement('div')
+        document.body.appendChild(target)
+        mount(SearchBar, { target, props: baseProps({ disabled: true }) })
+        await tick()
+        await expectNoA11yViolations(target)
+        target.remove()
+    })
 })

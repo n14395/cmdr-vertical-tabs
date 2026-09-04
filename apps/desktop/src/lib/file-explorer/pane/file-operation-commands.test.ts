@@ -6,35 +6,35 @@ import type { FileEntry, VolumeInfo, TransferOperationType } from '../types'
 import type { ToastContent, ToastOptions } from '$lib/ui/toast/toast-store.svelte'
 
 const {
-  getFileAtSpy,
-  getFilesAtIndicesSpy,
-  addToastSpy,
-  getSnapshotSpy,
-  openFileViewerSpy,
-  getInitialFolderNameSpy,
-  getInitialFileNameSpy,
-  buildFromSelectionSpy,
-  buildFromCursorSpy,
-  logWarnSpy,
-  logDebugSpy,
+    getFileAtSpy,
+    getFilesAtIndicesSpy,
+    addToastSpy,
+    getSnapshotSpy,
+    openFileViewerSpy,
+    getInitialFolderNameSpy,
+    getInitialFileNameSpy,
+    buildFromSelectionSpy,
+    buildFromCursorSpy,
+    logWarnSpy,
+    logDebugSpy,
 } = vi.hoisted(() => ({
-  getFileAtSpy: vi.fn<() => Promise<FileEntry | null>>(),
-  getFilesAtIndicesSpy: vi.fn<() => Promise<FileEntry[]>>(),
-  addToastSpy: vi.fn<(content: ToastContent, options?: ToastOptions) => string>(),
-  getSnapshotSpy: vi.fn<() => SearchSnapshot | undefined>(),
-  openFileViewerSpy: vi.fn<() => Promise<void>>(),
-  getInitialFolderNameSpy: vi.fn<() => Promise<string>>(),
-  getInitialFileNameSpy: vi.fn<() => Promise<string>>(),
-  buildFromSelectionSpy: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
-  buildFromCursorSpy: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
-  logWarnSpy: vi.fn(),
-  logDebugSpy: vi.fn(),
+    getFileAtSpy: vi.fn<() => Promise<FileEntry | null>>(),
+    getFilesAtIndicesSpy: vi.fn<() => Promise<FileEntry[]>>(),
+    addToastSpy: vi.fn<(content: ToastContent, options?: ToastOptions) => string>(),
+    getSnapshotSpy: vi.fn<() => SearchSnapshot | undefined>(),
+    openFileViewerSpy: vi.fn<() => Promise<void>>(),
+    getInitialFolderNameSpy: vi.fn<() => Promise<string>>(),
+    getInitialFileNameSpy: vi.fn<() => Promise<string>>(),
+    buildFromSelectionSpy: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+    buildFromCursorSpy: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
+    logWarnSpy: vi.fn(),
+    logDebugSpy: vi.fn(),
 }))
 
 vi.mock('$lib/tauri-commands', () => ({
-  DEFAULT_VOLUME_ID: 'root',
-  getFileAt: getFileAtSpy,
-  getFilesAtIndices: getFilesAtIndicesSpy,
+    DEFAULT_VOLUME_ID: 'root',
+    getFileAt: getFileAtSpy,
+    getFilesAtIndices: getFilesAtIndicesSpy,
 }))
 
 vi.mock('$lib/ui/toast', () => ({ addToast: addToastSpy }))
@@ -49,7 +49,7 @@ vi.mock('$lib/search/snapshot-store.svelte', () => ({ getSnapshot: getSnapshotSp
 vi.mock('$lib/stores/volume-store.svelte', () => ({ getVolumes: () => [] }))
 
 vi.mock('$lib/search/capabilities', () => ({
-  SEARCH_RESULTS_NOT_A_FOLDER_TOAST: "Search results aren't a folder. Pick a real destination.",
+    SEARCH_RESULTS_NOT_A_FOLDER_TOAST: "Search results aren't a folder. Pick a real destination.",
 }))
 
 vi.mock('$lib/file-viewer/open-viewer', () => ({ openFileViewer: openFileViewerSpy }))
@@ -64,804 +64,810 @@ vi.mock('$lib/file-operations/mkfile/new-file-operations', () => ({ getInitialFi
 // into un-mocked tauri-commands. This lets us assert which branch (selection vs
 // cursor) ran without standing up a full listing fixture.
 vi.mock('./transfer-operations', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./transfer-operations')>()
-  return {
-    ...actual,
-    buildTransferPropsFromSelection: buildFromSelectionSpy,
-    buildTransferPropsFromCursor: buildFromCursorSpy,
-  }
+    const actual = await importOriginal<typeof import('./transfer-operations')>()
+    return {
+        ...actual,
+        buildTransferPropsFromSelection: buildFromSelectionSpy,
+        buildTransferPropsFromCursor: buildFromCursorSpy,
+    }
 })
 
 vi.mock('$lib/logging/logger', () => ({
-  getAppLogger: () => ({ error: vi.fn(), warn: logWarnSpy, info: vi.fn(), debug: logDebugSpy }),
+    getAppLogger: () => ({ error: vi.fn(), warn: logWarnSpy, info: vi.fn(), debug: logDebugSpy }),
 }))
 
 import { createFileOperationCommands } from './file-operation-commands'
 
 /** Builds a `FilePaneAPI` stub exposing only the members the file-operation band reads. */
 function buildPaneRef(
-  overrides: Partial<{
-    listingId: string | null
-    volumeId: string
-    hasParent: boolean
-    selectedIndices: number[]
-    cursorIndex: number
-    currentPath: string
-    startRename: () => void
-    cancelRename: () => void
-    isRenaming: () => boolean
-  }> = {},
+    overrides: Partial<{
+        listingId: string | null
+        volumeId: string
+        hasParent: boolean
+        selectedIndices: number[]
+        cursorIndex: number
+        currentPath: string
+        startRename: () => void
+        cancelRename: () => void
+        isRenaming: () => boolean
+    }> = {},
 ): FilePaneAPI {
-  const stub = {
-    getListingId: () => ('listingId' in overrides ? overrides.listingId : 'listing-1'),
-    getVolumeId: () => overrides.volumeId ?? 'root',
-    hasParentEntry: () => overrides.hasParent ?? false,
-    getSelectedIndices: () => overrides.selectedIndices ?? [],
-    getCursorIndex: () => overrides.cursorIndex ?? 0,
-    getCurrentPath: () => overrides.currentPath ?? '/Users/x/dir',
-    startRename: overrides.startRename ?? vi.fn(),
-    cancelRename: overrides.cancelRename ?? vi.fn(),
-    isRenaming: overrides.isRenaming ?? (() => false),
-  }
-  return stub as unknown as FilePaneAPI
+    const stub = {
+        getListingId: () => ('listingId' in overrides ? overrides.listingId : 'listing-1'),
+        getVolumeId: () => overrides.volumeId ?? 'root',
+        hasParentEntry: () => overrides.hasParent ?? false,
+        getSelectedIndices: () => overrides.selectedIndices ?? [],
+        getCursorIndex: () => overrides.cursorIndex ?? 0,
+        getCurrentPath: () => overrides.currentPath ?? '/Users/x/dir',
+        startRename: overrides.startRename ?? vi.fn(),
+        cancelRename: overrides.cancelRename ?? vi.fn(),
+        isRenaming: overrides.isRenaming ?? (() => false),
+    }
+    return stub as unknown as FilePaneAPI
 }
 
 interface AccessConfig {
-  focusedPane?: 'left' | 'right'
-  paneRefs?: Partial<Record<'left' | 'right', FilePaneAPI | undefined>>
-  volumeIds?: Partial<Record<'left' | 'right', string>>
-  paths?: Partial<Record<'left' | 'right', string>>
-  volumes?: VolumeInfo[]
-  showHiddenFiles?: boolean
-  focusContainer?: () => void
+    focusedPane?: 'left' | 'right'
+    paneRefs?: Partial<Record<'left' | 'right', FilePaneAPI | undefined>>
+    volumeIds?: Partial<Record<'left' | 'right', string>>
+    paths?: Partial<Record<'left' | 'right', string>>
+    volumes?: VolumeInfo[]
+    showHiddenFiles?: boolean
+    focusContainer?: () => void
 }
 
 function buildAccess(config: AccessConfig = {}): PaneAccess {
-  const otherPane = (pane: 'left' | 'right'): 'left' | 'right' => (pane === 'left' ? 'right' : 'left')
-  const defaultRef = buildPaneRef()
-  return {
-    getPaneRef: (pane) => (config.paneRefs && pane in config.paneRefs ? config.paneRefs[pane] : defaultRef),
-    getPanePath: (pane) => config.paths?.[pane] ?? (pane === 'left' ? '/left/dir' : '/right/dir'),
-    getPaneVolumeId: (pane) => config.volumeIds?.[pane] ?? 'root',
-    getPaneSort: () => ({ sortBy: 'name', sortOrder: 'ascending' }),
-    getPaneHistory: () => ({ stack: [], currentIndex: 0 }),
-    getFocusedPane: () => config.focusedPane ?? 'left',
-    otherPane,
-    getShowHiddenFiles: () => config.showHiddenFiles ?? true,
-    getVolumes: () => config.volumes ?? [],
-    focusContainer: config.focusContainer ?? (() => {}),
-  }
+    const otherPane = (pane: 'left' | 'right'): 'left' | 'right' => (pane === 'left' ? 'right' : 'left')
+    const defaultRef = buildPaneRef()
+    return {
+        getPaneRef: (pane) => (config.paneRefs && pane in config.paneRefs ? config.paneRefs[pane] : defaultRef),
+        getPanePath: (pane) => config.paths?.[pane] ?? (pane === 'left' ? '/left/dir' : '/right/dir'),
+        getPaneVolumeId: (pane) => config.volumeIds?.[pane] ?? 'root',
+        getPaneSort: () => ({ sortBy: 'name', sortOrder: 'ascending' }),
+        getPaneHistory: () => ({ stack: [], currentIndex: 0 }),
+        getFocusedPane: () => config.focusedPane ?? 'left',
+        otherPane,
+        getShowHiddenFiles: () => config.showHiddenFiles ?? true,
+        getVolumes: () => config.volumes ?? [],
+        focusContainer: config.focusContainer ?? (() => {}),
+    }
 }
 
 interface DialogsStub {
-  showAlert: ReturnType<typeof vi.fn>
-  showNewFolder: ReturnType<typeof vi.fn>
-  showNewFile: ReturnType<typeof vi.fn>
-  showTransfer: ReturnType<typeof vi.fn>
-  showDeleteConfirmation: ReturnType<typeof vi.fn>
-  closeConfirmationDialog: ReturnType<typeof vi.fn>
-  isConfirmationDialogOpen: ReturnType<typeof vi.fn>
+    showAlert: ReturnType<typeof vi.fn>
+    showNewFolder: ReturnType<typeof vi.fn>
+    showNewFile: ReturnType<typeof vi.fn>
+    showTransfer: ReturnType<typeof vi.fn>
+    showDeleteConfirmation: ReturnType<typeof vi.fn>
+    closeConfirmationDialog: ReturnType<typeof vi.fn>
+    isConfirmationDialogOpen: ReturnType<typeof vi.fn>
 }
 
 function buildDialogs(): DialogsStub {
-  return {
-    showAlert: vi.fn(),
-    showNewFolder: vi.fn(),
-    showNewFile: vi.fn(),
-    showTransfer: vi.fn(),
-    showDeleteConfirmation: vi.fn(),
-    closeConfirmationDialog: vi.fn(),
-    isConfirmationDialogOpen: vi.fn(() => false),
-  }
+    return {
+        showAlert: vi.fn(),
+        showNewFolder: vi.fn(),
+        showNewFile: vi.fn(),
+        showTransfer: vi.fn(),
+        showDeleteConfirmation: vi.fn(),
+        closeConfirmationDialog: vi.fn(),
+        isConfirmationDialogOpen: vi.fn(() => false),
+    }
 }
 
 function create(access: PaneAccess, dialogs: DialogsStub) {
-  return createFileOperationCommands(access, dialogs as unknown as Parameters<typeof createFileOperationCommands>[1])
+    return createFileOperationCommands(access, dialogs as unknown as Parameters<typeof createFileOperationCommands>[1])
 }
 
 /** A minimal VolumeInfo with overridable flags. */
 function volume(overrides: Partial<VolumeInfo> = {}): VolumeInfo {
-  return {
-    id: 'root',
-    name: 'Macintosh HD',
-    mountIsReadOnly: false,
-    supportsTrash: true,
-    ...overrides,
-  } as unknown as VolumeInfo
+    return {
+        id: 'root',
+        name: 'Macintosh HD',
+        mountIsReadOnly: false,
+        supportsTrash: true,
+        ...overrides,
+    } as unknown as VolumeInfo
 }
 
 function snapshotEntry(overrides: Partial<SearchSnapshot['entries'][number]> = {}): SearchSnapshot['entries'][number] {
-  return {
-    name: 'doc.txt',
-    path: '/real/dir/doc.txt',
-    parentPath: '/real/dir',
-    isDirectory: false,
-    size: 42,
-    modifiedAt: null,
-    iconId: 'ext:txt',
-    ...overrides,
-  }
+    return {
+        name: 'doc.txt',
+        path: '/real/dir/doc.txt',
+        parentPath: '/real/dir',
+        isDirectory: false,
+        size: 42,
+        modifiedAt: null,
+        iconId: 'ext:txt',
+        ...overrides,
+    }
 }
 
 function snapshot(entries: SearchSnapshot['entries']): SearchSnapshot {
-  return { entries } as unknown as SearchSnapshot
+    return { entries } as unknown as SearchSnapshot
 }
 
 function fileEntry(overrides: Partial<FileEntry> = {}): FileEntry {
-  return {
-    name: 'doc.txt',
-    path: '/Users/x/dir/doc.txt',
-    isDirectory: false,
-    isSymlink: false,
-    size: 10,
-    recursiveSize: undefined,
-    recursiveFileCount: undefined,
-    ...overrides,
-  } as unknown as FileEntry
+    return {
+        name: 'doc.txt',
+        path: '/Users/x/dir/doc.txt',
+        isDirectory: false,
+        isSymlink: false,
+        size: 10,
+        recursiveSize: undefined,
+        recursiveFileCount: undefined,
+        ...overrides,
+    } as unknown as FileEntry
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+    vi.clearAllMocks()
 })
 
 describe('startRename', () => {
-  it('refuses on a read-only volume with the exact alert and never starts rename', () => {
-    const startRename = vi.fn()
-    const paneRef = buildPaneRef({ startRename })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume({ mountIsReadOnly: true })] })
-    const dialogs = buildDialogs()
+    it('refuses on a read-only volume with the exact alert and never starts rename', () => {
+        const startRename = vi.fn()
+        const paneRef = buildPaneRef({ startRename })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume({ mountIsReadOnly: true })] })
+        const dialogs = buildDialogs()
 
-    create(access, dialogs).startRename()
+        create(access, dialogs).startRename()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only volume',
-      "This is a read-only volume. Renaming isn't possible here.",
-    )
-    expect(startRename).not.toHaveBeenCalled()
-  })
-
-  it('starts rename on the focused pane for a writable volume', () => {
-    const startRename = vi.fn()
-    const paneRef = buildPaneRef({ startRename })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
-
-    create(access, buildDialogs()).startRename()
-
-    expect(startRename).toHaveBeenCalledTimes(1)
-  })
-
-  it('starts rename inside a zip (writable archive, no refusal)', () => {
-    // A zip is writable: renaming an entry inside it runs the real managed
-    // archive-edit flow, so no refusal alert fires even though the path crosses a
-    // `.zip`. The parent drive isn't read-only, so nothing blocks it.
-    const startRename = vi.fn()
-    const paneRef = buildPaneRef({ startRename })
-    const access = buildAccess({
-      paneRefs: { left: paneRef },
-      volumes: [volume()],
-      paths: { left: '/left/foo.zip/inner' },
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only volume',
+            "This is a read-only volume. Renaming isn't possible here.",
+        )
+        expect(startRename).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    create(access, dialogs).startRename()
+    it('starts rename on the focused pane for a writable volume', () => {
+        const startRename = vi.fn()
+        const paneRef = buildPaneRef({ startRename })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
 
-    expect(dialogs.showAlert).not.toHaveBeenCalled()
-    expect(startRename).toHaveBeenCalledTimes(1)
-  })
+        create(access, buildDialogs()).startRename()
 
-  it('still refuses rename inside a zip that lives on a read-only volume', () => {
-    // A writable-archive path doesn't override a read-only parent VolumeInfo: the
-    // zip can't be rewritten in place on a read-only mount, so the volume refusal
-    // still fires.
-    const startRename = vi.fn()
-    const paneRef = buildPaneRef({ startRename })
-    const access = buildAccess({
-      paneRefs: { left: paneRef },
-      volumes: [volume({ mountIsReadOnly: true })],
-      paths: { left: '/left/foo.zip/inner' },
+        expect(startRename).toHaveBeenCalledTimes(1)
     })
-    const dialogs = buildDialogs()
 
-    create(access, dialogs).startRename()
+    it('starts rename inside a zip (writable archive, no refusal)', () => {
+        // A zip is writable: renaming an entry inside it runs the real managed
+        // archive-edit flow, so no refusal alert fires even though the path crosses a
+        // `.zip`. The parent drive isn't read-only, so nothing blocks it.
+        const startRename = vi.fn()
+        const paneRef = buildPaneRef({ startRename })
+        const access = buildAccess({
+            paneRefs: { left: paneRef },
+            volumes: [volume()],
+            paths: { left: '/left/foo.zip/inner' },
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only volume',
-      "This is a read-only volume. Renaming isn't possible here.",
-    )
-    expect(startRename).not.toHaveBeenCalled()
-  })
+        create(access, dialogs).startRename()
+
+        expect(dialogs.showAlert).not.toHaveBeenCalled()
+        expect(startRename).toHaveBeenCalledTimes(1)
+    })
+
+    it('still refuses rename inside a zip that lives on a read-only volume', () => {
+        // A writable-archive path doesn't override a read-only parent VolumeInfo: the
+        // zip can't be rewritten in place on a read-only mount, so the volume refusal
+        // still fires.
+        const startRename = vi.fn()
+        const paneRef = buildPaneRef({ startRename })
+        const access = buildAccess({
+            paneRefs: { left: paneRef },
+            volumes: [volume({ mountIsReadOnly: true })],
+            paths: { left: '/left/foo.zip/inner' },
+        })
+        const dialogs = buildDialogs()
+
+        create(access, dialogs).startRename()
+
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only volume',
+            "This is a read-only volume. Renaming isn't possible here.",
+        )
+        expect(startRename).not.toHaveBeenCalled()
+    })
 })
 
 describe('cancelRename', () => {
-  it('cancels rename on both panes', () => {
-    const cancelLeft = vi.fn()
-    const cancelRight = vi.fn()
-    const access = buildAccess({
-      paneRefs: {
-        left: buildPaneRef({ cancelRename: cancelLeft }),
-        right: buildPaneRef({ cancelRename: cancelRight }),
-      },
+    it('cancels rename on both panes', () => {
+        const cancelLeft = vi.fn()
+        const cancelRight = vi.fn()
+        const access = buildAccess({
+            paneRefs: {
+                left: buildPaneRef({ cancelRename: cancelLeft }),
+                right: buildPaneRef({ cancelRename: cancelRight }),
+            },
+        })
+
+        create(access, buildDialogs()).cancelRename()
+
+        expect(cancelLeft).toHaveBeenCalledTimes(1)
+        expect(cancelRight).toHaveBeenCalledTimes(1)
     })
-
-    create(access, buildDialogs()).cancelRename()
-
-    expect(cancelLeft).toHaveBeenCalledTimes(1)
-    expect(cancelRight).toHaveBeenCalledTimes(1)
-  })
 })
 
 describe('isRenaming', () => {
-  it('returns true when either pane is renaming', () => {
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ isRenaming: () => false }), right: buildPaneRef({ isRenaming: () => true }) },
+    it('returns true when either pane is renaming', () => {
+        const access = buildAccess({
+            paneRefs: {
+                left: buildPaneRef({ isRenaming: () => false }),
+                right: buildPaneRef({ isRenaming: () => true }),
+            },
+        })
+
+        expect(create(access, buildDialogs()).isRenaming()).toBe(true)
     })
 
-    expect(create(access, buildDialogs()).isRenaming()).toBe(true)
-  })
+    it('returns false when neither pane is renaming', () => {
+        const access = buildAccess({
+            paneRefs: {
+                left: buildPaneRef({ isRenaming: () => false }),
+                right: buildPaneRef({ isRenaming: () => false }),
+            },
+        })
 
-  it('returns false when neither pane is renaming', () => {
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ isRenaming: () => false }), right: buildPaneRef({ isRenaming: () => false }) },
+        expect(create(access, buildDialogs()).isRenaming()).toBe(false)
     })
-
-    expect(create(access, buildDialogs()).isRenaming()).toBe(false)
-  })
 })
 
 describe('openNewFolderDialog', () => {
-  it('refuses on a read-only volume with the exact alert', async () => {
-    const access = buildAccess({ volumes: [volume({ mountIsReadOnly: true })] })
-    const dialogs = buildDialogs()
+    it('refuses on a read-only volume with the exact alert', async () => {
+        const access = buildAccess({ volumes: [volume({ mountIsReadOnly: true })] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFolderDialog()
+        await create(access, dialogs).openNewFolderDialog()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only volume',
-      "This is a read-only volume. Creating folders isn't possible here.",
-    )
-    expect(dialogs.showNewFolder).not.toHaveBeenCalled()
-  })
-
-  it('opens the new-folder dialog inside a zip (writable archive)', async () => {
-    getInitialFolderNameSpy.mockResolvedValue('seed')
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
-      volumes: [volume()],
-      paths: { left: '/left/foo.zip' },
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only volume',
+            "This is a read-only volume. Creating folders isn't possible here.",
+        )
+        expect(dialogs.showNewFolder).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFolderDialog()
+    it('opens the new-folder dialog inside a zip (writable archive)', async () => {
+        getInitialFolderNameSpy.mockResolvedValue('seed')
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
+            volumes: [volume()],
+            paths: { left: '/left/foo.zip' },
+        })
+        const dialogs = buildDialogs()
 
-    // No refusal: creating a folder inside a zip runs the real managed
-    // archive-edit flow, so the dialog opens like any writable destination.
-    expect(dialogs.showAlert).not.toHaveBeenCalled()
-    expect(dialogs.showNewFolder).toHaveBeenCalledWith({
-      currentPath: '/left/foo.zip',
-      listingId: 'lst-1',
-      showHiddenFiles: true,
-      initialName: 'seed',
-      volumeId: 'root',
+        await create(access, dialogs).openNewFolderDialog()
+
+        // No refusal: creating a folder inside a zip runs the real managed
+        // archive-edit flow, so the dialog opens like any writable destination.
+        expect(dialogs.showAlert).not.toHaveBeenCalled()
+        expect(dialogs.showNewFolder).toHaveBeenCalledWith({
+            currentPath: '/left/foo.zip',
+            listingId: 'lst-1',
+            showHiddenFiles: true,
+            initialName: 'seed',
+            volumeId: 'root',
+        })
     })
-  })
 
-  it('bails when the focused pane has no listing id', async () => {
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('bails when the focused pane has no listing id', async () => {
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFolderDialog()
+        await create(access, dialogs).openNewFolderDialog()
 
-    expect(dialogs.showNewFolder).not.toHaveBeenCalled()
-  })
-
-  it('opens the new folder dialog with the cursor-derived initial name', async () => {
-    getInitialFolderNameSpy.mockResolvedValue('seed')
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
-      volumes: [volume()],
-      paths: { left: '/left/dir' },
-      showHiddenFiles: false,
+        expect(dialogs.showNewFolder).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFolderDialog()
+    it('opens the new folder dialog with the cursor-derived initial name', async () => {
+        getInitialFolderNameSpy.mockResolvedValue('seed')
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
+            volumes: [volume()],
+            paths: { left: '/left/dir' },
+            showHiddenFiles: false,
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showNewFolder).toHaveBeenCalledWith({
-      currentPath: '/left/dir',
-      listingId: 'lst-1',
-      showHiddenFiles: false,
-      initialName: 'seed',
-      volumeId: 'root',
+        await create(access, dialogs).openNewFolderDialog()
+
+        expect(dialogs.showNewFolder).toHaveBeenCalledWith({
+            currentPath: '/left/dir',
+            listingId: 'lst-1',
+            showHiddenFiles: false,
+            initialName: 'seed',
+            volumeId: 'root',
+        })
     })
-  })
 })
 
 describe('openNewFileDialog', () => {
-  it('refuses on a read-only volume with the exact alert', async () => {
-    const access = buildAccess({ volumes: [volume({ mountIsReadOnly: true })] })
-    const dialogs = buildDialogs()
+    it('refuses on a read-only volume with the exact alert', async () => {
+        const access = buildAccess({ volumes: [volume({ mountIsReadOnly: true })] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFileDialog()
+        await create(access, dialogs).openNewFileDialog()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only volume',
-      "This is a read-only volume. Creating files isn't possible here.",
-    )
-    expect(dialogs.showNewFile).not.toHaveBeenCalled()
-  })
-
-  it('opens the new-file dialog inside a zip (writable archive)', async () => {
-    getInitialFileNameSpy.mockResolvedValue('seed')
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
-      volumes: [volume()],
-      paths: { left: '/left/foo.zip' },
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only volume',
+            "This is a read-only volume. Creating files isn't possible here.",
+        )
+        expect(dialogs.showNewFile).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFileDialog()
+    it('opens the new-file dialog inside a zip (writable archive)', async () => {
+        getInitialFileNameSpy.mockResolvedValue('seed')
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
+            volumes: [volume()],
+            paths: { left: '/left/foo.zip' },
+        })
+        const dialogs = buildDialogs()
 
-    // No refusal: creating a file inside a zip runs the managed archive-edit flow.
-    expect(dialogs.showAlert).not.toHaveBeenCalled()
-    expect(dialogs.showNewFile).toHaveBeenCalledWith({
-      currentPath: '/left/foo.zip',
-      listingId: 'lst-1',
-      showHiddenFiles: true,
-      initialName: 'seed',
-      volumeId: 'root',
+        await create(access, dialogs).openNewFileDialog()
+
+        // No refusal: creating a file inside a zip runs the managed archive-edit flow.
+        expect(dialogs.showAlert).not.toHaveBeenCalled()
+        expect(dialogs.showNewFile).toHaveBeenCalledWith({
+            currentPath: '/left/foo.zip',
+            listingId: 'lst-1',
+            showHiddenFiles: true,
+            initialName: 'seed',
+            volumeId: 'root',
+        })
     })
-  })
 
-  it('bails when the focused pane has no listing id', async () => {
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('bails when the focused pane has no listing id', async () => {
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFileDialog()
+        await create(access, dialogs).openNewFileDialog()
 
-    expect(dialogs.showNewFile).not.toHaveBeenCalled()
-  })
-
-  it('opens the new file dialog with the cursor-derived initial name', async () => {
-    getInitialFileNameSpy.mockResolvedValue('seed.txt')
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
-      volumes: [volume()],
-      paths: { left: '/left/dir' },
+        expect(dialogs.showNewFile).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openNewFileDialog()
+    it('opens the new file dialog with the cursor-derived initial name', async () => {
+        getInitialFileNameSpy.mockResolvedValue('seed.txt')
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
+            volumes: [volume()],
+            paths: { left: '/left/dir' },
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showNewFile).toHaveBeenCalledWith({
-      currentPath: '/left/dir',
-      listingId: 'lst-1',
-      showHiddenFiles: true,
-      initialName: 'seed.txt',
-      volumeId: 'root',
+        await create(access, dialogs).openNewFileDialog()
+
+        expect(dialogs.showNewFile).toHaveBeenCalledWith({
+            currentPath: '/left/dir',
+            listingId: 'lst-1',
+            showHiddenFiles: true,
+            initialName: 'seed.txt',
+            volumeId: 'root',
+        })
     })
-  })
 })
 
 describe('confirmation dialog passthroughs', () => {
-  it('forwards closeConfirmationDialog', () => {
-    const dialogs = buildDialogs()
-    create(buildAccess(), dialogs).closeConfirmationDialog()
-    expect(dialogs.closeConfirmationDialog).toHaveBeenCalledTimes(1)
-  })
+    it('forwards closeConfirmationDialog', () => {
+        const dialogs = buildDialogs()
+        create(buildAccess(), dialogs).closeConfirmationDialog()
+        expect(dialogs.closeConfirmationDialog).toHaveBeenCalledTimes(1)
+    })
 
-  it('forwards isConfirmationDialogOpen result', () => {
-    const dialogs = buildDialogs()
-    dialogs.isConfirmationDialogOpen.mockReturnValue(true)
-    expect(create(buildAccess(), dialogs).isConfirmationDialogOpen()).toBe(true)
-  })
+    it('forwards isConfirmationDialogOpen result', () => {
+        const dialogs = buildDialogs()
+        dialogs.isConfirmationDialogOpen.mockReturnValue(true)
+        expect(create(buildAccess(), dialogs).isConfirmationDialogOpen()).toBe(true)
+    })
 })
 
 describe('openViewerForCursor', () => {
-  it('bails when there is no listing id', async () => {
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) } })
+    it('bails when there is no listing id', async () => {
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) } })
 
-    await create(access, buildDialogs()).openViewerForCursor()
+        await create(access, buildDialogs()).openViewerForCursor()
 
-    expect(getFileAtSpy).not.toHaveBeenCalled()
-    expect(openFileViewerSpy).not.toHaveBeenCalled()
-  })
-
-  it('does not open the viewer for a directory or the parent entry', async () => {
-    getFileAtSpy.mockResolvedValue(fileEntry({ isDirectory: true }))
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 1 }) } })
-
-    await create(access, buildDialogs()).openViewerForCursor()
-
-    expect(openFileViewerSpy).not.toHaveBeenCalled()
-  })
-
-  it('opens the viewer for a file under the cursor, threading the pane volume id', async () => {
-    getFileAtSpy.mockResolvedValue(fileEntry({ path: '/Users/x/dir/note.md' }))
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 2 }) } })
-
-    await create(access, buildDialogs()).openViewerForCursor()
-
-    expect(openFileViewerSpy).toHaveBeenCalledWith('/Users/x/dir/note.md', 'root')
-  })
-
-  it('threads a non-root pane volume id so a remote-hosted archive previews through it', async () => {
-    getFileAtSpy.mockResolvedValue(fileEntry({ path: '/share/bundle.zip/inner.txt' }))
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 2, volumeId: 'smb-1' }) },
+        expect(getFileAtSpy).not.toHaveBeenCalled()
+        expect(openFileViewerSpy).not.toHaveBeenCalled()
     })
 
-    await create(access, buildDialogs()).openViewerForCursor()
+    it('does not open the viewer for a directory or the parent entry', async () => {
+        getFileAtSpy.mockResolvedValue(fileEntry({ isDirectory: true }))
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 1 }) } })
 
-    expect(openFileViewerSpy).toHaveBeenCalledWith('/share/bundle.zip/inner.txt', 'smb-1')
-  })
+        await create(access, buildDialogs()).openViewerForCursor()
+
+        expect(openFileViewerSpy).not.toHaveBeenCalled()
+    })
+
+    it('opens the viewer for a file under the cursor, threading the pane volume id', async () => {
+        getFileAtSpy.mockResolvedValue(fileEntry({ path: '/Users/x/dir/note.md' }))
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 2 }) } })
+
+        await create(access, buildDialogs()).openViewerForCursor()
+
+        expect(openFileViewerSpy).toHaveBeenCalledWith('/Users/x/dir/note.md', 'root')
+    })
+
+    it('threads a non-root pane volume id so a remote-hosted archive previews through it', async () => {
+        getFileAtSpy.mockResolvedValue(fileEntry({ path: '/share/bundle.zip/inner.txt' }))
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1', cursorIndex: 2, volumeId: 'smb-1' }) },
+        })
+
+        await create(access, buildDialogs()).openViewerForCursor()
+
+        expect(openFileViewerSpy).toHaveBeenCalledWith('/share/bundle.zip/inner.txt', 'smb-1')
+    })
 })
 
 describe('openTransferDialog', () => {
-  it('warns with the search-results destination toast when the opposite pane is a snapshot', async () => {
-    const access = buildAccess({ focusedPane: 'left', volumeIds: { left: 'root', right: 'search-results' } })
-    const dialogs = buildDialogs()
+    it('warns with the search-results destination toast when the opposite pane is a snapshot', async () => {
+        const access = buildAccess({ focusedPane: 'left', volumeIds: { left: 'root', right: 'search-results' } })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('copy')
+        await create(access, dialogs).openTransferDialog('copy')
 
-    expect(addToastSpy).toHaveBeenCalledWith("Search results aren't a folder. Pick a real destination.", {
-      level: 'warn',
+        expect(addToastSpy).toHaveBeenCalledWith("Search results aren't a folder. Pick a real destination.", {
+            level: 'warn',
+        })
+        expect(dialogs.showTransfer).not.toHaveBeenCalled()
     })
-    expect(dialogs.showTransfer).not.toHaveBeenCalled()
-  })
 
-  it('does not show the search-results toast for a network destination (PR3: kind-scoped)', async () => {
-    // A network dest also has `canWrite: false`, but the dest-block toast is
-    // scoped to the search-results KIND. Historically a network dest fell through
-    // here silently; converting the gate to `!canWrite` must not start
-    // toasting it. The transfer then proceeds past the guard as before.
-    const access = buildAccess({
-      focusedPane: 'left',
-      volumeIds: { left: 'root', right: 'network' },
-      paneRefs: { left: buildPaneRef({ listingId: null }) },
+    it('does not show the search-results toast for a network destination (PR3: kind-scoped)', async () => {
+        // A network dest also has `canWrite: false`, but the dest-block toast is
+        // scoped to the search-results KIND. Historically a network dest fell through
+        // here silently; converting the gate to `!canWrite` must not start
+        // toasting it. The transfer then proceeds past the guard as before.
+        const access = buildAccess({
+            focusedPane: 'left',
+            volumeIds: { left: 'root', right: 'network' },
+            paneRefs: { left: buildPaneRef({ listingId: null }) },
+        })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openTransferDialog('copy')
+
+        expect(addToastSpy).not.toHaveBeenCalledWith("Search results aren't a folder. Pick a real destination.", {
+            level: 'warn',
+        })
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('copy')
+    it('refuses a read-only destination with the device-specific alert', async () => {
+        const access = buildAccess({
+            focusedPane: 'left',
+            volumeIds: { left: 'root', right: 'mtp-1' },
+            volumes: [volume({ id: 'mtp-1', name: 'Pixel SD card', mountIsReadOnly: true })],
+        })
+        const dialogs = buildDialogs()
 
-    expect(addToastSpy).not.toHaveBeenCalledWith("Search results aren't a folder. Pick a real destination.", {
-      level: 'warn',
+        await create(access, dialogs).openTransferDialog('copy')
+
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only device',
+            '"Pixel SD card" is read-only. You can copy files from it, but not to it.',
+        )
+        expect(dialogs.showTransfer).not.toHaveBeenCalled()
     })
-  })
 
-  it('refuses a read-only destination with the device-specific alert', async () => {
-    const access = buildAccess({
-      focusedPane: 'left',
-      volumeIds: { left: 'root', right: 'mtp-1' },
-      volumes: [volume({ id: 'mtp-1', name: 'Pixel SD card', mountIsReadOnly: true })],
+    it('allows a zip destination (opposite pane inside a zip) and opens the transfer dialog', async () => {
+        // Both panes are on the writable root drive; the opposite pane's PATH crosses a
+        // zip. A zip is a writable destination now, so no refusal fires and the
+        // transfer dialog opens (the backend routes it into the archive-edit flow).
+        buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
+        const access = buildAccess({
+            focusedPane: 'left',
+            volumeIds: { left: 'root', right: 'root' },
+            paths: { left: '/left/dir', right: '/right/foo.zip/inner' },
+            volumes: [volume()],
+        })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openTransferDialog('copy')
+
+        expect(dialogs.showAlert).not.toHaveBeenCalled()
+        expect(dialogs.showTransfer).toHaveBeenCalledWith(expect.objectContaining({ operationType: 'copy' }))
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('copy')
+    it('builds transfer props from the selection when items are selected', async () => {
+        buildFromSelectionSpy.mockResolvedValue({ operationType: 'copy' })
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [3, 4], hasParent: true })
+        const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only device',
-      '"Pixel SD card" is read-only. You can copy files from it, but not to it.',
-    )
-    expect(dialogs.showTransfer).not.toHaveBeenCalled()
-  })
+        await create(access, dialogs).openTransferDialog('copy')
 
-  it('allows a zip destination (opposite pane inside a zip) and opens the transfer dialog', async () => {
-    // Both panes are on the writable root drive; the opposite pane's PATH crosses a
-    // zip. A zip is a writable destination now, so no refusal fires and the
-    // transfer dialog opens (the backend routes it into the archive-edit flow).
-    buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
-    const access = buildAccess({
-      focusedPane: 'left',
-      volumeIds: { left: 'root', right: 'root' },
-      paths: { left: '/left/dir', right: '/right/foo.zip/inner' },
-      volumes: [volume()],
+        // Selection branch builds from the selected indices; the cursor branch is untouched.
+        expect(buildFromSelectionSpy).toHaveBeenCalled()
+        expect(buildFromCursorSpy).not.toHaveBeenCalled()
+        expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('copy')
+    it('builds transfer props from the cursor when nothing is selected', async () => {
+        buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 1 })
+        const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showAlert).not.toHaveBeenCalled()
-    expect(dialogs.showTransfer).toHaveBeenCalledWith(expect.objectContaining({ operationType: 'copy' }))
-  })
+        await create(access, dialogs).openTransferDialog('copy')
 
-  it('builds transfer props from the selection when items are selected', async () => {
-    buildFromSelectionSpy.mockResolvedValue({ operationType: 'copy' })
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [3, 4], hasParent: true })
-    const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
-
-    await create(access, dialogs).openTransferDialog('copy')
-
-    // Selection branch builds from the selected indices; the cursor branch is untouched.
-    expect(buildFromSelectionSpy).toHaveBeenCalled()
-    expect(buildFromCursorSpy).not.toHaveBeenCalled()
-    expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
-  })
-
-  it('builds transfer props from the cursor when nothing is selected', async () => {
-    buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 1 })
-    const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
-
-    await create(access, dialogs).openTransferDialog('copy')
-
-    expect(buildFromSelectionSpy).not.toHaveBeenCalled()
-    expect(buildFromCursorSpy).toHaveBeenCalled()
-    expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
-  })
-
-  it('F5 asks for the rename editor on a single-item duplicate; an MCP copy does not', async () => {
-    // The whole trigger split rests on this field. F5 is a person at the keyboard
-    // who may want to name the copy; an auto-confirmed copy is an agent's, and an
-    // agent must not pull focus into a text field in front of whoever is watching.
-    // The Duplicate command and drag answer for themselves at their own call sites.
-    buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 1 })
-    const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
-    const commands = create(access, dialogs)
-
-    await commands.openTransferDialog('copy')
-    expect(dialogs.showTransfer).toHaveBeenLastCalledWith(
-      expect.objectContaining({ duplicateFollowUp: 'openRenameEditor' }),
-    )
-
-    await commands.openTransferDialog('copy', true, 'overwrite_all', 'mcp-1', 'aiClient')
-    expect(dialogs.showTransfer).toHaveBeenLastCalledWith(expect.objectContaining({ duplicateFollowUp: 'nothing' }))
-  })
-
-  it('bails on a non-snapshot pane without a listing id', async () => {
-    const access = buildAccess({
-      focusedPane: 'left',
-      paneRefs: { left: buildPaneRef({ listingId: null }) },
-      volumes: [volume()],
+        expect(buildFromSelectionSpy).not.toHaveBeenCalled()
+        expect(buildFromCursorSpy).toHaveBeenCalled()
+        expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('move')
+    it('F5 asks for the rename editor on a single-item duplicate; an MCP copy does not', async () => {
+        // The whole trigger split rests on this field. F5 is a person at the keyboard
+        // who may want to name the copy; an auto-confirmed copy is an agent's, and an
+        // agent must not pull focus into a text field in front of whoever is watching.
+        // The Duplicate command and drag answer for themselves at their own call sites.
+        buildFromCursorSpy.mockResolvedValue({ operationType: 'copy' })
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 1 })
+        const access = buildAccess({ focusedPane: 'left', paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
+        const commands = create(access, dialogs)
 
-    expect(dialogs.showTransfer).not.toHaveBeenCalled()
-  })
+        await commands.openTransferDialog('copy')
+        expect(dialogs.showTransfer).toHaveBeenLastCalledWith(
+            expect.objectContaining({ duplicateFollowUp: 'openRenameEditor' }),
+        )
 
-  it('builds snapshot transfer props for a search-results source pane', async () => {
-    getSnapshotSpy.mockReturnValue(
-      snapshot([snapshotEntry({ path: '/real/a.txt' }), snapshotEntry({ path: '/real/b.txt' })]),
-    )
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [0, 1] })
-    const access = buildAccess({
-      focusedPane: 'left',
-      paneRefs: { left: paneRef },
-      volumeIds: { left: 'search-results', right: 'root' },
+        await commands.openTransferDialog('copy', true, 'overwrite_all', 'mcp-1', 'aiClient')
+        expect(dialogs.showTransfer).toHaveBeenLastCalledWith(expect.objectContaining({ duplicateFollowUp: 'nothing' }))
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('move')
+    it('bails on a non-snapshot pane without a listing id', async () => {
+        const access = buildAccess({
+            focusedPane: 'left',
+            paneRefs: { left: buildPaneRef({ listingId: null }) },
+            volumes: [volume()],
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
-    expect(dialogs.showTransfer.mock.calls[0][0]).toMatchObject({
-      operationType: 'move',
-      sourcePaths: ['/real/a.txt', '/real/b.txt'],
+        await create(access, dialogs).openTransferDialog('move')
+
+        expect(dialogs.showTransfer).not.toHaveBeenCalled()
     })
-  })
 
-  it('does not open a snapshot transfer when the snapshot index is stale (out of range)', async () => {
-    getSnapshotSpy.mockReturnValue(snapshot([snapshotEntry()]))
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [9] })
-    const access = buildAccess({
-      focusedPane: 'left',
-      paneRefs: { left: paneRef },
-      volumeIds: { left: 'search-results', right: 'root' },
+    it('builds snapshot transfer props for a search-results source pane', async () => {
+        getSnapshotSpy.mockReturnValue(
+            snapshot([snapshotEntry({ path: '/real/a.txt' }), snapshotEntry({ path: '/real/b.txt' })]),
+        )
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [0, 1] })
+        const access = buildAccess({
+            focusedPane: 'left',
+            paneRefs: { left: paneRef },
+            volumeIds: { left: 'search-results', right: 'root' },
+        })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openTransferDialog('move')
+
+        expect(dialogs.showTransfer).toHaveBeenCalledTimes(1)
+        expect(dialogs.showTransfer.mock.calls[0][0]).toMatchObject({
+            operationType: 'move',
+            sourcePaths: ['/real/a.txt', '/real/b.txt'],
+        })
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('move')
+    it('does not open a snapshot transfer when the snapshot index is stale (out of range)', async () => {
+        getSnapshotSpy.mockReturnValue(snapshot([snapshotEntry()]))
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [9] })
+        const access = buildAccess({
+            focusedPane: 'left',
+            paneRefs: { left: paneRef },
+            volumeIds: { left: 'search-results', right: 'root' },
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showTransfer).not.toHaveBeenCalled()
-  })
+        await create(access, dialogs).openTransferDialog('move')
 
-  it('does not open a snapshot transfer when the snapshot is missing', async () => {
-    getSnapshotSpy.mockReturnValue(undefined)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [0] })
-    const access = buildAccess({
-      focusedPane: 'left',
-      paneRefs: { left: paneRef },
-      volumeIds: { left: 'search-results', right: 'root' },
+        expect(dialogs.showTransfer).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openTransferDialog('move')
+    it('does not open a snapshot transfer when the snapshot is missing', async () => {
+        getSnapshotSpy.mockReturnValue(undefined)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', selectedIndices: [0] })
+        const access = buildAccess({
+            focusedPane: 'left',
+            paneRefs: { left: paneRef },
+            volumeIds: { left: 'search-results', right: 'root' },
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showTransfer).not.toHaveBeenCalled()
-  })
+        await create(access, dialogs).openTransferDialog('move')
+
+        expect(dialogs.showTransfer).not.toHaveBeenCalled()
+    })
 })
 
 describe('openCopyDialog / openMoveDialog', () => {
-  it('openCopyDialog delegates with copy semantics', async () => {
-    buildFromCursorSpy.mockImplementation((...args: unknown[]) =>
-      Promise.resolve({ operationType: args[0] as TransferOperationType }),
-    )
-    const access = buildAccess({ focusedPane: 'left', volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('openCopyDialog delegates with copy semantics', async () => {
+        buildFromCursorSpy.mockImplementation((...args: unknown[]) =>
+            Promise.resolve({ operationType: args[0] as TransferOperationType }),
+        )
+        const access = buildAccess({ focusedPane: 'left', volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openCopyDialog()
+        await create(access, dialogs).openCopyDialog()
 
-    expect(buildFromCursorSpy.mock.calls[0]?.[0]).toBe('copy')
-    expect(dialogs.showTransfer.mock.calls[0]?.[0]).toMatchObject({ operationType: 'copy' })
-  })
+        expect(buildFromCursorSpy.mock.calls[0]?.[0]).toBe('copy')
+        expect(dialogs.showTransfer.mock.calls[0]?.[0]).toMatchObject({ operationType: 'copy' })
+    })
 
-  it('openMoveDialog delegates with move semantics', async () => {
-    buildFromCursorSpy.mockImplementation((...args: unknown[]) =>
-      Promise.resolve({ operationType: args[0] as TransferOperationType }),
-    )
-    const access = buildAccess({ focusedPane: 'left', volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('openMoveDialog delegates with move semantics', async () => {
+        buildFromCursorSpy.mockImplementation((...args: unknown[]) =>
+            Promise.resolve({ operationType: args[0] as TransferOperationType }),
+        )
+        const access = buildAccess({ focusedPane: 'left', volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openMoveDialog()
+        await create(access, dialogs).openMoveDialog()
 
-    expect(buildFromCursorSpy.mock.calls[0]?.[0]).toBe('move')
-    expect(dialogs.showTransfer.mock.calls[0]?.[0]).toMatchObject({ operationType: 'move' })
-  })
+        expect(buildFromCursorSpy.mock.calls[0]?.[0]).toBe('move')
+        expect(dialogs.showTransfer.mock.calls[0]?.[0]).toMatchObject({ operationType: 'move' })
+    })
 })
 
 describe('openDeleteDialog', () => {
-  it('bails when the focused pane has no listing id', async () => {
-    const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('bails when the focused pane has no listing id', async () => {
+        const access = buildAccess({ paneRefs: { left: buildPaneRef({ listingId: null }) }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
 
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
-
-  it('refuses on a read-only volume with the exact alert', async () => {
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
-      volumes: [volume({ mountIsReadOnly: true })],
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+    it('refuses on a read-only volume with the exact alert', async () => {
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1' }) },
+            volumes: [volume({ mountIsReadOnly: true })],
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showAlert).toHaveBeenCalledWith(
-      'Read-only volume',
-      "This is a read-only volume. Deleting files isn't possible here.",
-    )
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
 
-  it('opens a PERMANENT delete confirm inside a zip (no trash, archive flag)', async () => {
-    // Deleting an entry inside a zip is permanent: there's no Trash inside an
-    // archive. Even with the trash preselect (F8, `permanent: false`) and a
-    // trash-capable parent drive, the confirm forces permanent, drops trash, and
-    // sets the archive flag so the dialog shows the archive warning.
-    getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'inner.txt' })])
-    const access = buildAccess({
-      paneRefs: { left: buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] }) },
-      volumes: [volume({ supportsTrash: true })],
-      paths: { left: '/left/foo.zip/inner' },
+        expect(dialogs.showAlert).toHaveBeenCalledWith(
+            'Read-only volume',
+            "This is a read-only volume. Deleting files isn't possible here.",
+        )
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+    it('opens a PERMANENT delete confirm inside a zip (no trash, archive flag)', async () => {
+        // Deleting an entry inside a zip is permanent: there's no Trash inside an
+        // archive. Even with the trash preselect (F8, `permanent: false`) and a
+        // trash-capable parent drive, the confirm forces permanent, drops trash, and
+        // sets the archive flag so the dialog shows the archive warning.
+        getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'inner.txt' })])
+        const access = buildAccess({
+            paneRefs: { left: buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] }) },
+            volumes: [volume({ supportsTrash: true })],
+            paths: { left: '/left/foo.zip/inner' },
+        })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showAlert).not.toHaveBeenCalled()
-    expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
-      isPermanent: true,
-      supportsTrash: false,
-      isArchive: true,
-      sourceFolderPath: '/left/foo.zip/inner',
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
+
+        expect(dialogs.showAlert).not.toHaveBeenCalled()
+        expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
+            isPermanent: true,
+            supportsTrash: false,
+            isArchive: true,
+            sourceFolderPath: '/left/foo.zip/inner',
+        })
     })
-  })
 
-  it('deletes the selection (hasSelection branch) and is not flagged as from-cursor', async () => {
-    getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'a.txt' }), fileEntry({ name: 'b.txt' })])
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [1, 2], hasParent: true })
-    const access = buildAccess({
-      paneRefs: { left: paneRef },
-      volumes: [volume()],
-      paths: { left: '/left/dir' },
+    it('deletes the selection (hasSelection branch) and is not flagged as from-cursor', async () => {
+        getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'a.txt' }), fileEntry({ name: 'b.txt' })])
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [1, 2], hasParent: true })
+        const access = buildAccess({
+            paneRefs: { left: paneRef },
+            volumes: [volume()],
+            paths: { left: '/left/dir' },
+        })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openDeleteDialog({ permanent: true })
+
+        expect(dialogs.showDeleteConfirmation).toHaveBeenCalledTimes(1)
+        expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
+            isFromCursor: false,
+            isPermanent: true,
+            sourceFolderPath: '/left/dir',
+            sourceVolumeId: 'root',
+        })
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: true })
+    it('deletes the cursor item (no-selection branch) flagged as from-cursor', async () => {
+        getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'cur.txt' })])
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 3 })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showDeleteConfirmation).toHaveBeenCalledTimes(1)
-    expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
-      isFromCursor: false,
-      isPermanent: true,
-      sourceFolderPath: '/left/dir',
-      sourceVolumeId: 'root',
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
+
+        expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({ isFromCursor: true })
     })
-  })
 
-  it('deletes the cursor item (no-selection branch) flagged as from-cursor', async () => {
-    getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: 'cur.txt' })])
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [], cursorIndex: 3 })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
+    it('looks up supportsTrash from the source volume', async () => {
+        getFilesAtIndicesSpy.mockResolvedValue([fileEntry()])
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
+        const access = buildAccess({
+            paneRefs: { left: paneRef },
+            volumes: [volume({ supportsTrash: false })],
+        })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
 
-    expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({ isFromCursor: true })
-  })
-
-  it('looks up supportsTrash from the source volume', async () => {
-    getFilesAtIndicesSpy.mockResolvedValue([fileEntry()])
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
-    const access = buildAccess({
-      paneRefs: { left: paneRef },
-      volumes: [volume({ supportsTrash: false })],
+        expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({ supportsTrash: false })
     })
-    const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+    it('bails when getFilesAtIndices throws', async () => {
+        getFilesAtIndicesSpy.mockRejectedValue(new Error('boom'))
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({ supportsTrash: false })
-  })
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
 
-  it('bails when getFilesAtIndices throws', async () => {
-    getFilesAtIndicesSpy.mockRejectedValue(new Error('boom'))
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
-
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
-
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
-
-  it('bails when all fetched entries are the parent ".." entry', async () => {
-    getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: '..' })])
-    const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
-    const dialogs = buildDialogs()
-
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
-
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
-
-  it('builds the delete dialog from the snapshot cursor entry on a search-results pane', async () => {
-    getSnapshotSpy.mockReturnValue(
-      snapshot([snapshotEntry({ name: 'hit.md', path: '/real/hit.md', parentPath: '/real' })]),
-    )
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 0 })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
-    const dialogs = buildDialogs()
-
-    await create(access, dialogs).openDeleteDialog({ permanent: true })
-
-    expect(dialogs.showDeleteConfirmation).toHaveBeenCalledTimes(1)
-    expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
-      sourcePaths: ['/real/hit.md'],
-      sourceFolderPath: '/real',
-      isPermanent: true,
-      supportsTrash: true,
-      isFromCursor: true,
-      sourceVolumeId: 'root',
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
     })
-  })
 
-  it('bails on a search-results pane whose cursor is out of range', async () => {
-    getSnapshotSpy.mockReturnValue(snapshot([snapshotEntry()]))
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 9 })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
-    const dialogs = buildDialogs()
+    it('bails when all fetched entries are the parent ".." entry', async () => {
+        getFilesAtIndicesSpy.mockResolvedValue([fileEntry({ name: '..' })])
+        const paneRef = buildPaneRef({ listingId: 'lst-1', selectedIndices: [0] })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumes: [volume()] })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
 
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
+    })
 
-  it('bails on a search-results pane whose snapshot is missing', async () => {
-    getSnapshotSpy.mockReturnValue(undefined)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 0 })
-    const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
-    const dialogs = buildDialogs()
+    it('builds the delete dialog from the snapshot cursor entry on a search-results pane', async () => {
+        getSnapshotSpy.mockReturnValue(
+            snapshot([snapshotEntry({ name: 'hit.md', path: '/real/hit.md', parentPath: '/real' })]),
+        )
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 0 })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
+        const dialogs = buildDialogs()
 
-    await create(access, dialogs).openDeleteDialog({ permanent: false })
+        await create(access, dialogs).openDeleteDialog({ permanent: true })
 
-    expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
-  })
+        expect(dialogs.showDeleteConfirmation).toHaveBeenCalledTimes(1)
+        expect(dialogs.showDeleteConfirmation.mock.calls[0][0]).toMatchObject({
+            sourcePaths: ['/real/hit.md'],
+            sourceFolderPath: '/real',
+            isPermanent: true,
+            supportsTrash: true,
+            isFromCursor: true,
+            sourceVolumeId: 'root',
+        })
+    })
+
+    it('bails on a search-results pane whose cursor is out of range', async () => {
+        getSnapshotSpy.mockReturnValue(snapshot([snapshotEntry()]))
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 9 })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
+
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
+    })
+
+    it('bails on a search-results pane whose snapshot is missing', async () => {
+        getSnapshotSpy.mockReturnValue(undefined)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1', cursorIndex: 0 })
+        const access = buildAccess({ paneRefs: { left: paneRef }, volumeIds: { left: 'search-results' } })
+        const dialogs = buildDialogs()
+
+        await create(access, dialogs).openDeleteDialog({ permanent: false })
+
+        expect(dialogs.showDeleteConfirmation).not.toHaveBeenCalled()
+    })
 })

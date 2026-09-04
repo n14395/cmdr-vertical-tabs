@@ -1,420 +1,431 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
-  getDestinationVolumeInfo,
-  getSelectedFilePaths,
-  buildTransferPropsFromSelection,
-  buildTransferPropsFromDroppedPaths,
-  buildTransferPropsFromSnapshot,
-  getCommonParentPath,
-  type TransferContext,
+    getDestinationVolumeInfo,
+    getSelectedFilePaths,
+    buildTransferPropsFromSelection,
+    buildTransferPropsFromDroppedPaths,
+    buildTransferPropsFromSnapshot,
+    getCommonParentPath,
+    type TransferContext,
 } from './transfer-operations'
 import type { VolumeInfo } from '../types'
 
 vi.mock('$lib/tauri-commands', () => ({
-  getListingStats: vi.fn(),
-  getPathsAtIndices: vi.fn(),
+    getListingStats: vi.fn(),
+    getPathsAtIndices: vi.fn(),
 }))
 
 const { getListingStats, getPathsAtIndices } = await import('$lib/tauri-commands')
 
 describe('getDestinationVolumeInfo', () => {
-  const volumes: VolumeInfo[] = [
-    {
-      id: 'vol-1',
-      name: 'Main Drive',
-      path: '/mnt/main',
-      category: 'main_volume',
-      isEjectable: false,
-      mountIsReadOnly: false,
-    },
-    {
-      id: 'vol-2',
-      name: 'Backup',
-      path: '/mnt/backup',
-      category: 'attached_volume',
-      isEjectable: true,
-      mountIsReadOnly: true,
-    },
-    {
-      id: 'mtp-device-1:65537',
-      name: 'Phone Storage',
-      path: 'mtp://device-1/65537',
-      category: 'mobile_device',
-      isEjectable: true,
-      mountIsReadOnly: false,
-    },
-    {
-      id: 'mtp-device-2:65537',
-      name: 'Read-only Device',
-      path: 'mtp://device-2/65537',
-      category: 'mobile_device',
-      isEjectable: true,
-      mountIsReadOnly: true,
-    },
-  ]
+    const volumes: VolumeInfo[] = [
+        {
+            id: 'vol-1',
+            name: 'Main Drive',
+            path: '/mnt/main',
+            category: 'main_volume',
+            isEjectable: false,
+            mountIsReadOnly: false,
+        },
+        {
+            id: 'vol-2',
+            name: 'Backup',
+            path: '/mnt/backup',
+            category: 'attached_volume',
+            isEjectable: true,
+            mountIsReadOnly: true,
+        },
+        {
+            id: 'mtp-device-1:65537',
+            name: 'Phone Storage',
+            path: 'mtp://device-1/65537',
+            category: 'mobile_device',
+            isEjectable: true,
+            mountIsReadOnly: false,
+        },
+        {
+            id: 'mtp-device-2:65537',
+            name: 'Read-only Device',
+            path: 'mtp://device-2/65537',
+            category: 'mobile_device',
+            isEjectable: true,
+            mountIsReadOnly: true,
+        },
+    ]
 
-  it('returns info for regular volume', () => {
-    expect(getDestinationVolumeInfo('vol-1', volumes)).toEqual({
-      name: 'Main Drive',
-      mountIsReadOnly: false,
+    it('returns info for regular volume', () => {
+        expect(getDestinationVolumeInfo('vol-1', volumes)).toEqual({
+            name: 'Main Drive',
+            mountIsReadOnly: false,
+        })
     })
-  })
 
-  it('returns info for read-only regular volume', () => {
-    expect(getDestinationVolumeInfo('vol-2', volumes)).toEqual({ name: 'Backup', mountIsReadOnly: true })
-  })
-
-  it('returns info for MTP volume', () => {
-    expect(getDestinationVolumeInfo('mtp-device-1:65537', volumes)).toEqual({
-      name: 'Phone Storage',
-      mountIsReadOnly: false,
+    it('returns info for read-only regular volume', () => {
+        expect(getDestinationVolumeInfo('vol-2', volumes)).toEqual({ name: 'Backup', mountIsReadOnly: true })
     })
-  })
 
-  it('returns info for read-only MTP volume', () => {
-    expect(getDestinationVolumeInfo('mtp-device-2:65537', volumes)).toEqual({
-      name: 'Read-only Device',
-      mountIsReadOnly: true,
+    it('returns info for MTP volume', () => {
+        expect(getDestinationVolumeInfo('mtp-device-1:65537', volumes)).toEqual({
+            name: 'Phone Storage',
+            mountIsReadOnly: false,
+        })
     })
-  })
 
-  it('returns undefined when not found', () => {
-    expect(getDestinationVolumeInfo('nonexistent', volumes)).toBeUndefined()
-  })
+    it('returns info for read-only MTP volume', () => {
+        expect(getDestinationVolumeInfo('mtp-device-2:65537', volumes)).toEqual({
+            name: 'Read-only Device',
+            mountIsReadOnly: true,
+        })
+    })
+
+    it('returns undefined when not found', () => {
+        expect(getDestinationVolumeInfo('nonexistent', volumes)).toBeUndefined()
+    })
 })
 
 describe('getSelectedFilePaths', () => {
-  beforeEach(() => vi.clearAllMocks())
+    beforeEach(() => vi.clearAllMocks())
 
-  it('returns paths for valid files', async () => {
-    vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/p/file1.txt', '/p/file2.txt'])
+    it('returns paths for valid files', async () => {
+        vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/p/file1.txt', '/p/file2.txt'])
 
-    expect(await getSelectedFilePaths('listing-1', [0, 1], false, false)).toEqual(['/p/file1.txt', '/p/file2.txt'])
-    expect(getPathsAtIndices).toHaveBeenCalledWith('listing-1', [0, 1], false, false)
-  })
+        expect(await getSelectedFilePaths('listing-1', [0, 1], false, false)).toEqual(['/p/file1.txt', '/p/file2.txt'])
+        expect(getPathsAtIndices).toHaveBeenCalledWith('listing-1', [0, 1], false, false)
+    })
 
-  it('passes hasParent to backend for ".." filtering', async () => {
-    vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/p/file.txt'])
+    it('passes hasParent to backend for ".." filtering', async () => {
+        vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/p/file.txt'])
 
-    expect(await getSelectedFilePaths('listing-1', [0, 1], false, true)).toEqual(['/p/file.txt'])
-    expect(getPathsAtIndices).toHaveBeenCalledWith('listing-1', [0, 1], false, true)
-  })
+        expect(await getSelectedFilePaths('listing-1', [0, 1], false, true)).toEqual(['/p/file.txt'])
+        expect(getPathsAtIndices).toHaveBeenCalledWith('listing-1', [0, 1], false, true)
+    })
 })
 
 describe('buildTransferPropsFromSelection', () => {
-  const context: TransferContext = {
-    showHiddenFiles: false,
-    sourcePath: '/source',
-    destPath: '/dest',
-    sourceVolumeId: 'vol-src',
-    destVolumeId: 'vol-dest',
-    sortColumn: 'name',
-    sortOrder: 'ascending',
-  }
+    const context: TransferContext = {
+        showHiddenFiles: false,
+        sourcePath: '/source',
+        destPath: '/dest',
+        sourceVolumeId: 'vol-src',
+        destVolumeId: 'vol-dest',
+        sortColumn: 'name',
+        sortOrder: 'ascending',
+    }
 
-  beforeEach(() => vi.clearAllMocks())
+    beforeEach(() => vi.clearAllMocks())
 
-  it('returns null for empty indices', async () => {
-    expect(await buildTransferPropsFromSelection('copy', 'listing-1', [], false, true, context)).toBeNull()
-  })
-
-  it('returns correct props for copy selection', async () => {
-    vi.mocked(getListingStats).mockResolvedValueOnce({
-      totalFiles: 2,
-      totalDirs: 1,
-      totalSize: 1000,
-      totalPhysicalSize: 1024,
-      selectedFiles: 2,
-      selectedDirs: 1,
-      selectedSize: null,
-      selectedPhysicalSize: null,
+    it('returns null for empty indices', async () => {
+        expect(await buildTransferPropsFromSelection('copy', 'listing-1', [], false, true, context)).toBeNull()
     })
-    vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/source/file1.txt', '/source/folder'])
 
-    const result = await buildTransferPropsFromSelection('copy', 'listing-1', [0, 1], false, true, context)
-    expect(result).toEqual({
-      operationType: 'copy',
-      sourcePaths: ['/source/file1.txt', '/source/folder'],
-      destinationPath: '/dest',
-      direction: 'right',
-      currentVolumeId: 'vol-dest',
-      fileCount: 2,
-      folderCount: 1,
-      sourceFolderPath: '/source',
-      sortColumn: 'name',
-      sortOrder: 'ascending',
-      sourceVolumeId: 'vol-src',
-      destVolumeId: 'vol-dest',
+    it('returns correct props for copy selection', async () => {
+        vi.mocked(getListingStats).mockResolvedValueOnce({
+            totalFiles: 2,
+            totalDirs: 1,
+            totalSize: 1000,
+            totalPhysicalSize: 1024,
+            selectedFiles: 2,
+            selectedDirs: 1,
+            selectedSize: null,
+            selectedPhysicalSize: null,
+        })
+        vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/source/file1.txt', '/source/folder'])
+
+        const result = await buildTransferPropsFromSelection('copy', 'listing-1', [0, 1], false, true, context)
+        expect(result).toEqual({
+            operationType: 'copy',
+            sourcePaths: ['/source/file1.txt', '/source/folder'],
+            destinationPath: '/dest',
+            direction: 'right',
+            currentVolumeId: 'vol-dest',
+            fileCount: 2,
+            folderCount: 1,
+            sourceFolderPath: '/source',
+            sortColumn: 'name',
+            sortOrder: 'ascending',
+            sourceVolumeId: 'vol-src',
+            destVolumeId: 'vol-dest',
+        })
     })
-  })
 
-  it('returns correct props for move selection', async () => {
-    vi.mocked(getListingStats).mockResolvedValueOnce({
-      totalFiles: 1,
-      totalDirs: 0,
-      totalSize: 500,
-      totalPhysicalSize: 512,
-      selectedFiles: 1,
-      selectedDirs: 0,
-      selectedSize: null,
-      selectedPhysicalSize: null,
+    it('returns correct props for move selection', async () => {
+        vi.mocked(getListingStats).mockResolvedValueOnce({
+            totalFiles: 1,
+            totalDirs: 0,
+            totalSize: 500,
+            totalPhysicalSize: 512,
+            selectedFiles: 1,
+            selectedDirs: 0,
+            selectedSize: null,
+            selectedPhysicalSize: null,
+        })
+        vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/source/file.txt'])
+
+        const result = await buildTransferPropsFromSelection('move', 'listing-1', [0], false, true, context)
+        expect(result?.operationType).toBe('move')
     })
-    vi.mocked(getPathsAtIndices).mockResolvedValueOnce(['/source/file.txt'])
-
-    const result = await buildTransferPropsFromSelection('move', 'listing-1', [0], false, true, context)
-    expect(result?.operationType).toBe('move')
-  })
 })
 
 describe('getCommonParentPath', () => {
-  it('returns / for empty paths', () => {
-    expect(getCommonParentPath([])).toBe('/')
-  })
+    it('returns / for empty paths', () => {
+        expect(getCommonParentPath([])).toBe('/')
+    })
 
-  it('returns parent of single path', () => {
-    expect(getCommonParentPath(['/Users/alice/file.txt'])).toBe('/Users/alice')
-  })
+    it('returns parent of single path', () => {
+        expect(getCommonParentPath(['/Users/alice/file.txt'])).toBe('/Users/alice')
+    })
 
-  it('returns / for single root-level path', () => {
-    expect(getCommonParentPath(['/file.txt'])).toBe('/')
-  })
+    it('returns / for single root-level path', () => {
+        expect(getCommonParentPath(['/file.txt'])).toBe('/')
+    })
 
-  it('returns common parent for sibling files', () => {
-    expect(getCommonParentPath(['/Users/alice/a.txt', '/Users/alice/b.txt'])).toBe('/Users/alice')
-  })
+    it('returns common parent for sibling files', () => {
+        expect(getCommonParentPath(['/Users/alice/a.txt', '/Users/alice/b.txt'])).toBe('/Users/alice')
+    })
 
-  it('returns common parent for paths in different subdirectories', () => {
-    expect(getCommonParentPath(['/Users/alice/docs/a.txt', '/Users/alice/photos/b.jpg'])).toBe('/Users/alice')
-  })
+    it('returns common parent for paths in different subdirectories', () => {
+        expect(getCommonParentPath(['/Users/alice/docs/a.txt', '/Users/alice/photos/b.jpg'])).toBe('/Users/alice')
+    })
 
-  it('returns / when only root is common', () => {
-    expect(getCommonParentPath(['/foo/a.txt', '/bar/b.txt'])).toBe('/')
-  })
+    it('returns / when only root is common', () => {
+        expect(getCommonParentPath(['/foo/a.txt', '/bar/b.txt'])).toBe('/')
+    })
 
-  it('handles deeply nested common path', () => {
-    expect(getCommonParentPath(['/a/b/c/d/file1.txt', '/a/b/c/d/file2.txt', '/a/b/c/d/file3.txt'])).toBe('/a/b/c/d')
-  })
+    it('handles deeply nested common path', () => {
+        expect(getCommonParentPath(['/a/b/c/d/file1.txt', '/a/b/c/d/file2.txt', '/a/b/c/d/file3.txt'])).toBe('/a/b/c/d')
+    })
 })
 
 describe('buildTransferPropsFromDroppedPaths', () => {
-  it('returns correct props for a single dropped file (carries the resolved source volume)', () => {
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/file.txt'],
-      '/dest',
-      'right',
-      'vol-dest',
-      'vol-src',
-      'name',
-      'ascending',
-    )
+    it('returns correct props for a single dropped file (carries the resolved source volume)', () => {
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/file.txt'],
+            '/dest',
+            'right',
+            'vol-dest',
+            'vol-src',
+            'name',
+            'ascending',
+        )
 
-    expect(result).toEqual({
-      operationType: 'copy',
-      sourcePaths: ['/Users/alice/file.txt'],
-      destinationPath: '/dest',
-      direction: 'right',
-      currentVolumeId: 'vol-dest',
-      fileCount: 1,
-      folderCount: 0,
-      sourceFolderPath: '/Users/alice',
-      sortColumn: 'name',
-      sortOrder: 'ascending',
-      sourceVolumeId: 'vol-src',
-      destVolumeId: 'vol-dest',
+        expect(result).toEqual({
+            operationType: 'copy',
+            sourcePaths: ['/Users/alice/file.txt'],
+            destinationPath: '/dest',
+            direction: 'right',
+            currentVolumeId: 'vol-dest',
+            fileCount: 1,
+            folderCount: 0,
+            sourceFolderPath: '/Users/alice',
+            sortColumn: 'name',
+            sortOrder: 'ascending',
+            sourceVolumeId: 'vol-src',
+            destVolumeId: 'vol-dest',
+        })
     })
-  })
 
-  it('returns correct props for multiple dropped files', () => {
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/a.txt', '/Users/alice/b.txt', '/Users/alice/c.txt'],
-      '/dest/folder',
-      'left',
-      'vol-1',
-      'vol-1',
-      'size',
-      'descending',
-    )
+    it('returns correct props for multiple dropped files', () => {
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/a.txt', '/Users/alice/b.txt', '/Users/alice/c.txt'],
+            '/dest/folder',
+            'left',
+            'vol-1',
+            'vol-1',
+            'size',
+            'descending',
+        )
 
-    expect(result.fileCount).toBe(3)
-    expect(result.sourceFolderPath).toBe('/Users/alice')
-    expect(result.direction).toBe('left')
-    expect(result.sortColumn).toBe('size')
-    expect(result.sortOrder).toBe('descending')
-  })
+        expect(result.fileCount).toBe(3)
+        expect(result.sourceFolderPath).toBe('/Users/alice')
+        expect(result.direction).toBe('left')
+        expect(result.sortColumn).toBe('size')
+        expect(result.sortOrder).toBe('descending')
+    })
 
-  it('keeps source and dest volume ids independent so a cross-volume drop stats the right volume', () => {
-    // Dropping an MTP source onto a local dest: the source volume id must be the
-    // resolved MTP volume, NOT the dest volume. The hardcoded
-    // `sourceVolumeId = destVolumeId` placeholder made the scan preview stat
-    // MTP-shaped paths as local and report 0 bytes / 0 files.
-    const result = buildTransferPropsFromDroppedPaths(
-      'move',
-      ['mtp://dev/65538/DCIM/IMG.JPG'],
-      '/Users/alice/dest',
-      'right',
-      'root',
-      'mtp-dev:65538',
-      'name',
-      'ascending',
-    )
+    it('keeps source and dest volume ids independent so a cross-volume drop stats the right volume', () => {
+        // Dropping an MTP source onto a local dest: the source volume id must be the
+        // resolved MTP volume, NOT the dest volume. The hardcoded
+        // `sourceVolumeId = destVolumeId` placeholder made the scan preview stat
+        // MTP-shaped paths as local and report 0 bytes / 0 files.
+        const result = buildTransferPropsFromDroppedPaths(
+            'move',
+            ['mtp://dev/65538/DCIM/IMG.JPG'],
+            '/Users/alice/dest',
+            'right',
+            'root',
+            'mtp-dev:65538',
+            'name',
+            'ascending',
+        )
 
-    expect(result.sourceVolumeId).toBe('mtp-dev:65538')
-    expect(result.destVolumeId).toBe('root')
-    expect(result.operationType).toBe('move')
-  })
+        expect(result.sourceVolumeId).toBe('mtp-dev:65538')
+        expect(result.destVolumeId).toBe('root')
+        expect(result.operationType).toBe('move')
+    })
 
-  it('splits files and folders when all kind flags are known (3 folders dropped)', () => {
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/one', '/Users/alice/two', '/Users/alice/three'],
-      '/dest',
-      'right',
-      'vol-dest',
-      'vol-src',
-      'name',
-      'ascending',
-      [true, true, true],
-    )
+    it('splits files and folders when all kind flags are known (3 folders dropped)', () => {
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/one', '/Users/alice/two', '/Users/alice/three'],
+            '/dest',
+            'right',
+            'vol-dest',
+            'vol-src',
+            'name',
+            'ascending',
+            [true, true, true],
+        )
 
-    expect(result.fileCount).toBe(0)
-    expect(result.folderCount).toBe(3)
-  })
+        expect(result.fileCount).toBe(0)
+        expect(result.folderCount).toBe(3)
+    })
 
-  it('splits a mixed drop (1 file + 2 folders) when all flags are known', () => {
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/a.txt', '/Users/alice/dir1', '/Users/alice/dir2'],
-      '/dest',
-      'right',
-      'vol-dest',
-      'vol-src',
-      'name',
-      'ascending',
-      [false, true, true],
-    )
+    it('splits a mixed drop (1 file + 2 folders) when all flags are known', () => {
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/a.txt', '/Users/alice/dir1', '/Users/alice/dir2'],
+            '/dest',
+            'right',
+            'vol-dest',
+            'vol-src',
+            'name',
+            'ascending',
+            [false, true, true],
+        )
 
-    expect(result.fileCount).toBe(1)
-    expect(result.folderCount).toBe(2)
-  })
+        expect(result.fileCount).toBe(1)
+        expect(result.folderCount).toBe(2)
+    })
 
-  it('falls back to the approximate shape when ANY flag is unknown', () => {
-    // Honest beats half-right: one null kind ⇒ the whole batch uses today's
-    // approximate shape (all-files, zero folders) rather than a partial split.
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/a.txt', '/Users/alice/dir1', '/Users/alice/mystery'],
-      '/dest',
-      'right',
-      'vol-dest',
-      'vol-src',
-      'name',
-      'ascending',
-      [false, true, null],
-    )
+    it('falls back to the approximate shape when ANY flag is unknown', () => {
+        // Honest beats half-right: one null kind ⇒ the whole batch uses today's
+        // approximate shape (all-files, zero folders) rather than a partial split.
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/a.txt', '/Users/alice/dir1', '/Users/alice/mystery'],
+            '/dest',
+            'right',
+            'vol-dest',
+            'vol-src',
+            'name',
+            'ascending',
+            [false, true, null],
+        )
 
-    expect(result.fileCount).toBe(3)
-    expect(result.folderCount).toBe(0)
-  })
+        expect(result.fileCount).toBe(3)
+        expect(result.folderCount).toBe(0)
+    })
 
-  it('falls back to the approximate shape when the flags length disagrees', () => {
-    const result = buildTransferPropsFromDroppedPaths(
-      'copy',
-      ['/Users/alice/a.txt', '/Users/alice/dir1'],
-      '/dest',
-      'right',
-      'vol-dest',
-      'vol-src',
-      'name',
-      'ascending',
-      [true],
-    )
+    it('falls back to the approximate shape when the flags length disagrees', () => {
+        const result = buildTransferPropsFromDroppedPaths(
+            'copy',
+            ['/Users/alice/a.txt', '/Users/alice/dir1'],
+            '/dest',
+            'right',
+            'vol-dest',
+            'vol-src',
+            'name',
+            'ascending',
+            [true],
+        )
 
-    expect(result.fileCount).toBe(2)
-    expect(result.folderCount).toBe(0)
-  })
+        expect(result.fileCount).toBe(2)
+        expect(result.folderCount).toBe(0)
+    })
 })
 
 describe('buildTransferPropsFromSnapshot (M8d source-side ops)', () => {
-  it('returns null when no source paths are supplied', () => {
-    expect(buildTransferPropsFromSnapshot('copy', [], [], true, '/dest', 'vol-dest', 'name', 'ascending')).toBeNull()
-  })
+    it('returns null when no source paths are supplied', () => {
+        expect(
+            buildTransferPropsFromSnapshot('copy', [], [], true, '/dest', 'vol-dest', 'name', 'ascending'),
+        ).toBeNull()
+    })
 
-  it('returns null when paths and flags lengths disagree', () => {
-    // Defensive: would otherwise misreport file/folder counts.
-    expect(
-      buildTransferPropsFromSnapshot('copy', ['/a/x', '/a/y'], [false], true, '/dest', 'vol-dest', 'name', 'ascending'),
-    ).toBeNull()
-  })
+    it('returns null when paths and flags lengths disagree', () => {
+        // Defensive: would otherwise misreport file/folder counts.
+        expect(
+            buildTransferPropsFromSnapshot(
+                'copy',
+                ['/a/x', '/a/y'],
+                [false],
+                true,
+                '/dest',
+                'vol-dest',
+                'name',
+                'ascending',
+            ),
+        ).toBeNull()
+    })
 
-  it('counts files and folders separately and derives the common parent', () => {
-    const props = buildTransferPropsFromSnapshot(
-      'copy',
-      ['/Users/a/photos/img1.jpg', '/Users/a/photos/img2.jpg', '/Users/a/photos/subdir'],
-      [false, false, true],
-      true,
-      '/Users/a/desktop',
-      'vol-dest',
-      'name',
-      'ascending',
-    )
+    it('counts files and folders separately and derives the common parent', () => {
+        const props = buildTransferPropsFromSnapshot(
+            'copy',
+            ['/Users/a/photos/img1.jpg', '/Users/a/photos/img2.jpg', '/Users/a/photos/subdir'],
+            [false, false, true],
+            true,
+            '/Users/a/desktop',
+            'vol-dest',
+            'name',
+            'ascending',
+        )
 
-    if (!props) throw new Error('expected non-null props')
-    expect(props.fileCount).toBe(2)
-    expect(props.folderCount).toBe(1)
-    expect(props.sourceFolderPath).toBe('/Users/a/photos')
-    expect(props.sourcePaths).toEqual([
-      '/Users/a/photos/img1.jpg',
-      '/Users/a/photos/img2.jpg',
-      '/Users/a/photos/subdir',
-    ])
-    expect(props.destinationPath).toBe('/Users/a/desktop')
-    expect(props.destVolumeId).toBe('vol-dest')
-    // Source is always 'root' for snapshot panes (entries live on the local FS).
-    expect(props.sourceVolumeId).toBe('root')
-  })
+        if (!props) throw new Error('expected non-null props')
+        expect(props.fileCount).toBe(2)
+        expect(props.folderCount).toBe(1)
+        expect(props.sourceFolderPath).toBe('/Users/a/photos')
+        expect(props.sourcePaths).toEqual([
+            '/Users/a/photos/img1.jpg',
+            '/Users/a/photos/img2.jpg',
+            '/Users/a/photos/subdir',
+        ])
+        expect(props.destinationPath).toBe('/Users/a/desktop')
+        expect(props.destVolumeId).toBe('vol-dest')
+        // Source is always 'root' for snapshot panes (entries live on the local FS).
+        expect(props.sourceVolumeId).toBe('root')
+    })
 
-  it('sets direction based on which pane is the source (isLeft=true → direction "right")', () => {
-    const left = buildTransferPropsFromSnapshot(
-      'move',
-      ['/a/x'],
-      [false],
-      true, // source is the left pane → files travel right
-      '/dest',
-      'vol-dest',
-      'name',
-      'ascending',
-    )
-    if (!left) throw new Error('expected non-null left')
-    expect(left.direction).toBe('right')
+    it('sets direction based on which pane is the source (isLeft=true → direction "right")', () => {
+        const left = buildTransferPropsFromSnapshot(
+            'move',
+            ['/a/x'],
+            [false],
+            true, // source is the left pane → files travel right
+            '/dest',
+            'vol-dest',
+            'name',
+            'ascending',
+        )
+        if (!left) throw new Error('expected non-null left')
+        expect(left.direction).toBe('right')
 
-    const right = buildTransferPropsFromSnapshot(
-      'move',
-      ['/a/x'],
-      [false],
-      false, // source is the right pane → files travel left
-      '/dest',
-      'vol-dest',
-      'name',
-      'ascending',
-    )
-    if (!right) throw new Error('expected non-null right')
-    expect(right.direction).toBe('left')
-  })
+        const right = buildTransferPropsFromSnapshot(
+            'move',
+            ['/a/x'],
+            [false],
+            false, // source is the right pane → files travel left
+            '/dest',
+            'vol-dest',
+            'name',
+            'ascending',
+        )
+        if (!right) throw new Error('expected non-null right')
+        expect(right.direction).toBe('left')
+    })
 
-  it('passes the operation type through unchanged', () => {
-    const props = buildTransferPropsFromSnapshot(
-      'move',
-      ['/a/x'],
-      [false],
-      true,
-      '/dest',
-      'vol-dest',
-      'name',
-      'ascending',
-    )
-    if (!props) throw new Error('expected non-null props')
-    expect(props.operationType).toBe('move')
-  })
+    it('passes the operation type through unchanged', () => {
+        const props = buildTransferPropsFromSnapshot(
+            'move',
+            ['/a/x'],
+            [false],
+            true,
+            '/dest',
+            'vol-dest',
+            'name',
+            'ascending',
+        )
+        if (!props) throw new Error('expected non-null props')
+        expect(props.operationType).toBe('move')
+    })
 })

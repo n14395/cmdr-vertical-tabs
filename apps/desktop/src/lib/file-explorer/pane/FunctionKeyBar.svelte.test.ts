@@ -19,57 +19,57 @@ import { createInitialTabState } from './tab-operations'
 
 /** A tab manager whose single active tab sits on `volumeId`. */
 function mgrOn(volumeId: string): TabManager {
-  return createTabManager(createInitialTabState('/dir', volumeId))
+    return createTabManager(createInitialTabState('/dir', volumeId))
 }
 
 /** Mounts the bar with the focused (left) pane on `volumeId` and returns its buttons. */
 function mountOn(volumeId: string): HTMLButtonElement[] {
-  explorerState.setFocusedPane('left')
-  explorerState.setTabMgr('left', mgrOn(volumeId))
-  const target = document.createElement('div')
-  mount(FunctionKeyBar, { target, props: { visible: true } })
-  flushSync()
-  return Array.from(target.querySelectorAll('button'))
+    explorerState.setFocusedPane('left')
+    explorerState.setTabMgr('left', mgrOn(volumeId))
+    const target = document.createElement('div')
+    mount(FunctionKeyBar, { target, props: { visible: true } })
+    flushSync()
+    return Array.from(target.querySelectorAll('button'))
 }
 
 describe('FunctionKeyBar capability disablement', () => {
-  beforeEach(() => {
-    _resetForTesting()
-  })
+    beforeEach(() => {
+        _resetForTesting()
+    })
 
-  it('a real (local) pane enables every default-state button', () => {
-    // Buttons: F2 Rename, F3 View, F4 Edit, F5 Copy, F6 Move, F7 New folder, F8 Delete.
-    const buttons = mountOn('root')
-    for (const button of buttons) {
-      expect(button.disabled).toBe(false)
-    }
-  })
+    it('a real (local) pane enables every default-state button', () => {
+        // Buttons: F2 Rename, F3 View, F4 Edit, F5 Copy, F6 Move, F7 New folder, F8 Delete.
+        const buttons = mountOn('root')
+        for (const button of buttons) {
+            expect(button.disabled).toBe(false)
+        }
+    })
 
-  it('a search-results pane disables F2 / F7 (destination ops), keeps F5 / F6 / F8 (source ops)', () => {
-    // caps: canWrite false ⇒ F2, F7 disabled;
-    // canBeSource true ⇒ F5, F6, F8 enabled (snapshot rows are real files).
-    const [f2Rename, f3View, f4Edit, f5Copy, f6Move, f7NewFolder, f8Delete] = mountOn('search-results')
+    it('a search-results pane disables F2 / F7 (destination ops), keeps F5 / F6 / F8 (source ops)', () => {
+        // caps: canWrite false ⇒ F2, F7 disabled;
+        // canBeSource true ⇒ F5, F6, F8 enabled (snapshot rows are real files).
+        const [f2Rename, f3View, f4Edit, f5Copy, f6Move, f7NewFolder, f8Delete] = mountOn('search-results')
 
-    expect(f2Rename.disabled).toBe(true)
-    expect(f7NewFolder.disabled).toBe(true)
-    expect(f5Copy.disabled).toBe(false)
-    expect(f6Move.disabled).toBe(false)
-    expect(f8Delete.disabled).toBe(false)
-    // View / Edit are never gated by destination caps.
-    expect(f3View.disabled).toBe(false)
-    expect(f4Edit.disabled).toBe(false)
-  })
+        expect(f2Rename.disabled).toBe(true)
+        expect(f7NewFolder.disabled).toBe(true)
+        expect(f5Copy.disabled).toBe(false)
+        expect(f6Move.disabled).toBe(false)
+        expect(f8Delete.disabled).toBe(false)
+        // View / Edit are never gated by destination caps.
+        expect(f3View.disabled).toBe(false)
+        expect(f4Edit.disabled).toBe(false)
+    })
 
-  it('a network pane disables both destination AND source buttons (canBeSource: false)', () => {
-    // The network host/share list isn't files, so it can neither source nor host
-    // an op. The F-bar honestly reflects that now (canBeSource: false) — the bar
-    // is inert on a focused network pane either way (the ops no-op deep down).
-    const [f2Rename, , , f5Copy, f6Move, f7NewFolder, f8Delete] = mountOn('network')
+    it('a network pane disables both destination AND source buttons (canBeSource: false)', () => {
+        // The network host/share list isn't files, so it can neither source nor host
+        // an op. The F-bar honestly reflects that now (canBeSource: false) — the bar
+        // is inert on a focused network pane either way (the ops no-op deep down).
+        const [f2Rename, , , f5Copy, f6Move, f7NewFolder, f8Delete] = mountOn('network')
 
-    expect(f2Rename.disabled).toBe(true)
-    expect(f7NewFolder.disabled).toBe(true)
-    expect(f5Copy.disabled).toBe(true)
-    expect(f6Move.disabled).toBe(true)
-    expect(f8Delete.disabled).toBe(true)
-  })
+        expect(f2Rename.disabled).toBe(true)
+        expect(f7NewFolder.disabled).toBe(true)
+        expect(f5Copy.disabled).toBe(true)
+        expect(f6Move.disabled).toBe(true)
+        expect(f8Delete.disabled).toBe(true)
+    })
 })

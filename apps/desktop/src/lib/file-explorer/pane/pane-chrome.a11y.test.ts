@@ -35,9 +35,9 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 
 /** A fresh container, appended to the document and ready to mount into. */
 function container(): HTMLDivElement {
-  const target = document.createElement('div')
-  document.body.appendChild(target)
-  return target
+    const target = document.createElement('div')
+    document.body.appendChild(target)
+    return target
 }
 
 /**
@@ -49,28 +49,28 @@ function container(): HTMLDivElement {
  * is sufficient for structural a11y.
  */
 describe('FunctionKeyBar a11y', () => {
-  it('visible (default keys) has no a11y violations', async () => {
-    const target = container()
-    mount(FunctionKeyBar, {
-      target,
-      props: {
-        visible: true,
-        onCommand: () => {},
-      },
+    it('visible (default keys) has no a11y violations', async () => {
+        const target = container()
+        mount(FunctionKeyBar, {
+            target,
+            props: {
+                visible: true,
+                onCommand: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 
-  it('hidden (visible=false) has no a11y violations', async () => {
-    const target = container()
-    mount(FunctionKeyBar, {
-      target,
-      props: { visible: false },
+    it('hidden (visible=false) has no a11y violations', async () => {
+        const target = container()
+        mount(FunctionKeyBar, {
+            target,
+            props: { visible: false },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 })
 
 /**
@@ -80,19 +80,19 @@ describe('FunctionKeyBar a11y', () => {
  * `aria-orientation="vertical"`.
  */
 describe('PaneResizer a11y', () => {
-  it('default render has no a11y violations', async () => {
-    const target = container()
-    mount(PaneResizer, {
-      target,
-      props: {
-        onResize: () => {},
-        onResizeEnd: () => {},
-        onReset: () => {},
-      },
+    it('default render has no a11y violations', async () => {
+        const target = container()
+        mount(PaneResizer, {
+            target,
+            props: {
+                onResize: () => {},
+                onResizeEnd: () => {},
+                onReset: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 })
 
 /**
@@ -110,69 +110,69 @@ describe('PaneResizer a11y', () => {
  * opacity/font-style transitions.
  */
 describe('TypeToJumpIndicator a11y', () => {
-  it('hidden state renders nothing (no DOM node)', async () => {
-    const target = container()
-    mount(TypeToJumpIndicator, {
-      target,
-      props: { buffer: '', visible: false, stale: false },
+    it('hidden state renders nothing (no DOM node)', async () => {
+        const target = container()
+        mount(TypeToJumpIndicator, {
+            target,
+            props: { buffer: '', visible: false, stale: false },
+        })
+        await tick()
+        // Nothing visible: the {#if visible} guard removes the element entirely.
+        expect(target.querySelector('.type-to-jump-indicator')).toBeNull()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    // Nothing visible: the {#if visible} guard removes the element entirely.
-    expect(target.querySelector('.type-to-jump-indicator')).toBeNull()
-    await expectNoA11yViolations(target)
-  })
 
-  it('active state carries role="status", aria-live="polite", and the buffer in its accessible name', async () => {
-    const target = container()
-    mount(TypeToJumpIndicator, {
-      target,
-      props: { buffer: 'fil', visible: true, stale: false },
+    it('active state carries role="status", aria-live="polite", and the buffer in its accessible name', async () => {
+        const target = container()
+        mount(TypeToJumpIndicator, {
+            target,
+            props: { buffer: 'fil', visible: true, stale: false },
+        })
+        await tick()
+
+        const el = target.querySelector('.type-to-jump-indicator')
+        expect(el).not.toBeNull()
+        expect(el?.getAttribute('role')).toBe('status')
+        expect(el?.getAttribute('aria-live')).toBe('polite')
+        // Accessible name surfaces the buffer so screen-reader users hear "Jump to fil".
+        expect(el?.getAttribute('aria-label')).toBe('Jump to fil')
+        // Visible text still includes the buffer for sighted users.
+        expect(el?.textContent).toContain('fil')
+
+        await expectNoA11yViolations(target)
     })
-    await tick()
 
-    const el = target.querySelector('.type-to-jump-indicator')
-    expect(el).not.toBeNull()
-    expect(el?.getAttribute('role')).toBe('status')
-    expect(el?.getAttribute('aria-live')).toBe('polite')
-    // Accessible name surfaces the buffer so screen-reader users hear "Jump to fil".
-    expect(el?.getAttribute('aria-label')).toBe('Jump to fil')
-    // Visible text still includes the buffer for sighted users.
-    expect(el?.textContent).toContain('fil')
+    it('stale state still announces (live region stays polite, not off)', async () => {
+        const target = container()
+        mount(TypeToJumpIndicator, {
+            target,
+            props: { buffer: 'co', visible: true, stale: true },
+        })
+        await tick()
 
-    await expectNoA11yViolations(target)
-  })
+        const el = target.querySelector('.type-to-jump-indicator')
+        expect(el).not.toBeNull()
+        expect(el?.getAttribute('role')).toBe('status')
+        // Critical: the live region must NOT be flipped to `aria-live="off"` when
+        // the indicator shifts to stale, which would suppress the announcement
+        // for the next keystroke. The component leaves it polite.
+        expect(el?.getAttribute('aria-live')).toBe('polite')
+        expect(el?.classList.contains('is-stale')).toBe(true)
 
-  it('stale state still announces (live region stays polite, not off)', async () => {
-    const target = container()
-    mount(TypeToJumpIndicator, {
-      target,
-      props: { buffer: 'co', visible: true, stale: true },
+        await expectNoA11yViolations(target)
     })
-    await tick()
 
-    const el = target.querySelector('.type-to-jump-indicator')
-    expect(el).not.toBeNull()
-    expect(el?.getAttribute('role')).toBe('status')
-    // Critical: the live region must NOT be flipped to `aria-live="off"` when
-    // the indicator shifts to stale, which would suppress the announcement
-    // for the next keystroke. The component leaves it polite.
-    expect(el?.getAttribute('aria-live')).toBe('polite')
-    expect(el?.classList.contains('is-stale')).toBe(true)
-
-    await expectNoA11yViolations(target)
-  })
-
-  it('prefers-reduced-motion: reduce disables the CSS transition', () => {
-    // jsdom doesn't evaluate `prefers-reduced-motion` against `getComputedStyle`,
-    // and the Svelte vite plugin processes the component's scoped CSS through
-    // a separate stylesheet that doesn't materialize as a `<style>` tag in
-    // jsdom either. So we assert the contract at the source: the component
-    // contains a `prefers-reduced-motion: reduce` block setting `transition:
-    // none` on the indicator. If the rule disappears, this catches it.
-    const source = readFileSync(path.join(here, 'TypeToJumpIndicator.svelte'), 'utf8')
-    expect(source).toMatch(/prefers-reduced-motion:\s*reduce/)
-    expect(source).toMatch(/transition:\s*none/)
-  })
+    it('prefers-reduced-motion: reduce disables the CSS transition', () => {
+        // jsdom doesn't evaluate `prefers-reduced-motion` against `getComputedStyle`,
+        // and the Svelte vite plugin processes the component's scoped CSS through
+        // a separate stylesheet that doesn't materialize as a `<style>` tag in
+        // jsdom either. So we assert the contract at the source: the component
+        // contains a `prefers-reduced-motion: reduce` block setting `transition:
+        // none` on the indicator. If the rule disappears, this catches it.
+        const source = readFileSync(path.join(here, 'TypeToJumpIndicator.svelte'), 'utf8')
+        expect(source).toMatch(/prefers-reduced-motion:\s*reduce/)
+        expect(source).toMatch(/transition:\s*none/)
+    })
 })
 
 /**
@@ -182,43 +182,43 @@ describe('TypeToJumpIndicator a11y', () => {
  * actions. Tests cover idle and retrying states.
  */
 describe('VolumeUnreachableBanner a11y', () => {
-  it('idle state (retry enabled) has no a11y violations', async () => {
-    const target = container()
-    mount(VolumeUnreachableBanner, {
-      target,
-      props: {
-        originalPath: '/Volumes/Backup',
-        retrying: false,
-        onRetry: () => {},
-        onOpenHome: () => {},
-      },
+    it('idle state (retry enabled) has no a11y violations', async () => {
+        const target = container()
+        mount(VolumeUnreachableBanner, {
+            target,
+            props: {
+                originalPath: '/Volumes/Backup',
+                retrying: false,
+                onRetry: () => {},
+                onOpenHome: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 
-  it('retrying state (retry disabled) has no a11y violations', async () => {
-    const target = container()
-    mount(VolumeUnreachableBanner, {
-      target,
-      props: {
-        originalPath: '/Volumes/Backup',
-        retrying: true,
-        onRetry: () => {},
-        onOpenHome: () => {},
-      },
+    it('retrying state (retry disabled) has no a11y violations', async () => {
+        const target = container()
+        mount(VolumeUnreachableBanner, {
+            target,
+            props: {
+                originalPath: '/Volumes/Backup',
+                retrying: true,
+                onRetry: () => {},
+                onOpenHome: () => {},
+            },
+        })
+        await tick()
+        await expectNoA11yViolations(target)
     })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
 })
 
 /** Tier 3 a11y tests for `DoubleClickPaneHintToastContent.svelte`. */
 describe('DoubleClickPaneHintToastContent a11y', () => {
-  it('default has no a11y violations', async () => {
-    const target = container()
-    mount(DoubleClickPaneHintToastContent, { target, props: { toastId: 'hint-1' } })
-    await tick()
-    await expectNoA11yViolations(target)
-  })
+    it('default has no a11y violations', async () => {
+        const target = container()
+        mount(DoubleClickPaneHintToastContent, { target, props: { toastId: 'hint-1' } })
+        await tick()
+        await expectNoA11yViolations(target)
+    })
 })

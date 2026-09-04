@@ -17,28 +17,28 @@ import SearchResultsView from './SearchResultsView.svelte'
 
 /** Mirrors the inline `basename` helper in SearchResultsView.svelte. */
 function basename(path: string): string {
-  const idx = path.lastIndexOf('/')
-  return idx >= 0 ? path.slice(idx + 1) : path
+    const idx = path.lastIndexOf('/')
+    return idx >= 0 ? path.slice(idx + 1) : path
 }
 
 describe('SearchResultsView basename (P10)', () => {
-  it('imports the real SearchResultsView module', () => {
-    expect(SearchResultsView).toBeDefined()
-  })
+    it('imports the real SearchResultsView module', () => {
+        expect(SearchResultsView).toBeDefined()
+    })
 
-  it('returns just the filename from an absolute path', () => {
-    expect(basename('/Users/test/Library/foo/report.pdf')).toBe('report.pdf')
-  })
+    it('returns just the filename from an absolute path', () => {
+        expect(basename('/Users/test/Library/foo/report.pdf')).toBe('report.pdf')
+    })
 
-  it('returns the input when no slashes are present', () => {
-    expect(basename('report.pdf')).toBe('report.pdf')
-  })
+    it('returns the input when no slashes are present', () => {
+        expect(basename('report.pdf')).toBe('report.pdf')
+    })
 
-  it('handles paths ending in a slash by returning empty', () => {
-    expect(basename('/Users/test/Library/foo/')).toBe('')
-  })
+    it('handles paths ending in a slash by returning empty', () => {
+        expect(basename('/Users/test/Library/foo/')).toBe('')
+    })
 
-  it('handles single-letter filenames', () => {
-    expect(basename('/a')).toBe('a')
-  })
+    it('handles single-letter filenames', () => {
+        expect(basename('/a')).toBe('a')
+    })
 })

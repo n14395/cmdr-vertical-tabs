@@ -15,144 +15,153 @@ import { waitForUpdates, useMountTarget } from './integration-test-utils'
 let mockEntry: unknown = null
 
 vi.mock('$lib/tauri-commands', () => ({
-  listDirectoryStart: vi.fn().mockResolvedValue({ listingId: 'mock-listing', status: { status: 'ready' } }),
-  cancelListing: vi.fn().mockResolvedValue(undefined),
-  listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
-  getFileRange: vi.fn().mockResolvedValue([]),
-  getFileAt: vi.fn().mockImplementation((_listingId: string, index: number) => {
-    if (index === 0) {
-      mockEntry = {
-        name: 'test-folder',
-        path: '/test/test-folder',
-        isDirectory: true,
-        isSymlink: false,
-        permissions: 0o755,
-        owner: 'user',
-        group: 'staff',
-        iconId: 'dir',
-        extendedMetadataLoaded: true,
-      }
-    } else {
-      mockEntry = {
-        name: 'test-file.txt',
-        path: '/test/test-file.txt',
-        isDirectory: false,
-        isSymlink: false,
-        permissions: 0o644,
-        owner: 'user',
-        group: 'staff',
-        iconId: 'file',
-        extendedMetadataLoaded: true,
-      }
-    }
-    return Promise.resolve(mockEntry)
-  }),
-  findFileIndex: vi.fn().mockResolvedValue(0),
-  getTotalCount: vi.fn().mockResolvedValue(10),
-  getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  // FilePane's onMount registers these image-enrichment listeners.
-  onMediaEnrichProgress: vi.fn().mockResolvedValue(() => {}),
-  onMediaEnrichTerminal: vi.fn().mockResolvedValue(() => {}),
-  openFile: vi.fn().mockResolvedValue(undefined),
-  listen: vi.fn().mockResolvedValue(() => {}),
-  showFileContextMenu: vi.fn().mockResolvedValue(undefined),
-  updateMenuContext: vi.fn().mockResolvedValue(undefined),
-  listVolumes: vi.fn().mockResolvedValue({
-    data: [
-      { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
-      {
-        id: 'external',
-        name: 'External Drive',
-        path: '/Volumes/External',
-        category: 'attached_volume',
-        isEjectable: true,
-      },
-      { id: 'dropbox', name: 'Dropbox', path: '/Users/test/Dropbox', category: 'cloud_drive', isEjectable: false },
-    ],
-    timedOut: false,
-  }),
-  resolvePathVolume: vi.fn().mockResolvedValue({
-    volume: { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
-    timedOut: false,
-  }),
-  getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
-  getVolumeSpace: vi
-    .fn()
-    .mockResolvedValue({ data: { totalBytes: 500_000_000_000, availableBytes: 200_000_000_000 }, timedOut: false }),
-  refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
-  getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  refreshDirectoryIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  DEFAULT_VOLUME_ID: 'root',
-  listNetworkHosts: vi.fn().mockResolvedValue([]),
-  getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
-  resolveNetworkHost: vi.fn().mockResolvedValue(null),
-  listMtpDevices: vi.fn().mockResolvedValue([]),
-  onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
-  onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
-  onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
-  onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
-  onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
-  onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
-  onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
-  onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
-  onVolumeContextAction: vi.fn().mockResolvedValue(() => {}),
-  notifyDialogOpened: vi.fn().mockResolvedValue(undefined),
-  notifyDialogClosed: vi.fn().mockResolvedValue(undefined),
-  watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
+    listDirectoryStart: vi.fn().mockResolvedValue({ listingId: 'mock-listing', status: { status: 'ready' } }),
+    cancelListing: vi.fn().mockResolvedValue(undefined),
+    listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
+    getFileRange: vi.fn().mockResolvedValue([]),
+    getFileAt: vi.fn().mockImplementation((_listingId: string, index: number) => {
+        if (index === 0) {
+            mockEntry = {
+                name: 'test-folder',
+                path: '/test/test-folder',
+                isDirectory: true,
+                isSymlink: false,
+                permissions: 0o755,
+                owner: 'user',
+                group: 'staff',
+                iconId: 'dir',
+                extendedMetadataLoaded: true,
+            }
+        } else {
+            mockEntry = {
+                name: 'test-file.txt',
+                path: '/test/test-file.txt',
+                isDirectory: false,
+                isSymlink: false,
+                permissions: 0o644,
+                owner: 'user',
+                group: 'staff',
+                iconId: 'file',
+                extendedMetadataLoaded: true,
+            }
+        }
+        return Promise.resolve(mockEntry)
+    }),
+    findFileIndex: vi.fn().mockResolvedValue(0),
+    getTotalCount: vi.fn().mockResolvedValue(10),
+    getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    // FilePane's onMount registers these image-enrichment listeners.
+    onMediaEnrichProgress: vi.fn().mockResolvedValue(() => {}),
+    onMediaEnrichTerminal: vi.fn().mockResolvedValue(() => {}),
+    openFile: vi.fn().mockResolvedValue(undefined),
+    listen: vi.fn().mockResolvedValue(() => {}),
+    showFileContextMenu: vi.fn().mockResolvedValue(undefined),
+    updateMenuContext: vi.fn().mockResolvedValue(undefined),
+    listVolumes: vi.fn().mockResolvedValue({
+        data: [
+            { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+            {
+                id: 'external',
+                name: 'External Drive',
+                path: '/Volumes/External',
+                category: 'attached_volume',
+                isEjectable: true,
+            },
+            {
+                id: 'dropbox',
+                name: 'Dropbox',
+                path: '/Users/test/Dropbox',
+                category: 'cloud_drive',
+                isEjectable: false,
+            },
+        ],
+        timedOut: false,
+    }),
+    resolvePathVolume: vi.fn().mockResolvedValue({
+        volume: { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+        timedOut: false,
+    }),
+    getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
+    getVolumeSpace: vi
+        .fn()
+        .mockResolvedValue({ data: { totalBytes: 500_000_000_000, availableBytes: 200_000_000_000 }, timedOut: false }),
+    refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
+    getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    refreshDirectoryIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    DEFAULT_VOLUME_ID: 'root',
+    listNetworkHosts: vi.fn().mockResolvedValue([]),
+    getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
+    resolveNetworkHost: vi.fn().mockResolvedValue(null),
+    listMtpDevices: vi.fn().mockResolvedValue([]),
+    onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
+    onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
+    onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
+    onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
+    onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
+    onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
+    onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
+    onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
+    onVolumeContextAction: vi.fn().mockResolvedValue(() => {}),
+    notifyDialogOpened: vi.fn().mockResolvedValue(undefined),
+    notifyDialogClosed: vi.fn().mockResolvedValue(undefined),
+    watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('$lib/icon-cache', async () => {
-  const { writable } = await import('svelte/store')
-  return {
-    getCachedIcon: vi.fn().mockReturnValue('/icons/file.png'),
-    iconCacheVersion: writable(0),
-    prefetchIcons: vi.fn().mockResolvedValue(undefined),
-    prefetchCustomFolderIcons: vi.fn().mockResolvedValue(undefined),
-    evictPerPathIconsForDir: vi.fn(),
-  }
+    const { writable } = await import('svelte/store')
+    return {
+        getCachedIcon: vi.fn().mockReturnValue('/icons/file.png'),
+        getCachedCustomFolderIcon: () => undefined,
+        iconCacheVersion: writable(0),
+        prefetchIcons: vi.fn().mockResolvedValue(undefined),
+        prefetchCustomFolderIcons: vi.fn().mockResolvedValue(undefined),
+        evictPerPathIconsForDir: vi.fn(),
+    }
 })
 
 vi.mock('$lib/settings/reactive-settings.svelte', () => ({
-  getRowHeight: vi.fn().mockReturnValue(24),
-  formatDateTime: vi.fn().mockReturnValue('2025-01-01 00:00'),
-  formattedDate: vi.fn().mockReturnValue({
-    text: '2025-01-01 00:00',
-    segments: [
-      { text: '2025', ageClass: 'age-fresh' as const },
-      { text: '-', ageClass: null },
-      { text: '01', ageClass: null },
-      { text: '-', ageClass: null },
-      { text: '01', ageClass: null },
-      { text: ' ', ageClass: null },
-      { text: '00', ageClass: null },
-      { text: ':', ageClass: null },
-      { text: '00', ageClass: null },
-    ],
-  }),
-  formatFileSize: vi.fn().mockReturnValue('1.0 KB'),
-  getFileSizeFormat: vi.fn().mockReturnValue('binary'),
-  getFileSizeUnit: vi.fn().mockReturnValue('bytes'),
-  getUseAppIconsForDocuments: vi.fn().mockReturnValue(true),
-  getSizeDisplayMode: vi.fn().mockReturnValue('smart'),
-  getNetworkEnabled: vi.fn().mockReturnValue(true),
-  // Image indexing off, so FilePane's image-index deriveds resolve to false rather than
-  // calling an undefined getter (a throw in a $derived corrupts sibling reactive effects).
-  getMediaIndexEnabled: vi.fn().mockReturnValue(false),
-  getMediaIndexShowFileStatusIcons: vi.fn().mockReturnValue(false),
+    getRowHeight: vi.fn().mockReturnValue(24),
+    formatDateTime: vi.fn().mockReturnValue('2025-01-01 00:00'),
+    formattedDate: vi.fn().mockReturnValue({
+        text: '2025-01-01 00:00',
+        segments: [
+            { text: '2025', ageClass: 'age-fresh' as const },
+            { text: '-', ageClass: null },
+            { text: '01', ageClass: null },
+            { text: '-', ageClass: null },
+            { text: '01', ageClass: null },
+            { text: ' ', ageClass: null },
+            { text: '00', ageClass: null },
+            { text: ':', ageClass: null },
+            { text: '00', ageClass: null },
+        ],
+    }),
+    formatFileSize: vi.fn().mockReturnValue('1.0 KB'),
+    getFileSizeFormat: vi.fn().mockReturnValue('binary'),
+    getFileSizeUnit: vi.fn().mockReturnValue('bytes'),
+    getUseAppIconsForDocuments: vi.fn().mockReturnValue(true),
+    getSizeDisplayMode: vi.fn().mockReturnValue('smart'),
+    getNetworkEnabled: vi.fn().mockReturnValue(true),
+    // Image indexing off, so FilePane's image-index deriveds resolve to false rather than
+    // calling an undefined getter (a throw in a $derived corrupts sibling reactive effects).
+    getMediaIndexEnabled: vi.fn().mockReturnValue(false),
+    getMediaIndexShowFileStatusIcons: vi.fn().mockReturnValue(false),
 }))
 
 vi.mock('$lib/drag-drop', () => ({ startDragTracking: vi.fn() }))
 
 vi.mock('$lib/stores/volume-store.svelte', () => ({
-  getVolumes: vi
-    .fn()
-    .mockReturnValue([{ id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false }]),
-  getVolumesTimedOut: vi.fn().mockReturnValue(false),
-  isVolumesRefreshing: vi.fn().mockReturnValue(false),
-  isVolumeRetryFailed: vi.fn().mockReturnValue(false),
-  requestVolumeRefresh: vi.fn(),
-  initVolumeStore: vi.fn().mockResolvedValue(undefined),
-  cleanupVolumeStore: vi.fn(),
+    getVolumes: vi
+        .fn()
+        .mockReturnValue([
+            { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+        ]),
+    getVolumesTimedOut: vi.fn().mockReturnValue(false),
+    isVolumesRefreshing: vi.fn().mockReturnValue(false),
+    isVolumeRetryFailed: vi.fn().mockReturnValue(false),
+    requestVolumeRefresh: vi.fn(),
+    initVolumeStore: vi.fn().mockResolvedValue(undefined),
+    cleanupVolumeStore: vi.fn(),
 }))
 
 // ============================================================================
@@ -164,416 +173,419 @@ vi.mock('$lib/stores/volume-store.svelte', () => ({
 // `Ctrl+↑`). happy-dom reports a Linux UA, so pin it to macOS for these combos.
 const navigatorSpy = vi.spyOn(globalThis, 'navigator', 'get')
 beforeAll(() => {
-  navigatorSpy.mockReturnValue({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)' } as Navigator)
+    navigatorSpy.mockReturnValue({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X)' } as Navigator)
 })
 afterAll(() => navigatorSpy.mockReset())
 
 describe('FilePane keyboard handling', () => {
-  const { getTarget } = useMountTarget()
+    const { getTarget } = useMountTarget()
 
-  describe('handleKeyDown export', () => {
-    it('exports handleKeyDown method', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('handleKeyDown export', () => {
+        it('exports handleKeyDown method', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      expect(typeof (component as unknown as Record<string, unknown>).handleKeyDown).toBe('function')
+            expect(typeof (component as unknown as Record<string, unknown>).handleKeyDown).toBe('function')
+        })
+
+        it('exports toggleVolumeChooser method', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            expect(typeof (component as unknown as Record<string, unknown>).toggleVolumeChooser).toBe('function')
+        })
+
+        it('exports isVolumeChooserOpen method', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            expect(typeof (component as unknown as Record<string, unknown>).isVolumeChooserOpen).toBe('function')
+        })
+
+        it('exports handleVolumeChooserKeyDown method', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            expect(typeof (component as unknown as Record<string, unknown>).handleVolumeChooserKeyDown).toBe('function')
+        })
+
+        it('isVolumeChooserOpen returns false initially', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const isVolumeChooserOpen = (component as unknown as { isVolumeChooserOpen: () => boolean })
+                .isVolumeChooserOpen
+            expect(isVolumeChooserOpen()).toBe(false)
+        })
+
+        it('isVolumeChooserOpen returns true after toggle', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const toggleVolumeChooser = (component as unknown as { toggleVolumeChooser: () => void })
+                .toggleVolumeChooser
+            toggleVolumeChooser()
+
+            await tick()
+
+            const isVolumeChooserOpen = (component as unknown as { isVolumeChooserOpen: () => boolean })
+                .isVolumeChooserOpen
+            expect(isVolumeChooserOpen()).toBe(true)
+        })
     })
 
-    it('exports toggleVolumeChooser method', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('Enter key', () => {
+        it('Enter key calls handleNavigate with entry under cursor', async () => {
+            const pathChangeFn = vi.fn()
 
-      await waitForUpdates(100)
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: pathChangeFn,
+                },
+            })
 
-      expect(typeof (component as unknown as Record<string, unknown>).toggleVolumeChooser).toBe('function')
+            await waitForUpdates(150)
+
+            // Simulate Enter key
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+            handleKeyDown(enterEvent)
+
+            await waitForUpdates(100)
+
+            // If a folder was under the cursor, onPathChange should be called
+            // (the mock returns a directory for index 0)
+            // The exact behavior depends on what's under the cursor
+            expect(handleKeyDown).toBeDefined()
+        })
     })
 
-    it('exports isVolumeChooserOpen method', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('Backspace key', () => {
+        it('Backspace key triggers parent navigation when not at root', async () => {
+            const pathChangeFn = vi.fn()
 
-      await waitForUpdates(100)
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test/subfolder',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: pathChangeFn,
+                },
+            })
 
-      expect(typeof (component as unknown as Record<string, unknown>).isVolumeChooserOpen).toBe('function')
+            await waitForUpdates(150)
+
+            // Simulate Backspace key
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const backspaceEvent = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true })
+            handleKeyDown(backspaceEvent)
+
+            await waitForUpdates(100)
+
+            // Should have called onPathChange with parent path
+            // (may not fire immediately due to async loading)
+            expect(handleKeyDown).toBeDefined()
+        })
     })
 
-    it('exports handleVolumeChooserKeyDown method', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('\u2318\u2191 (Cmd+ArrowUp) key', () => {
+        it('\u2318\u2191 triggers parent navigation when not at root', async () => {
+            const pathChangeFn = vi.fn()
 
-      await waitForUpdates(100)
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test/subfolder',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: pathChangeFn,
+                },
+            })
 
-      expect(typeof (component as unknown as Record<string, unknown>).handleVolumeChooserKeyDown).toBe('function')
+            await waitForUpdates(150)
+
+            // Simulate \u2318\u2191 (Cmd+ArrowUp)
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const cmdUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', metaKey: true, bubbles: true })
+            handleKeyDown(cmdUpEvent)
+
+            await waitForUpdates(100)
+
+            // Should have called onPathChange with parent path
+            // (may not fire immediately due to async loading)
+            expect(handleKeyDown).toBeDefined()
+        })
+
+        it('\u2318\u2191 stops propagation so the document dispatcher does not navigate to parent a SECOND time', async () => {
+            // Regression: \u2318\u2191 is bound to `nav.parent` in the registry AND handled here.
+            // Without stopPropagation, the document keydown handler would dispatch
+            // `nav.parent` after this, calling navigateToParent() twice \u2192 grandparent.
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test/subfolder',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: vi.fn(),
+                },
+            })
+            await waitForUpdates(150)
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const cmdUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', metaKey: true, bubbles: true })
+            const stopProp = vi.spyOn(cmdUpEvent, 'stopPropagation')
+            handleKeyDown(cmdUpEvent)
+            await waitForUpdates(50)
+
+            expect(stopProp).toHaveBeenCalled()
+        })
     })
 
-    it('isVolumeChooserOpen returns false initially', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('\u2318\u2193 (Cmd+ArrowDown) opens the entry, mirroring Enter', () => {
+        it('\u2318\u2193 stops propagation so `nav.open` is not also dispatched at document level', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: vi.fn(),
+                },
+            })
+            await waitForUpdates(150)
 
-      await waitForUpdates(100)
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const cmdDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', metaKey: true, bubbles: true })
+            const stopProp = vi.spyOn(cmdDownEvent, 'stopPropagation')
+            const preventDefault = vi.spyOn(cmdDownEvent, 'preventDefault')
+            handleKeyDown(cmdDownEvent)
+            await waitForUpdates(50)
 
-      const isVolumeChooserOpen = (component as unknown as { isVolumeChooserOpen: () => boolean }).isVolumeChooserOpen
-      expect(isVolumeChooserOpen()).toBe(false)
+            // \u2318\u2193 is always swallowed here (whether or not an entry is under the cursor)
+            // so it can neither move the cursor nor double-dispatch `nav.open`.
+            expect(stopProp).toHaveBeenCalled()
+            expect(preventDefault).toHaveBeenCalled()
+        })
     })
 
-    it('isVolumeChooserOpen returns true after toggle', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
+    describe('\u2318Backspace deletes (falls through to `file.delete`), not parent-nav', () => {
+        it('\u2318Backspace is NOT handled as parent navigation', async () => {
+            // Bare Backspace = parent. \u2318Backspace must fall through (no preventDefault /
+            // stopPropagation here) so the document dispatcher runs `file.delete` (\u2318\u232b).
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test/subfolder',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                    onPathChange: vi.fn(),
+                },
+            })
+            await waitForUpdates(150)
 
-      await waitForUpdates(100)
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const cmdBackspace = new KeyboardEvent('keydown', { key: 'Backspace', metaKey: true, bubbles: true })
+            const preventDefault = vi.spyOn(cmdBackspace, 'preventDefault')
+            const stopProp = vi.spyOn(cmdBackspace, 'stopPropagation')
+            handleKeyDown(cmdBackspace)
+            await waitForUpdates(50)
 
-      const toggleVolumeChooser = (component as unknown as { toggleVolumeChooser: () => void }).toggleVolumeChooser
-      toggleVolumeChooser()
-
-      await tick()
-
-      const isVolumeChooserOpen = (component as unknown as { isVolumeChooserOpen: () => boolean }).isVolumeChooserOpen
-      expect(isVolumeChooserOpen()).toBe(true)
-    })
-  })
-
-  describe('Enter key', () => {
-    it('Enter key calls handleNavigate with entry under cursor', async () => {
-      const pathChangeFn = vi.fn()
-
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: pathChangeFn,
-        },
-      })
-
-      await waitForUpdates(150)
-
-      // Simulate Enter key
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
-      handleKeyDown(enterEvent)
-
-      await waitForUpdates(100)
-
-      // If a folder was under the cursor, onPathChange should be called
-      // (the mock returns a directory for index 0)
-      // The exact behavior depends on what's under the cursor
-      expect(handleKeyDown).toBeDefined()
-    })
-  })
-
-  describe('Backspace key', () => {
-    it('Backspace key triggers parent navigation when not at root', async () => {
-      const pathChangeFn = vi.fn()
-
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test/subfolder',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: pathChangeFn,
-        },
-      })
-
-      await waitForUpdates(150)
-
-      // Simulate Backspace key
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const backspaceEvent = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true })
-      handleKeyDown(backspaceEvent)
-
-      await waitForUpdates(100)
-
-      // Should have called onPathChange with parent path
-      // (may not fire immediately due to async loading)
-      expect(handleKeyDown).toBeDefined()
-    })
-  })
-
-  describe('\u2318\u2191 (Cmd+ArrowUp) key', () => {
-    it('\u2318\u2191 triggers parent navigation when not at root', async () => {
-      const pathChangeFn = vi.fn()
-
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test/subfolder',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: pathChangeFn,
-        },
-      })
-
-      await waitForUpdates(150)
-
-      // Simulate \u2318\u2191 (Cmd+ArrowUp)
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const cmdUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', metaKey: true, bubbles: true })
-      handleKeyDown(cmdUpEvent)
-
-      await waitForUpdates(100)
-
-      // Should have called onPathChange with parent path
-      // (may not fire immediately due to async loading)
-      expect(handleKeyDown).toBeDefined()
+            expect(preventDefault).not.toHaveBeenCalled()
+            expect(stopProp).not.toHaveBeenCalled()
+        })
     })
 
-    it('\u2318\u2191 stops propagation so the document dispatcher does not navigate to parent a SECOND time', async () => {
-      // Regression: \u2318\u2191 is bound to `nav.parent` in the registry AND handled here.
-      // Without stopPropagation, the document keydown handler would dispatch
-      // `nav.parent` after this, calling navigateToParent() twice \u2192 grandparent.
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test/subfolder',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: vi.fn(),
-        },
-      })
-      await waitForUpdates(150)
+    describe('⌥⌘A opens Ask Cmdr WITHOUT also selecting every file', () => {
+        // `selection-keys.test.ts` pins the classifier; this pins the WIRING, which the
+        // unit test can't see: that FilePane routes through it at all, and that a
+        // superset falls all the way through to the document dispatcher (the old bug
+        // called `preventDefault()` but not `stopPropagation()`, so ⌥⌘A ran BOTH the
+        // select-all here and Ask Cmdr centrally).
+        async function mountPane() {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
+            await waitForUpdates(150)
+            return component as unknown as {
+                handleKeyDown: (e: KeyboardEvent) => void
+                getSelectedIndices: () => number[]
+            }
+        }
+        // The listing is mocked, so assert on the CONSUMPTION signals (`preventDefault` /
+        // `stopPropagation`) rather than the resulting selection size: those are what
+        // distinguish "the pane handled this combo" from "it let the combo through", and
+        // the ⌥⌘A bug was precisely a `preventDefault()` with no `stopPropagation()`.
 
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const cmdUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', metaKey: true, bubbles: true })
-      const stopProp = vi.spyOn(cmdUpEvent, 'stopPropagation')
-      handleKeyDown(cmdUpEvent)
-      await waitForUpdates(50)
+        it('⌘A is consumed here (and stopped, so the dispatcher does not select twice)', async () => {
+            const pane = await mountPane()
+            const cmdA = new KeyboardEvent('keydown', { key: 'a', metaKey: true, bubbles: true })
+            const preventDefault = vi.spyOn(cmdA, 'preventDefault')
+            const stopProp = vi.spyOn(cmdA, 'stopPropagation')
+            pane.handleKeyDown(cmdA)
+            await waitForUpdates(50)
 
-      expect(stopProp).toHaveBeenCalled()
-    })
-  })
+            expect(preventDefault).toHaveBeenCalled()
+            expect(stopProp).toHaveBeenCalled()
+        })
 
-  describe('\u2318\u2193 (Cmd+ArrowDown) opens the entry, mirroring Enter', () => {
-    it('\u2318\u2193 stops propagation so `nav.open` is not also dispatched at document level', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: vi.fn(),
-        },
-      })
-      await waitForUpdates(150)
+        it('⌥⌘A leaves the selection alone and falls through untouched', async () => {
+            const pane = await mountPane()
+            const optCmdA = new KeyboardEvent('keydown', { key: 'a', metaKey: true, altKey: true, bubbles: true })
+            const preventDefault = vi.spyOn(optCmdA, 'preventDefault')
+            const stopProp = vi.spyOn(optCmdA, 'stopPropagation')
+            pane.handleKeyDown(optCmdA)
+            await waitForUpdates(50)
 
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const cmdDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', metaKey: true, bubbles: true })
-      const stopProp = vi.spyOn(cmdDownEvent, 'stopPropagation')
-      const preventDefault = vi.spyOn(cmdDownEvent, 'preventDefault')
-      handleKeyDown(cmdDownEvent)
-      await waitForUpdates(50)
-
-      // \u2318\u2193 is always swallowed here (whether or not an entry is under the cursor)
-      // so it can neither move the cursor nor double-dispatch `nav.open`.
-      expect(stopProp).toHaveBeenCalled()
-      expect(preventDefault).toHaveBeenCalled()
-    })
-  })
-
-  describe('\u2318Backspace deletes (falls through to `file.delete`), not parent-nav', () => {
-    it('\u2318Backspace is NOT handled as parent navigation', async () => {
-      // Bare Backspace = parent. \u2318Backspace must fall through (no preventDefault /
-      // stopPropagation here) so the document dispatcher runs `file.delete` (\u2318\u232b).
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test/subfolder',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-          onPathChange: vi.fn(),
-        },
-      })
-      await waitForUpdates(150)
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const cmdBackspace = new KeyboardEvent('keydown', { key: 'Backspace', metaKey: true, bubbles: true })
-      const preventDefault = vi.spyOn(cmdBackspace, 'preventDefault')
-      const stopProp = vi.spyOn(cmdBackspace, 'stopPropagation')
-      handleKeyDown(cmdBackspace)
-      await waitForUpdates(50)
-
-      expect(preventDefault).not.toHaveBeenCalled()
-      expect(stopProp).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('⌥⌘A opens Ask Cmdr WITHOUT also selecting every file', () => {
-    // `selection-keys.test.ts` pins the classifier; this pins the WIRING, which the
-    // unit test can't see: that FilePane routes through it at all, and that a
-    // superset falls all the way through to the document dispatcher (the old bug
-    // called `preventDefault()` but not `stopPropagation()`, so ⌥⌘A ran BOTH the
-    // select-all here and Ask Cmdr centrally).
-    async function mountPane() {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
-      await waitForUpdates(150)
-      return component as unknown as {
-        handleKeyDown: (e: KeyboardEvent) => void
-        getSelectedIndices: () => number[]
-      }
-    }
-    // The listing is mocked, so assert on the CONSUMPTION signals (`preventDefault` /
-    // `stopPropagation`) rather than the resulting selection size: those are what
-    // distinguish "the pane handled this combo" from "it let the combo through", and
-    // the ⌥⌘A bug was precisely a `preventDefault()` with no `stopPropagation()`.
-
-    it('⌘A is consumed here (and stopped, so the dispatcher does not select twice)', async () => {
-      const pane = await mountPane()
-      const cmdA = new KeyboardEvent('keydown', { key: 'a', metaKey: true, bubbles: true })
-      const preventDefault = vi.spyOn(cmdA, 'preventDefault')
-      const stopProp = vi.spyOn(cmdA, 'stopPropagation')
-      pane.handleKeyDown(cmdA)
-      await waitForUpdates(50)
-
-      expect(preventDefault).toHaveBeenCalled()
-      expect(stopProp).toHaveBeenCalled()
+            expect(pane.getSelectedIndices()).toEqual([])
+            expect(preventDefault).not.toHaveBeenCalled()
+            expect(stopProp).not.toHaveBeenCalled()
+        })
     })
 
-    it('⌥⌘A leaves the selection alone and falls through untouched', async () => {
-      const pane = await mountPane()
-      const optCmdA = new KeyboardEvent('keydown', { key: 'a', metaKey: true, altKey: true, bubbles: true })
-      const preventDefault = vi.spyOn(optCmdA, 'preventDefault')
-      const stopProp = vi.spyOn(optCmdA, 'stopPropagation')
-      pane.handleKeyDown(optCmdA)
-      await waitForUpdates(50)
+    describe('Arrow keys delegation', () => {
+        it('Arrow keys are handled in brief mode', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'brief',
+                },
+            })
 
-      expect(pane.getSelectedIndices()).toEqual([])
-      expect(preventDefault).not.toHaveBeenCalled()
-      expect(stopProp).not.toHaveBeenCalled()
+            await waitForUpdates(100)
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
+
+            // Should not throw
+            expect(() => {
+                handleKeyDown(arrowDownEvent)
+            }).not.toThrow()
+        })
+
+        it('Arrow keys are handled in full mode', async () => {
+            const component = mount(FilePane, {
+                target: getTarget(),
+                props: {
+                    initialPath: '/test',
+                    volumeId: 'root',
+                    volumePath: '/',
+                    isFocused: true,
+                    showHiddenFiles: true,
+                    viewMode: 'full',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
+            const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
+
+            // Should not throw
+            expect(() => {
+                handleKeyDown(arrowDownEvent)
+            }).not.toThrow()
+        })
     })
-  })
-
-  describe('Arrow keys delegation', () => {
-    it('Arrow keys are handled in brief mode', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'brief',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
-
-      // Should not throw
-      expect(() => {
-        handleKeyDown(arrowDownEvent)
-      }).not.toThrow()
-    })
-
-    it('Arrow keys are handled in full mode', async () => {
-      const component = mount(FilePane, {
-        target: getTarget(),
-        props: {
-          initialPath: '/test',
-          volumeId: 'root',
-          volumePath: '/',
-          isFocused: true,
-          showHiddenFiles: true,
-          viewMode: 'full',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => void }).handleKeyDown
-      const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
-
-      // Should not throw
-      expect(() => {
-        handleKeyDown(arrowDownEvent)
-      }).not.toThrow()
-    })
-  })
 })

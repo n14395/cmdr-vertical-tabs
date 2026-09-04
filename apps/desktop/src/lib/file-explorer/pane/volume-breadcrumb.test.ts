@@ -7,17 +7,17 @@ import VolumeBreadcrumb from '../navigation/VolumeBreadcrumb.svelte'
 import { waitForUpdates, useMountTarget } from './integration-test-utils'
 import { getVolumes } from '$lib/stores/volume-store.svelte'
 import {
-  removeFavorite,
-  renameFavorite,
-  reorderFavorites,
-  showVolumeRowContextMenu,
-  onVolumeContextAction,
+    removeFavorite,
+    renameFavorite,
+    reorderFavorites,
+    showVolumeRowContextMenu,
+    onVolumeContextAction,
 } from '$lib/tauri-commands'
 
 /** The `volume-context-action` callback the most-recently-mounted breadcrumb registered. */
 function latestVolumeContextHandler(): (payload: { action: string; volumeId: string }) => void {
-  const calls = vi.mocked(onVolumeContextAction).mock.calls
-  return calls[calls.length - 1][0] as (payload: { action: string; volumeId: string }) => void
+    const calls = vi.mocked(onVolumeContextAction).mock.calls
+    return calls[calls.length - 1][0] as (payload: { action: string; volumeId: string }) => void
 }
 
 // ============================================================================
@@ -27,142 +27,151 @@ function latestVolumeContextHandler(): (payload: { action: string; volumeId: str
 let mockEntry: unknown = null
 
 vi.mock('$lib/tauri-commands', () => ({
-  listDirectoryStart: vi.fn().mockResolvedValue({ listingId: 'mock-listing', status: { status: 'ready' } }),
-  cancelListing: vi.fn().mockResolvedValue(undefined),
-  listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
-  getFileRange: vi.fn().mockResolvedValue([]),
-  getFileAt: vi.fn().mockImplementation((_listingId: string, index: number) => {
-    if (index === 0) {
-      mockEntry = {
-        name: 'test-folder',
-        path: '/test/test-folder',
-        isDirectory: true,
-        isSymlink: false,
-        permissions: 0o755,
-        owner: 'user',
-        group: 'staff',
-        iconId: 'dir',
-        extendedMetadataLoaded: true,
-      }
-    } else {
-      mockEntry = {
-        name: 'test-file.txt',
-        path: '/test/test-file.txt',
-        isDirectory: false,
-        isSymlink: false,
-        permissions: 0o644,
-        owner: 'user',
-        group: 'staff',
-        iconId: 'file',
-        extendedMetadataLoaded: true,
-      }
-    }
-    return Promise.resolve(mockEntry)
-  }),
-  findFileIndex: vi.fn().mockResolvedValue(0),
-  getTotalCount: vi.fn().mockResolvedValue(10),
-  getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  openFile: vi.fn().mockResolvedValue(undefined),
-  listen: vi.fn().mockResolvedValue(() => {}),
-  showFileContextMenu: vi.fn().mockResolvedValue(undefined),
-  updateMenuContext: vi.fn().mockResolvedValue(undefined),
-  listVolumes: vi.fn().mockResolvedValue({
-    data: [
-      { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
-      {
-        id: 'external',
-        name: 'External Drive',
-        path: '/Volumes/External',
-        category: 'attached_volume',
-        isEjectable: true,
-      },
-      { id: 'dropbox', name: 'Dropbox', path: '/Users/test/Dropbox', category: 'cloud_drive', isEjectable: false },
-    ],
-    timedOut: false,
-  }),
-  resolvePathVolume: vi.fn().mockResolvedValue({
-    volume: { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
-    timedOut: false,
-  }),
-  getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
-  getVolumeSpace: vi
-    .fn()
-    .mockResolvedValue({ data: { totalBytes: 500_000_000_000, availableBytes: 200_000_000_000 }, timedOut: false }),
-  refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
-  getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  refreshDirectoryIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
-  DEFAULT_VOLUME_ID: 'root',
-  listNetworkHosts: vi.fn().mockResolvedValue([]),
-  getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
-  resolveNetworkHost: vi.fn().mockResolvedValue(null),
-  listMtpDevices: vi.fn().mockResolvedValue([]),
-  onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
-  onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
-  onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
-  onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
-  onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
-  onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
-  onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
-  onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
-  notifyDialogOpened: vi.fn().mockResolvedValue(undefined),
-  notifyDialogClosed: vi.fn().mockResolvedValue(undefined),
-  watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
-  removeFavorite: vi.fn().mockResolvedValue(undefined),
-  renameFavorite: vi.fn().mockResolvedValue(undefined),
-  reorderFavorites: vi.fn().mockResolvedValue(undefined),
-  stripFavoritePrefix: (id: string) => (id.startsWith('fav-') ? id.slice(4) : id),
-  showVolumeRowContextMenu: vi.fn().mockResolvedValue(undefined),
-  onVolumeContextAction: vi.fn(() => Promise.resolve(() => {})),
+    listDirectoryStart: vi.fn().mockResolvedValue({ listingId: 'mock-listing', status: { status: 'ready' } }),
+    cancelListing: vi.fn().mockResolvedValue(undefined),
+    listDirectoryEnd: vi.fn().mockResolvedValue(undefined),
+    getFileRange: vi.fn().mockResolvedValue([]),
+    getFileAt: vi.fn().mockImplementation((_listingId: string, index: number) => {
+        if (index === 0) {
+            mockEntry = {
+                name: 'test-folder',
+                path: '/test/test-folder',
+                isDirectory: true,
+                isSymlink: false,
+                permissions: 0o755,
+                owner: 'user',
+                group: 'staff',
+                iconId: 'dir',
+                extendedMetadataLoaded: true,
+            }
+        } else {
+            mockEntry = {
+                name: 'test-file.txt',
+                path: '/test/test-file.txt',
+                isDirectory: false,
+                isSymlink: false,
+                permissions: 0o644,
+                owner: 'user',
+                group: 'staff',
+                iconId: 'file',
+                extendedMetadataLoaded: true,
+            }
+        }
+        return Promise.resolve(mockEntry)
+    }),
+    findFileIndex: vi.fn().mockResolvedValue(0),
+    getTotalCount: vi.fn().mockResolvedValue(10),
+    getSyncStatus: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    openFile: vi.fn().mockResolvedValue(undefined),
+    listen: vi.fn().mockResolvedValue(() => {}),
+    showFileContextMenu: vi.fn().mockResolvedValue(undefined),
+    updateMenuContext: vi.fn().mockResolvedValue(undefined),
+    listVolumes: vi.fn().mockResolvedValue({
+        data: [
+            { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+            {
+                id: 'external',
+                name: 'External Drive',
+                path: '/Volumes/External',
+                category: 'attached_volume',
+                isEjectable: true,
+            },
+            {
+                id: 'dropbox',
+                name: 'Dropbox',
+                path: '/Users/test/Dropbox',
+                category: 'cloud_drive',
+                isEjectable: false,
+            },
+        ],
+        timedOut: false,
+    }),
+    resolvePathVolume: vi.fn().mockResolvedValue({
+        volume: { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+        timedOut: false,
+    }),
+    getDefaultVolumeId: vi.fn().mockResolvedValue('root'),
+    getVolumeSpace: vi
+        .fn()
+        .mockResolvedValue({ data: { totalBytes: 500_000_000_000, availableBytes: 200_000_000_000 }, timedOut: false }),
+    refreshListing: vi.fn().mockResolvedValue({ data: null, timedOut: false }),
+    getIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    refreshDirectoryIcons: vi.fn().mockResolvedValue({ data: {}, timedOut: false }),
+    DEFAULT_VOLUME_ID: 'root',
+    listNetworkHosts: vi.fn().mockResolvedValue([]),
+    getNetworkDiscoveryState: vi.fn().mockResolvedValue('idle'),
+    resolveNetworkHost: vi.fn().mockResolvedValue(null),
+    listMtpDevices: vi.fn().mockResolvedValue([]),
+    onMtpDeviceConnected: vi.fn().mockResolvedValue(() => {}),
+    onMtpDeviceDisconnected: vi.fn().mockResolvedValue(() => {}),
+    onVolumeSpaceChanged: vi.fn().mockResolvedValue(() => {}),
+    onWriteSourceItemDone: vi.fn().mockResolvedValue(() => {}),
+    onDirectoryDiff: vi.fn().mockResolvedValue(() => {}),
+    onDirectoryDeleted: vi.fn().mockResolvedValue(() => {}),
+    onMtpExclusiveAccessError: vi.fn().mockResolvedValue(() => {}),
+    onMtpPermissionError: vi.fn().mockResolvedValue(() => {}),
+    notifyDialogOpened: vi.fn().mockResolvedValue(undefined),
+    notifyDialogClosed: vi.fn().mockResolvedValue(undefined),
+    watchVolumeSpace: vi.fn().mockResolvedValue(undefined),
+    removeFavorite: vi.fn().mockResolvedValue(undefined),
+    renameFavorite: vi.fn().mockResolvedValue(undefined),
+    reorderFavorites: vi.fn().mockResolvedValue(undefined),
+    stripFavoritePrefix: (id: string) => (id.startsWith('fav-') ? id.slice(4) : id),
+    showVolumeRowContextMenu: vi.fn().mockResolvedValue(undefined),
+    onVolumeContextAction: vi.fn(() => Promise.resolve(() => {})),
 }))
 
 vi.mock('$lib/icon-cache', async () => {
-  const { writable } = await import('svelte/store')
-  return {
-    getCachedIcon: vi.fn().mockReturnValue('/icons/file.png'),
-    iconCacheVersion: writable(0),
-    prefetchIcons: vi.fn().mockResolvedValue(undefined),
-    prefetchCustomFolderIcons: vi.fn().mockResolvedValue(undefined),
-    evictPerPathIconsForDir: vi.fn(),
-  }
+    const { writable } = await import('svelte/store')
+    return {
+        getCachedIcon: vi.fn().mockReturnValue('/icons/file.png'),
+        getCachedCustomFolderIcon: () => undefined,
+        iconCacheVersion: writable(0),
+        prefetchIcons: vi.fn().mockResolvedValue(undefined),
+        prefetchCustomFolderIcons: vi.fn().mockResolvedValue(undefined),
+        evictPerPathIconsForDir: vi.fn(),
+    }
 })
 
 vi.mock('$lib/settings/reactive-settings.svelte', () => ({
-  getRowHeight: vi.fn().mockReturnValue(24),
-  formatDateTime: vi.fn().mockReturnValue('2025-01-01 00:00'),
-  formattedDate: vi.fn().mockReturnValue({
-    text: '2025-01-01 00:00',
-    segments: [
-      { text: '2025', ageClass: 'age-fresh' as const },
-      { text: '-', ageClass: null },
-      { text: '01', ageClass: null },
-      { text: '-', ageClass: null },
-      { text: '01', ageClass: null },
-      { text: ' ', ageClass: null },
-      { text: '00', ageClass: null },
-      { text: ':', ageClass: null },
-      { text: '00', ageClass: null },
-    ],
-  }),
-  formatFileSize: vi.fn().mockReturnValue('1.0 KB'),
-  getFileSizeFormat: vi.fn().mockReturnValue('binary'),
-  getFileSizeUnit: vi.fn().mockReturnValue('bytes'),
-  getUseAppIconsForDocuments: vi.fn().mockReturnValue(true),
-  getSizeDisplayMode: vi.fn().mockReturnValue('smart'),
-  getNetworkEnabled: vi.fn().mockReturnValue(true),
+    getRowHeight: vi.fn().mockReturnValue(24),
+    formatDateTime: vi.fn().mockReturnValue('2025-01-01 00:00'),
+    formattedDate: vi.fn().mockReturnValue({
+        text: '2025-01-01 00:00',
+        segments: [
+            { text: '2025', ageClass: 'age-fresh' as const },
+            { text: '-', ageClass: null },
+            { text: '01', ageClass: null },
+            { text: '-', ageClass: null },
+            { text: '01', ageClass: null },
+            { text: ' ', ageClass: null },
+            { text: '00', ageClass: null },
+            { text: ':', ageClass: null },
+            { text: '00', ageClass: null },
+        ],
+    }),
+    formatFileSize: vi.fn().mockReturnValue('1.0 KB'),
+    getFileSizeFormat: vi.fn().mockReturnValue('binary'),
+    getFileSizeUnit: vi.fn().mockReturnValue('bytes'),
+    getUseAppIconsForDocuments: vi.fn().mockReturnValue(true),
+    getSizeDisplayMode: vi.fn().mockReturnValue('smart'),
+    getNetworkEnabled: vi.fn().mockReturnValue(true),
 }))
 
 vi.mock('$lib/drag-drop', () => ({ startDragTracking: vi.fn() }))
 
 vi.mock('$lib/stores/volume-store.svelte', () => ({
-  getVolumes: vi
-    .fn()
-    .mockReturnValue([{ id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false }]),
-  getVolumesTimedOut: vi.fn().mockReturnValue(false),
-  isVolumesRefreshing: vi.fn().mockReturnValue(false),
-  isVolumeRetryFailed: vi.fn().mockReturnValue(false),
-  requestVolumeRefresh: vi.fn(),
-  initVolumeStore: vi.fn().mockResolvedValue(undefined),
-  cleanupVolumeStore: vi.fn(),
+    getVolumes: vi
+        .fn()
+        .mockReturnValue([
+            { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+        ]),
+    getVolumesTimedOut: vi.fn().mockReturnValue(false),
+    isVolumesRefreshing: vi.fn().mockReturnValue(false),
+    isVolumeRetryFailed: vi.fn().mockReturnValue(false),
+    requestVolumeRefresh: vi.fn(),
+    initVolumeStore: vi.fn().mockResolvedValue(undefined),
+    cleanupVolumeStore: vi.fn(),
 }))
 
 // ============================================================================
@@ -170,633 +179,644 @@ vi.mock('$lib/stores/volume-store.svelte', () => ({
 // ============================================================================
 
 describe('VolumeBreadcrumb', () => {
-  const { getTarget } = useMountTarget()
+    const { getTarget } = useMountTarget()
 
-  describe('Rendering', () => {
-    it('renders volume breadcrumb container', async () => {
-      mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+    describe('Rendering', () => {
+        it('renders volume breadcrumb container', async () => {
+            mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      expect(getTarget().querySelector('.volume-breadcrumb')).toBeTruthy()
+            expect(getTarget().querySelector('.volume-breadcrumb')).toBeTruthy()
+        })
+
+        it('displays current volume name', async () => {
+            mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const volumeName = getTarget().querySelector('.volume-name')
+            expect(volumeName?.textContent).toContain('Macintosh HD')
+        })
     })
 
-    it('displays current volume name', async () => {
-      mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+    describe('Dropdown', () => {
+        it('exports toggle method', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      const volumeName = getTarget().querySelector('.volume-name')
-      expect(volumeName?.textContent).toContain('Macintosh HD')
-    })
-  })
+            expect(typeof (component as unknown as Record<string, unknown>).toggle).toBe('function')
+        })
 
-  describe('Dropdown', () => {
-    it('exports toggle method', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+        it('toggle method opens dropdown', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      expect(typeof (component as unknown as Record<string, unknown>).toggle).toBe('function')
-    })
+            // Initially dropdown should be closed
+            expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
 
-    it('toggle method opens dropdown', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+            // Call toggle
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
 
-      await waitForUpdates(100)
+            await tick()
 
-      // Initially dropdown should be closed
-      expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
+            // Dropdown should now be open
+            expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
+        })
 
-      // Call toggle
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
+        it('dropdown shows all volumes', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await tick()
+            await waitForUpdates(100)
 
-      // Dropdown should now be open
-      expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
-    })
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
 
-    it('dropdown shows all volumes', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+            await tick()
 
-      await waitForUpdates(100)
+            // Should show volume items
+            const volumeItems = getTarget().querySelectorAll('.volume-item')
+            expect(volumeItems.length).toBeGreaterThan(0)
+        })
 
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
+        it('clicking volume item calls onVolumeChange', async () => {
+            const volumeChangeFn = vi.fn()
 
-      await tick()
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                    onVolumeChange: volumeChangeFn,
+                },
+            })
 
-      // Should show volume items
-      const volumeItems = getTarget().querySelectorAll('.volume-item')
-      expect(volumeItems.length).toBeGreaterThan(0)
-    })
+            await waitForUpdates(100)
 
-    it('clicking volume item calls onVolumeChange', async () => {
-      const volumeChangeFn = vi.fn()
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
 
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-          onVolumeChange: volumeChangeFn,
-        },
-      })
+            await tick()
 
-      await waitForUpdates(100)
+            // Find another volume item and click it
+            const volumeItems = getTarget().querySelectorAll('.volume-item:not(.is-under-cursor)')
+            if (volumeItems.length > 0) {
+                volumeItems[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
+                await tick()
 
-      await tick()
+                expect(volumeChangeFn).toHaveBeenCalled()
+            }
+        })
 
-      // Find another volume item and click it
-      const volumeItems = getTarget().querySelectorAll('.volume-item:not(.is-under-cursor)')
-      if (volumeItems.length > 0) {
-        volumeItems[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))
+        it('Escape key closes dropdown', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-        await tick()
+            await waitForUpdates(100)
 
-        expect(volumeChangeFn).toHaveBeenCalled()
-      }
-    })
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
 
-    it('Escape key closes dropdown', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+            await tick()
 
-      await waitForUpdates(100)
+            expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
 
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
+            // Press Escape
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
-      await tick()
+            await tick()
 
-      expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
-
-      // Press Escape
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-
-      await tick()
-
-      expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
-    })
-  })
-
-  describe('Volume categories', () => {
-    it('groups volumes by category', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      // Should have category labels
-      const categoryLabels = getTarget().querySelectorAll('.category-label')
-      // We expect at least "Volumes" and possibly "Cloud"
-      expect(categoryLabels.length).toBeGreaterThanOrEqual(0)
-    })
-  })
-
-  describe('Keyboard navigation', () => {
-    it('exports handleKeyDown method', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      expect(typeof (component as unknown as Record<string, unknown>).handleKeyDown).toBe('function')
+            expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
+        })
     })
 
-    it('exports getIsOpen method', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+    describe('Volume categories', () => {
+        it('groups volumes by category', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      expect(typeof (component as unknown as Record<string, unknown>).getIsOpen).toBe('function')
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            // Should have category labels
+            const categoryLabels = getTarget().querySelectorAll('.category-label')
+            // We expect at least "Volumes" and possibly "Cloud"
+            expect(categoryLabels.length).toBeGreaterThanOrEqual(0)
+        })
     })
 
-    it('getIsOpen returns false when dropdown is closed', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+    describe('Keyboard navigation', () => {
+        it('exports handleKeyDown method', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
 
-      await waitForUpdates(100)
+            await waitForUpdates(100)
 
-      const getIsOpen = (component as unknown as { getIsOpen: () => boolean }).getIsOpen
-      expect(getIsOpen()).toBe(false)
+            expect(typeof (component as unknown as Record<string, unknown>).handleKeyDown).toBe('function')
+        })
+
+        it('exports getIsOpen method', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            expect(typeof (component as unknown as Record<string, unknown>).getIsOpen).toBe('function')
+        })
+
+        it('getIsOpen returns false when dropdown is closed', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const getIsOpen = (component as unknown as { getIsOpen: () => boolean }).getIsOpen
+            expect(getIsOpen()).toBe(false)
+        })
+
+        it('getIsOpen returns true when dropdown is open', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            const getIsOpen = (component as unknown as { getIsOpen: () => boolean }).getIsOpen
+            expect(getIsOpen()).toBe(true)
+        })
+
+        it('handleKeyDown returns false when dropdown is closed', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
+            expect(handleKeyDown(event)).toBe(false)
+        })
+
+        it('ArrowDown moves highlight down', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            // Verify dropdown is open and first item is highlighted
+            const items = getTarget().querySelectorAll('.volume-item')
+            expect(items.length).toBeGreaterThan(1)
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
+
+            // Press ArrowDown
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
+            const handled = handleKeyDown(event)
+
+            await tick()
+
+            expect(handled).toBe(true)
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(false)
+            expect(items[1].classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('ArrowUp moves highlight up', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown and move down first
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+
+            // Move down once
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+            await tick()
+
+            // Now move back up
+            const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
+            const handled = handleKeyDown(event)
+
+            await tick()
+
+            expect(handled).toBe(true)
+            const items = getTarget().querySelectorAll('.volume-item')
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('ArrowUp at first item wraps to last', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            // Move up from first: should wrap to last
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
+            handleKeyDown(event)
+
+            await tick()
+
+            const items = getTarget().querySelectorAll('.volume-item')
+            expect(items.length).toBeGreaterThan(1)
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(false)
+            expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('ArrowDown at last item wraps to first', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+
+            // Walk down to the last item
+            const items = getTarget().querySelectorAll('.volume-item')
+            expect(items.length).toBeGreaterThan(1)
+            for (let i = 0; i < items.length - 1; i++) {
+                handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+                await tick()
+            }
+            expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(true)
+
+            // One more ArrowDown should wrap back to first
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+            await tick()
+
+            expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(false)
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('Enter selects highlighted volume and closes dropdown', async () => {
+            const volumeChangeFn = vi.fn()
+
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                    onVolumeChange: volumeChangeFn,
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            // Move to second item (first volume that's not under the cursor)
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+            await tick()
+
+            // Press Enter
+            const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+            const handled = handleKeyDown(enterEvent)
+
+            await tick()
+
+            expect(handled).toBe(true)
+            expect(volumeChangeFn).toHaveBeenCalled()
+        })
+
+        it('Escape closes dropdown via handleKeyDown', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
+
+            // Press Escape via handleKeyDown
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+            const handled = handleKeyDown(event)
+
+            await tick()
+
+            expect(handled).toBe(true)
+            expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
+        })
+
+        it('Home jumps to first item', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+
+            // Move down a couple times
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+            await tick()
+
+            // Press Home
+            const handled = handleKeyDown(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
+            await tick()
+
+            expect(handled).toBe(true)
+            const items = getTarget().querySelectorAll('.volume-item')
+            expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('End jumps to last item', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            // Press End
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const handled = handleKeyDown(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
+            await tick()
+
+            expect(handled).toBe(true)
+            const items = getTarget().querySelectorAll('.volume-item')
+            const lastItem = items[items.length - 1]
+            expect(lastItem.classList.contains('is-focused-and-under-cursor')).toBe(true)
+        })
+
+        it('unhandled keys return false', async () => {
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: {
+                    volumeId: 'root',
+                    currentPath: '/',
+                },
+            })
+
+            await waitForUpdates(100)
+
+            // Open dropdown
+            const toggle = (component as unknown as { toggle: () => void }).toggle
+            toggle()
+
+            await tick()
+
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            const event = new KeyboardEvent('keydown', { key: 'x', bubbles: true })
+            const handled = handleKeyDown(event)
+
+            expect(handled).toBe(false)
+        })
     })
 
-    it('getIsOpen returns true when dropdown is open', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
+    describe('Favorites section', () => {
+        const fav = (id: string, name: string, path: string) => ({
+            id: `fav-${id}`,
+            name,
+            path,
+            category: 'favorite' as const,
+            isEjectable: false,
+        })
 
-      await waitForUpdates(100)
+        async function openWithFavorites(favorites: ReturnType<typeof fav>[]) {
+            vi.mocked(getVolumes).mockReturnValue([
+                ...favorites,
+                { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
+            ])
+            const component = mount(VolumeBreadcrumb, {
+                target: getTarget(),
+                props: { volumeId: 'root', currentPath: '/' },
+            })
+            await waitForUpdates(100)
+            ;(component as unknown as { toggle: () => void }).toggle()
+            await tick()
+            return component
+        }
 
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
+        it('renders the disabled empty-state placeholder when there are no favorites', async () => {
+            await openWithFavorites([])
+            const placeholder = getTarget().querySelector('.favorites-empty')
+            expect(placeholder?.textContent).toBe('(Your favorites will show here)')
+            expect(placeholder?.getAttribute('aria-disabled')).toBe('true')
+            // Not focusable, not clickable.
+            expect(placeholder?.getAttribute('tabindex')).toBeNull()
+            expect(placeholder?.getAttribute('role')).toBeNull()
+        })
 
-      await tick()
+        it('renders favorites as pointer-draggable rows (no HTML5 draggable, not DOM-focusable)', async () => {
+            await openWithFavorites([fav('1', 'Documents', '/Users/me/Documents')])
+            const item = getTarget().querySelector('.favorite-item')
+            expect(item).toBeTruthy()
+            // Reorder is pointer-based (HTML5 drag is dead under Tauri's `dragDropEnabled`), and the
+            // rows are navigated by the virtual `highlightedIndex`, not by DOM focus.
+            expect(item?.getAttribute('draggable')).toBeNull()
+            expect(item?.getAttribute('tabindex')).toBeNull()
+            expect(item?.getAttribute('data-fav-id')).toBe('fav-1')
+        })
 
-      const getIsOpen = (component as unknown as { getIsOpen: () => boolean }).getIsOpen
-      expect(getIsOpen()).toBe(true)
+        it('Alt+Down keyboard reorder (on the highlighted favorite) persists the new order with bare ids', async () => {
+            const component = await openWithFavorites([fav('a', 'A', '/a'), fav('b', 'B', '/b'), fav('c', 'C', '/c')])
+            const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean })
+                .handleKeyDown
+            // Highlight the first favorite, then Alt+Down moves it to the second slot.
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'Home' }))
+            await tick()
+            handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true }))
+            await tick()
+            expect(reorderFavorites).toHaveBeenCalledWith(['b', 'a', 'c'])
+        })
+
+        it('right-click a favorite requests the native row menu; Remove (over volume-context-action) calls removeFavorite with the bare id', async () => {
+            await openWithFavorites([fav('x', 'Pics', '/Users/me/Pics')])
+            const item = getTarget().querySelector('.favorite-item[data-fav-id="fav-x"]') as HTMLElement
+            item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, clientX: 10, clientY: 10 }))
+            await tick()
+            // The native (muda) row menu is requested for the right-clicked favorite (not ejectable).
+            expect(showVolumeRowContextMenu).toHaveBeenCalledWith('fav-x', 'Pics', true, false)
+            // The backend emits the pick back over `volume-context-action`.
+            latestVolumeContextHandler()({ action: 'remove-favorite', volumeId: 'fav-x' })
+            await tick()
+            expect(removeFavorite).toHaveBeenCalledWith('x')
+        })
+
+        it('Rename (over volume-context-action) shows an inline input; committing calls renameFavorite with the bare id', async () => {
+            await openWithFavorites([fav('y', 'Old', '/Users/me/Old')])
+            const item = getTarget().querySelector('.favorite-item[data-fav-id="fav-y"]') as HTMLElement
+            item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, clientX: 10, clientY: 10 }))
+            await tick()
+            expect(showVolumeRowContextMenu).toHaveBeenCalledWith('fav-y', 'Old', true, false)
+            latestVolumeContextHandler()({ action: 'rename-favorite', volumeId: 'fav-y' })
+            await tick()
+            const input = getTarget().querySelector('.favorite-rename-input') as HTMLInputElement
+            expect(input).toBeTruthy()
+            input.value = 'New name'
+            input.dispatchEvent(new Event('input', { bubbles: true }))
+            input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+            await tick()
+            expect(renameFavorite).toHaveBeenCalledWith('y', 'New name')
+        })
     })
-
-    it('handleKeyDown returns false when dropdown is closed', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
-      expect(handleKeyDown(event)).toBe(false)
-    })
-
-    it('ArrowDown moves highlight down', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      // Verify dropdown is open and first item is highlighted
-      const items = getTarget().querySelectorAll('.volume-item')
-      expect(items.length).toBeGreaterThan(1)
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
-
-      // Press ArrowDown
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
-      const handled = handleKeyDown(event)
-
-      await tick()
-
-      expect(handled).toBe(true)
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(false)
-      expect(items[1].classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('ArrowUp moves highlight up', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown and move down first
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-
-      // Move down once
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      await tick()
-
-      // Now move back up
-      const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
-      const handled = handleKeyDown(event)
-
-      await tick()
-
-      expect(handled).toBe(true)
-      const items = getTarget().querySelectorAll('.volume-item')
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('ArrowUp at first item wraps to last', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      // Move up from first: should wrap to last
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
-      handleKeyDown(event)
-
-      await tick()
-
-      const items = getTarget().querySelectorAll('.volume-item')
-      expect(items.length).toBeGreaterThan(1)
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(false)
-      expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('ArrowDown at last item wraps to first', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-
-      // Walk down to the last item
-      const items = getTarget().querySelectorAll('.volume-item')
-      expect(items.length).toBeGreaterThan(1)
-      for (let i = 0; i < items.length - 1; i++) {
-        handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-        await tick()
-      }
-      expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(true)
-
-      // One more ArrowDown should wrap back to first
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      await tick()
-
-      expect(items[items.length - 1].classList.contains('is-focused-and-under-cursor')).toBe(false)
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('Enter selects highlighted volume and closes dropdown', async () => {
-      const volumeChangeFn = vi.fn()
-
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-          onVolumeChange: volumeChangeFn,
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      // Move to second item (first volume that's not under the cursor)
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      await tick()
-
-      // Press Enter
-      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
-      const handled = handleKeyDown(enterEvent)
-
-      await tick()
-
-      expect(handled).toBe(true)
-      expect(volumeChangeFn).toHaveBeenCalled()
-    })
-
-    it('Escape closes dropdown via handleKeyDown', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      expect(getTarget().querySelector('.volume-dropdown')).toBeTruthy()
-
-      // Press Escape via handleKeyDown
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
-      const handled = handleKeyDown(event)
-
-      await tick()
-
-      expect(handled).toBe(true)
-      expect(getTarget().querySelector('.volume-dropdown')).toBeNull()
-    })
-
-    it('Home jumps to first item', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-
-      // Move down a couple times
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
-      await tick()
-
-      // Press Home
-      const handled = handleKeyDown(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))
-      await tick()
-
-      expect(handled).toBe(true)
-      const items = getTarget().querySelectorAll('.volume-item')
-      expect(items[0].classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('End jumps to last item', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      // Press End
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const handled = handleKeyDown(new KeyboardEvent('keydown', { key: 'End', bubbles: true }))
-      await tick()
-
-      expect(handled).toBe(true)
-      const items = getTarget().querySelectorAll('.volume-item')
-      const lastItem = items[items.length - 1]
-      expect(lastItem.classList.contains('is-focused-and-under-cursor')).toBe(true)
-    })
-
-    it('unhandled keys return false', async () => {
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: {
-          volumeId: 'root',
-          currentPath: '/',
-        },
-      })
-
-      await waitForUpdates(100)
-
-      // Open dropdown
-      const toggle = (component as unknown as { toggle: () => void }).toggle
-      toggle()
-
-      await tick()
-
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      const event = new KeyboardEvent('keydown', { key: 'x', bubbles: true })
-      const handled = handleKeyDown(event)
-
-      expect(handled).toBe(false)
-    })
-  })
-
-  describe('Favorites section', () => {
-    const fav = (id: string, name: string, path: string) => ({
-      id: `fav-${id}`,
-      name,
-      path,
-      category: 'favorite' as const,
-      isEjectable: false,
-    })
-
-    async function openWithFavorites(favorites: ReturnType<typeof fav>[]) {
-      vi.mocked(getVolumes).mockReturnValue([
-        ...favorites,
-        { id: 'root', name: 'Macintosh HD', path: '/', category: 'main_volume', isEjectable: false },
-      ])
-      const component = mount(VolumeBreadcrumb, {
-        target: getTarget(),
-        props: { volumeId: 'root', currentPath: '/' },
-      })
-      await waitForUpdates(100)
-      ;(component as unknown as { toggle: () => void }).toggle()
-      await tick()
-      return component
-    }
-
-    it('renders the disabled empty-state placeholder when there are no favorites', async () => {
-      await openWithFavorites([])
-      const placeholder = getTarget().querySelector('.favorites-empty')
-      expect(placeholder?.textContent).toBe('(Your favorites will show here)')
-      expect(placeholder?.getAttribute('aria-disabled')).toBe('true')
-      // Not focusable, not clickable.
-      expect(placeholder?.getAttribute('tabindex')).toBeNull()
-      expect(placeholder?.getAttribute('role')).toBeNull()
-    })
-
-    it('renders favorites as pointer-draggable rows (no HTML5 draggable, not DOM-focusable)', async () => {
-      await openWithFavorites([fav('1', 'Documents', '/Users/me/Documents')])
-      const item = getTarget().querySelector('.favorite-item')
-      expect(item).toBeTruthy()
-      // Reorder is pointer-based (HTML5 drag is dead under Tauri's `dragDropEnabled`), and the
-      // rows are navigated by the virtual `highlightedIndex`, not by DOM focus.
-      expect(item?.getAttribute('draggable')).toBeNull()
-      expect(item?.getAttribute('tabindex')).toBeNull()
-      expect(item?.getAttribute('data-fav-id')).toBe('fav-1')
-    })
-
-    it('Alt+Down keyboard reorder (on the highlighted favorite) persists the new order with bare ids', async () => {
-      const component = await openWithFavorites([fav('a', 'A', '/a'), fav('b', 'B', '/b'), fav('c', 'C', '/c')])
-      const handleKeyDown = (component as unknown as { handleKeyDown: (e: KeyboardEvent) => boolean }).handleKeyDown
-      // Highlight the first favorite, then Alt+Down moves it to the second slot.
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'Home' }))
-      await tick()
-      handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true }))
-      await tick()
-      expect(reorderFavorites).toHaveBeenCalledWith(['b', 'a', 'c'])
-    })
-
-    it('right-click a favorite requests the native row menu; Remove (over volume-context-action) calls removeFavorite with the bare id', async () => {
-      await openWithFavorites([fav('x', 'Pics', '/Users/me/Pics')])
-      const item = getTarget().querySelector('.favorite-item[data-fav-id="fav-x"]') as HTMLElement
-      item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, clientX: 10, clientY: 10 }))
-      await tick()
-      // The native (muda) row menu is requested for the right-clicked favorite (not ejectable).
-      expect(showVolumeRowContextMenu).toHaveBeenCalledWith('fav-x', 'Pics', true, false)
-      // The backend emits the pick back over `volume-context-action`.
-      latestVolumeContextHandler()({ action: 'remove-favorite', volumeId: 'fav-x' })
-      await tick()
-      expect(removeFavorite).toHaveBeenCalledWith('x')
-    })
-
-    it('Rename (over volume-context-action) shows an inline input; committing calls renameFavorite with the bare id', async () => {
-      await openWithFavorites([fav('y', 'Old', '/Users/me/Old')])
-      const item = getTarget().querySelector('.favorite-item[data-fav-id="fav-y"]') as HTMLElement
-      item.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, clientX: 10, clientY: 10 }))
-      await tick()
-      expect(showVolumeRowContextMenu).toHaveBeenCalledWith('fav-y', 'Old', true, false)
-      latestVolumeContextHandler()({ action: 'rename-favorite', volumeId: 'fav-y' })
-      await tick()
-      const input = getTarget().querySelector('.favorite-rename-input') as HTMLInputElement
-      expect(input).toBeTruthy()
-      input.value = 'New name'
-      input.dispatchEvent(new Event('input', { bubbles: true }))
-      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-      await tick()
-      expect(renameFavorite).toHaveBeenCalledWith('y', 'New name')
-    })
-  })
 })

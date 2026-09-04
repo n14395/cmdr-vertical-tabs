@@ -32,7 +32,10 @@ Full details (tier narratives, the package vs custom-icon detection-timing decis
 - **Custom-icon detection (`getxattr`) must NOT run during bulk listing.** A syscall per directory in a 100k-entry
   listing regresses the hot path. It runs only for the bounded set of visible directory paths the FE asks about via
   `get_custom_folder_icon_ids`. Packages (`is_package_dir`, a pure suffix check, no syscall) are the exception and stay
-  inline in `get_icon_id`.
+  inline in `get_icon_id`. So a custom-icon folder KEEPS the `dir` id: the FE resolves it by PATH
+  (`getCachedCustomFolderIcon`), ❌ never by `iconId`, or the icon is fetched and never drawn.
+- **`dir` / `symlink-dir` sample a Cmdr-owned empty temp folder, ❌ never `~`.** macOS bakes the home folder's house
+  badge (and any custom icon on `~`) into the bitmap, stamping it onto ~99% of rows.
 - **Real-folder NSWorkspace fetches run on dedicated 8 MB-stack OS threads (`fetch_path_icons`), never rayon.** Real
   folders can be cloud folders whose icon lookup descends through deep FileProvider XPC chains that overflow rayon's
   2 MB worker stack. The extension branch (sample temp paths, never cloud) stays on rayon.

@@ -5,46 +5,47 @@ import type { TransferProgressPropsData } from './dialog-props'
 import type { ToastContent, ToastOptions } from '$lib/ui/toast/toast-store.svelte'
 
 const {
-  copyFilesToClipboardSpy,
-  cutFilesToClipboardSpy,
-  copyPathsToClipboardSpy,
-  cutPathsToClipboardSpy,
-  readClipboardFilesSpy,
-  clearClipboardCutStateSpy,
-  addToastSpy,
-  resolveSnapshotPathsSpy,
-  getCommonParentPathSpy,
-  pasteClipboardContentAsFileSpy,
-  logErrorSpy,
+    copyFilesToClipboardSpy,
+    cutFilesToClipboardSpy,
+    copyPathsToClipboardSpy,
+    cutPathsToClipboardSpy,
+    readClipboardFilesSpy,
+    clearClipboardCutStateSpy,
+    addToastSpy,
+    resolveSnapshotPathsSpy,
+    getCommonParentPathSpy,
+    pasteClipboardContentAsFileSpy,
+    logErrorSpy,
 } = vi.hoisted(() => ({
-  copyFilesToClipboardSpy: vi.fn<() => Promise<number>>(),
-  cutFilesToClipboardSpy: vi.fn<() => Promise<number>>(),
-  copyPathsToClipboardSpy: vi.fn<() => Promise<number>>(),
-  cutPathsToClipboardSpy: vi.fn<() => Promise<number>>(),
-  readClipboardFilesSpy: vi.fn<() => Promise<{ paths: string[]; isCut: boolean; isDirectory?: (boolean | null)[] }>>(),
-  clearClipboardCutStateSpy: vi.fn<() => Promise<void>>(),
-  addToastSpy: vi.fn<(content: ToastContent, options?: ToastOptions) => string>(),
-  resolveSnapshotPathsSpy: vi.fn<() => string[]>(),
-  getCommonParentPathSpy: vi.fn<() => string>(),
-  pasteClipboardContentAsFileSpy: vi.fn<(deps: { onNothingCreated: () => void }) => Promise<void>>(),
-  logErrorSpy: vi.fn(),
+    copyFilesToClipboardSpy: vi.fn<() => Promise<number>>(),
+    cutFilesToClipboardSpy: vi.fn<() => Promise<number>>(),
+    copyPathsToClipboardSpy: vi.fn<() => Promise<number>>(),
+    cutPathsToClipboardSpy: vi.fn<() => Promise<number>>(),
+    readClipboardFilesSpy:
+        vi.fn<() => Promise<{ paths: string[]; isCut: boolean; isDirectory?: (boolean | null)[] }>>(),
+    clearClipboardCutStateSpy: vi.fn<() => Promise<void>>(),
+    addToastSpy: vi.fn<(content: ToastContent, options?: ToastOptions) => string>(),
+    resolveSnapshotPathsSpy: vi.fn<() => string[]>(),
+    getCommonParentPathSpy: vi.fn<() => string>(),
+    pasteClipboardContentAsFileSpy: vi.fn<(deps: { onNothingCreated: () => void }) => Promise<void>>(),
+    logErrorSpy: vi.fn(),
 }))
 
 vi.mock('$lib/tauri-commands', () => ({
-  DEFAULT_VOLUME_ID: 'root',
-  copyFilesToClipboard: copyFilesToClipboardSpy,
-  cutFilesToClipboard: cutFilesToClipboardSpy,
-  copyPathsToClipboard: copyPathsToClipboardSpy,
-  cutPathsToClipboard: cutPathsToClipboardSpy,
-  readClipboardFiles: readClipboardFilesSpy,
-  clearClipboardCutState: clearClipboardCutStateSpy,
+    DEFAULT_VOLUME_ID: 'root',
+    copyFilesToClipboard: copyFilesToClipboardSpy,
+    cutFilesToClipboard: cutFilesToClipboardSpy,
+    copyPathsToClipboard: copyPathsToClipboardSpy,
+    cutPathsToClipboard: cutPathsToClipboardSpy,
+    readClipboardFiles: readClipboardFilesSpy,
+    clearClipboardCutState: clearClipboardCutStateSpy,
 }))
 
 vi.mock('$lib/ui/toast', () => ({
-  addToast: addToastSpy,
-  // Pane-tagged toasts (paste refusals, paste-as-file) funnel into the same spy,
-  // dropping the pane arg so the message/options assertions below cover both.
-  addToastForPane: (_pane: unknown, content: ToastContent, options?: ToastOptions) => addToastSpy(content, options),
+    addToast: addToastSpy,
+    // Pane-tagged toasts (paste refusals, paste-as-file) funnel into the same spy,
+    // dropping the pane arg so the message/options assertions below cover both.
+    addToastForPane: (_pane: unknown, content: ToastContent, options?: ToastOptions) => addToastSpy(content, options),
 }))
 
 // The no-file-URL fallback lives in its own module (unit-tested in
@@ -58,11 +59,14 @@ vi.mock('$lib/search/snapshot-store.svelte', () => ({ resolveSnapshotPaths: reso
 // real one so the read-only paste guard exercises real behavior off the
 // per-test volumes list.
 vi.mock('./transfer-operations', () => ({
-  getCommonParentPath: getCommonParentPathSpy,
-  getDestinationVolumeInfo: (volumeId: string, volumes: { id: string; name: string; mountIsReadOnly?: boolean }[]) => {
-    const v = volumes.find((vol) => vol.id === volumeId)
-    return v ? { name: v.name, mountIsReadOnly: v.mountIsReadOnly ?? false } : undefined
-  },
+    getCommonParentPath: getCommonParentPathSpy,
+    getDestinationVolumeInfo: (
+        volumeId: string,
+        volumes: { id: string; name: string; mountIsReadOnly?: boolean }[],
+    ) => {
+        const v = volumes.find((vol) => vol.id === volumeId)
+        return v ? { name: v.name, mountIsReadOnly: v.mountIsReadOnly ?? false } : undefined
+    },
 }))
 
 // The MTP / snapshot refusals read the capability table via `capabilitiesFor`,
@@ -73,7 +77,7 @@ vi.mock('./transfer-operations', () => ({
 vi.mock('$lib/stores/volume-store.svelte', () => ({ getVolumes: () => [] }))
 
 vi.mock('$lib/logging/logger', () => ({
-  getAppLogger: () => ({ error: logErrorSpy, warn: vi.fn(), info: vi.fn(), debug: vi.fn() }),
+    getAppLogger: () => ({ error: logErrorSpy, warn: vi.fn(), info: vi.fn(), debug: vi.fn() }),
 }))
 
 import { createClipboardOperations } from './clipboard-operations'
@@ -83,463 +87,465 @@ import { capabilitiesFor as capabilitiesForReal } from './volume-capabilities'
 
 /** Builds a `FilePaneAPI` stub exposing only the members the clipboard path reads. */
 function buildPaneRef(
-  overrides: Partial<{
-    listingId: string | null
-    hasParent: boolean
-    selectedIndices: number[]
-    cursorIndex: number
-    currentPath: string
-  }> = {},
+    overrides: Partial<{
+        listingId: string | null
+        hasParent: boolean
+        selectedIndices: number[]
+        cursorIndex: number
+        currentPath: string
+    }> = {},
 ): FilePaneAPI {
-  const stub = {
-    getListingId: () => ('listingId' in overrides ? overrides.listingId : 'listing-1'),
-    hasParentEntry: () => overrides.hasParent ?? false,
-    getSelectedIndices: () => overrides.selectedIndices ?? [],
-    getCursorIndex: () => overrides.cursorIndex ?? 0,
-    getCurrentPath: () => overrides.currentPath ?? '/Users/x/dir',
-  }
-  return stub as unknown as FilePaneAPI
+    const stub = {
+        getListingId: () => ('listingId' in overrides ? overrides.listingId : 'listing-1'),
+        hasParentEntry: () => overrides.hasParent ?? false,
+        getSelectedIndices: () => overrides.selectedIndices ?? [],
+        getCursorIndex: () => overrides.cursorIndex ?? 0,
+        getCurrentPath: () => overrides.currentPath ?? '/Users/x/dir',
+    }
+    return stub as unknown as FilePaneAPI
 }
 
 interface AccessConfig {
-  focusedPane?: 'left' | 'right'
-  paneRef?: FilePaneAPI | undefined
-  volumeId?: string
-  path?: string
-  showHiddenFiles?: boolean
-  volumes?: { id: string; name: string; mountIsReadOnly?: boolean }[]
+    focusedPane?: 'left' | 'right'
+    paneRef?: FilePaneAPI | undefined
+    volumeId?: string
+    path?: string
+    showHiddenFiles?: boolean
+    volumes?: { id: string; name: string; mountIsReadOnly?: boolean }[]
 }
 
 function buildAccess(config: AccessConfig = {}): PaneAccess {
-  return {
-    getPaneRef: () => ('paneRef' in config ? config.paneRef : buildPaneRef()),
-    getPanePath: () => config.path ?? '/dest/dir',
-    getPaneVolumeId: () => config.volumeId ?? 'root',
-    getPaneSort: () => ({ sortBy: 'name', sortOrder: 'ascending' }),
-    getPaneHistory: () => ({ stack: [], currentIndex: 0 }),
-    getFocusedPane: () => config.focusedPane ?? 'left',
-    otherPane: (pane) => (pane === 'left' ? 'right' : 'left'),
-    getShowHiddenFiles: () => config.showHiddenFiles ?? true,
-    getVolumes: () => (config.volumes ?? []) as unknown as ReturnType<PaneAccess['getVolumes']>,
-    focusContainer: () => {},
-  }
+    return {
+        getPaneRef: () => ('paneRef' in config ? config.paneRef : buildPaneRef()),
+        getPanePath: () => config.path ?? '/dest/dir',
+        getPaneVolumeId: () => config.volumeId ?? 'root',
+        getPaneSort: () => ({ sortBy: 'name', sortOrder: 'ascending' }),
+        getPaneHistory: () => ({ stack: [], currentIndex: 0 }),
+        getFocusedPane: () => config.focusedPane ?? 'left',
+        otherPane: (pane) => (pane === 'left' ? 'right' : 'left'),
+        getShowHiddenFiles: () => config.showHiddenFiles ?? true,
+        getVolumes: () => (config.volumes ?? []) as unknown as ReturnType<PaneAccess['getVolumes']>,
+        focusContainer: () => {},
+    }
 }
 
 const dialogsStub = {
-  startTransferProgress: vi.fn<(props: TransferProgressPropsData) => void>(),
-  // `showAlert(title, message)` mirrors the real (unconverted) `DialogState.showAlert`
-  // (`dialog-state.svelte.ts`): title and message are both `string` in production too,
-  // and every real call site passes them in this fixed order. Converting this stub to
-  // an object payload would misrepresent it: `clipboard-operations.ts` (untouched, out
-  // of scope here) calls `dialogs.showAlert(title, message)` positionally, so the mock
-  // must keep matching that shape.
-  // eslint-disable-next-line cmdr/no-confusable-callback-params -- fixed, well-known pair mirroring real showAlert(title, message), never reordered; see comment above
-  showAlert: vi.fn<(title: string, message: string) => void>(),
+    startTransferProgress: vi.fn<(props: TransferProgressPropsData) => void>(),
+    // `showAlert(title, message)` mirrors the real (unconverted) `DialogState.showAlert`
+    // (`dialog-state.svelte.ts`): title and message are both `string` in production too,
+    // and every real call site passes them in this fixed order. Converting this stub to
+    // an object payload would misrepresent it: `clipboard-operations.ts` (untouched, out
+    // of scope here) calls `dialogs.showAlert(title, message)` positionally, so the mock
+    // must keep matching that shape.
+    // eslint-disable-next-line cmdr/no-confusable-callback-params -- fixed, well-known pair mirroring real showAlert(title, message), never reordered; see comment above
+    showAlert: vi.fn<(title: string, message: string) => void>(),
 }
 
 function buildDialogs() {
-  return dialogsStub as unknown as Parameters<typeof createClipboardOperations>[1]
+    return dialogsStub as unknown as Parameters<typeof createClipboardOperations>[1]
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+    vi.clearAllMocks()
 })
 
 describe('copyToClipboard', () => {
-  it('copies snapshot paths by value and toasts the pluralized count for a search-results pane', async () => {
-    resolveSnapshotPathsSpy.mockReturnValue(['/a.txt', '/b.txt'])
-    copyPathsToClipboardSpy.mockResolvedValue(2)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
+    it('copies snapshot paths by value and toasts the pluralized count for a search-results pane', async () => {
+        resolveSnapshotPathsSpy.mockReturnValue(['/a.txt', '/b.txt'])
+        copyPathsToClipboardSpy.mockResolvedValue(2)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
 
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
 
-    expect(copyPathsToClipboardSpy).toHaveBeenCalledWith(['/a.txt', '/b.txt'])
-    expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
-    expect(addToastSpy).toHaveBeenCalledWith('Copied 2 items', { level: 'info' })
-  })
-
-  it('uses the singular noun when a single snapshot item is copied', async () => {
-    resolveSnapshotPathsSpy.mockReturnValue(['/only.txt'])
-    copyPathsToClipboardSpy.mockResolvedValue(1)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(addToastSpy).toHaveBeenCalledWith('Copied 1 item', { level: 'info' })
-  })
-
-  it('falls back to the listing-id path when a snapshot resolves to no paths', async () => {
-    resolveSnapshotPathsSpy.mockReturnValue([])
-    copyFilesToClipboardSpy.mockResolvedValue(3)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(copyPathsToClipboardSpy).not.toHaveBeenCalled()
-    expect(copyFilesToClipboardSpy).toHaveBeenCalled()
-  })
-
-  it('refuses MTP copy with a toast pointing at F5 and never touches the clipboard IPC', async () => {
-    const access = buildAccess({ volumeId: 'mtp-device-1' })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(addToastSpy).toHaveBeenCalledWith('Use F5 to copy files from MTP devices', { level: 'info' })
-    expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
-  })
-
-  it('copies via listing id on a regular pane and forwards hasParent + showHiddenFiles', async () => {
-    copyFilesToClipboardSpy.mockResolvedValue(5)
-    const paneRef = buildPaneRef({ listingId: 'lst-9', hasParent: true, selectedIndices: [1, 2], cursorIndex: 4 })
-    const access = buildAccess({ paneRef, volumeId: 'root', showHiddenFiles: false })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(copyFilesToClipboardSpy).toHaveBeenCalledWith('lst-9', [1, 2], 4, true, false)
-    expect(addToastSpy).toHaveBeenCalledWith('Copied 5 items', { level: 'info' })
-  })
-
-  it('does nothing when the focused pane has no listing id', async () => {
-    const access = buildAccess({ paneRef: buildPaneRef({ listingId: null }) })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
-    expect(addToastSpy).not.toHaveBeenCalled()
-  })
-
-  it('refuses copy inside an archive (writable parent) and points at F5/F6', async () => {
-    // The pane's volumeId is the writable parent drive; the archive-ness is in the
-    // PATH. Without the archive check ⌘C would push unresolvable archive-inner
-    // paths onto the OS clipboard.
-    const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
-
-    await createClipboardOperations(access, buildDialogs()).copyToClipboard()
-
-    expect(addToastSpy).toHaveBeenCalledWith('To copy files out of an archive, use F5 to copy or F6 to move.', {
-      level: 'info',
+        expect(copyPathsToClipboardSpy).toHaveBeenCalledWith(['/a.txt', '/b.txt'])
+        expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
+        expect(addToastSpy).toHaveBeenCalledWith('Copied 2 items', { level: 'info' })
     })
-    expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
-  })
+
+    it('uses the singular noun when a single snapshot item is copied', async () => {
+        resolveSnapshotPathsSpy.mockReturnValue(['/only.txt'])
+        copyPathsToClipboardSpy.mockResolvedValue(1)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(addToastSpy).toHaveBeenCalledWith('Copied 1 item', { level: 'info' })
+    })
+
+    it('falls back to the listing-id path when a snapshot resolves to no paths', async () => {
+        resolveSnapshotPathsSpy.mockReturnValue([])
+        copyFilesToClipboardSpy.mockResolvedValue(3)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(copyPathsToClipboardSpy).not.toHaveBeenCalled()
+        expect(copyFilesToClipboardSpy).toHaveBeenCalled()
+    })
+
+    it('refuses MTP copy with a toast pointing at F5 and never touches the clipboard IPC', async () => {
+        const access = buildAccess({ volumeId: 'mtp-device-1' })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(addToastSpy).toHaveBeenCalledWith('Use F5 to copy files from MTP devices', { level: 'info' })
+        expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
+    })
+
+    it('copies via listing id on a regular pane and forwards hasParent + showHiddenFiles', async () => {
+        copyFilesToClipboardSpy.mockResolvedValue(5)
+        const paneRef = buildPaneRef({ listingId: 'lst-9', hasParent: true, selectedIndices: [1, 2], cursorIndex: 4 })
+        const access = buildAccess({ paneRef, volumeId: 'root', showHiddenFiles: false })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(copyFilesToClipboardSpy).toHaveBeenCalledWith('lst-9', [1, 2], 4, true, false)
+        expect(addToastSpy).toHaveBeenCalledWith('Copied 5 items', { level: 'info' })
+    })
+
+    it('does nothing when the focused pane has no listing id', async () => {
+        const access = buildAccess({ paneRef: buildPaneRef({ listingId: null }) })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
+        expect(addToastSpy).not.toHaveBeenCalled()
+    })
+
+    it('refuses copy inside an archive (writable parent) and points at F5/F6', async () => {
+        // The pane's volumeId is the writable parent drive; the archive-ness is in the
+        // PATH. Without the archive check ⌘C would push unresolvable archive-inner
+        // paths onto the OS clipboard.
+        const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
+
+        await createClipboardOperations(access, buildDialogs()).copyToClipboard()
+
+        expect(addToastSpy).toHaveBeenCalledWith('To copy files out of an archive, use F5 to copy or F6 to move.', {
+            level: 'info',
+        })
+        expect(copyFilesToClipboardSpy).not.toHaveBeenCalled()
+    })
 })
 
 describe('cutToClipboard', () => {
-  it('cuts snapshot paths by value and toasts the move-ready wording', async () => {
-    resolveSnapshotPathsSpy.mockReturnValue(['/a.txt', '/b.txt'])
-    cutPathsToClipboardSpy.mockResolvedValue(2)
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
+    it('cuts snapshot paths by value and toasts the move-ready wording', async () => {
+        resolveSnapshotPathsSpy.mockReturnValue(['/a.txt', '/b.txt'])
+        cutPathsToClipboardSpy.mockResolvedValue(2)
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-1' })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
 
-    await createClipboardOperations(access, buildDialogs()).cutToClipboard()
+        await createClipboardOperations(access, buildDialogs()).cutToClipboard()
 
-    expect(cutPathsToClipboardSpy).toHaveBeenCalledWith(['/a.txt', '/b.txt'])
-    expect(addToastSpy).toHaveBeenCalledWith('2 items ready to move. Paste to complete.', { level: 'info' })
-  })
-
-  it('refuses MTP cut with a toast pointing at F6', async () => {
-    const access = buildAccess({ volumeId: 'mtp-device-1' })
-
-    await createClipboardOperations(access, buildDialogs()).cutToClipboard()
-
-    expect(addToastSpy).toHaveBeenCalledWith('Use F6 to move files from MTP devices', { level: 'info' })
-    expect(cutFilesToClipboardSpy).not.toHaveBeenCalled()
-  })
-
-  it('cuts via listing id on a regular pane and toasts the singular move-ready wording', async () => {
-    cutFilesToClipboardSpy.mockResolvedValue(1)
-    const access = buildAccess({ volumeId: 'root' })
-
-    await createClipboardOperations(access, buildDialogs()).cutToClipboard()
-
-    expect(cutFilesToClipboardSpy).toHaveBeenCalled()
-    expect(addToastSpy).toHaveBeenCalledWith('1 item ready to move. Paste to complete.', { level: 'info' })
-  })
-
-  it('refuses cut inside an archive and points at F5/F6', async () => {
-    const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
-
-    await createClipboardOperations(access, buildDialogs()).cutToClipboard()
-
-    expect(addToastSpy).toHaveBeenCalledWith('To copy files out of an archive, use F5 to copy or F6 to move.', {
-      level: 'info',
+        expect(cutPathsToClipboardSpy).toHaveBeenCalledWith(['/a.txt', '/b.txt'])
+        expect(addToastSpy).toHaveBeenCalledWith('2 items ready to move. Paste to complete.', { level: 'info' })
     })
-    expect(cutFilesToClipboardSpy).not.toHaveBeenCalled()
-  })
+
+    it('refuses MTP cut with a toast pointing at F6', async () => {
+        const access = buildAccess({ volumeId: 'mtp-device-1' })
+
+        await createClipboardOperations(access, buildDialogs()).cutToClipboard()
+
+        expect(addToastSpy).toHaveBeenCalledWith('Use F6 to move files from MTP devices', { level: 'info' })
+        expect(cutFilesToClipboardSpy).not.toHaveBeenCalled()
+    })
+
+    it('cuts via listing id on a regular pane and toasts the singular move-ready wording', async () => {
+        cutFilesToClipboardSpy.mockResolvedValue(1)
+        const access = buildAccess({ volumeId: 'root' })
+
+        await createClipboardOperations(access, buildDialogs()).cutToClipboard()
+
+        expect(cutFilesToClipboardSpy).toHaveBeenCalled()
+        expect(addToastSpy).toHaveBeenCalledWith('1 item ready to move. Paste to complete.', { level: 'info' })
+    })
+
+    it('refuses cut inside an archive and points at F5/F6', async () => {
+        const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
+
+        await createClipboardOperations(access, buildDialogs()).cutToClipboard()
+
+        expect(addToastSpy).toHaveBeenCalledWith('To copy files out of an archive, use F5 to copy or F6 to move.', {
+            level: 'info',
+        })
+        expect(cutFilesToClipboardSpy).not.toHaveBeenCalled()
+    })
 })
 
 describe('pasteFromClipboard', () => {
-  it('refuses pasting onto an MTP pane before reading the clipboard', async () => {
-    const access = buildAccess({ volumeId: 'mtp-device-1' })
+    it('refuses pasting onto an MTP pane before reading the clipboard', async () => {
+        const access = buildAccess({ volumeId: 'mtp-device-1' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-    expect(addToastSpy).toHaveBeenCalledWith('Use F5 to copy files to MTP devices', { level: 'info' })
-    expect(readClipboardFilesSpy).not.toHaveBeenCalled()
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-  })
-
-  it('allows pasting into a zip destination and starts a transfer', async () => {
-    // A zip is a writable destination now: ⌘V into it passes the shared guard and
-    // starts a transfer (the backend routes it into the archive-edit flow).
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(dialogsStub.showAlert).not.toHaveBeenCalled()
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
-      operationType: 'copy',
-      sourcePaths: ['/x/a.txt'],
-      destinationPath: '/x/foo.zip/inner',
-    })
-  })
-
-  it('refuses pasting into a read-only destination with the shared "Read-only device" alert', async () => {
-    const access = buildAccess({
-      volumeId: 'ext-ro',
-      volumes: [{ id: 'ext-ro', name: 'Backup', mountIsReadOnly: true }],
+        expect(addToastSpy).toHaveBeenCalledWith('Use F5 to copy files to MTP devices', { level: 'info' })
+        expect(readClipboardFilesSpy).not.toHaveBeenCalled()
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
     })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+    it('allows pasting into a zip destination and starts a transfer', async () => {
+        // A zip is a writable destination now: ⌘V into it passes the shared guard and
+        // starts a transfer (the backend routes it into the archive-edit flow).
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root', path: '/x/foo.zip/inner' })
 
-    expect(dialogsStub.showAlert).toHaveBeenCalledWith(
-      'Read-only device',
-      '"Backup" is read-only. You can copy files from it, but not to it.',
-    )
-    // The shared guard fires before reading the clipboard or queueing anything.
-    expect(readClipboardFilesSpy).not.toHaveBeenCalled()
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-  })
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-  it('routes a no-file-URL clipboard to the content-paste fallback with the pane destination', async () => {
-    // Empty file-URL result no longer warns directly: it hands off to the
-    // paste-content fallback (gated by the setting). The fallback's
-    // `onNothingCreated` closure is what replicates today's warn toast.
-    readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
-    pasteClipboardContentAsFileSpy.mockResolvedValue(undefined)
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(pasteClipboardContentAsFileSpy).toHaveBeenCalledTimes(1)
-    expect(pasteClipboardContentAsFileSpy.mock.calls[0][0]).toMatchObject({ volumeId: 'root', directory: '/dest' })
-    // The wired onNothingCreated still shows today's exact warn toast.
-    pasteClipboardContentAsFileSpy.mock.calls[0][0].onNothingCreated()
-    expect(addToastSpy).toHaveBeenCalledWith('No files on the clipboard. Copy files first with ⌘C.', { level: 'warn' })
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-  })
-
-  it('does NOT run the content fallback when file URLs are present (transfer path owns it)', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(pasteClipboardContentAsFileSpy).not.toHaveBeenCalled()
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-  })
-
-  it('routes pasteAsMove (forceMove) with no file URLs to the SAME fallback (not a dead key)', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
-    pasteClipboardContentAsFileSpy.mockResolvedValue(undefined)
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
-
-    expect(pasteClipboardContentAsFileSpy).toHaveBeenCalledTimes(1)
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-  })
-
-  it('starts a copy transfer for non-cut clipboard contents without forceMove', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ focusedPane: 'left', volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
-      operationType: 'copy',
-      sourcePaths: ['/x/a.txt'],
-      destinationPath: '/dest',
-      direction: 'left',
-      sourcePaneSide: 'right',
-      // Paste is one of the two gestures that end a single-item duplicate in the
-      // rename editor. The Duplicate command and drag dispatch the same copy and
-      // must answer `nothing` at their own call sites.
-      duplicateFollowUp: 'openRenameEditor',
+        expect(dialogsStub.showAlert).not.toHaveBeenCalled()
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
+            operationType: 'copy',
+            sourcePaths: ['/x/a.txt'],
+            destinationPath: '/x/foo.zip/inner',
+        })
     })
-    expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
-  })
 
-  it('starts a move transfer and clears cut state for cut clipboard contents', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: true })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ focusedPane: 'right', volumeId: 'root', path: '/dest' })
+    it('refuses pasting into a read-only destination with the shared "Read-only device" alert', async () => {
+        const access = buildAccess({
+            volumeId: 'ext-ro',
+            volumes: [{ id: 'ext-ro', name: 'Backup', mountIsReadOnly: true }],
+        })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
-      operationType: 'move',
-      direction: 'right',
-      sourcePaneSide: 'left',
+        expect(dialogsStub.showAlert).toHaveBeenCalledWith(
+            'Read-only device',
+            '"Backup" is read-only. You can copy files from it, but not to it.',
+        )
+        // The shared guard fires before reading the clipboard or queueing anything.
+        expect(readClipboardFilesSpy).not.toHaveBeenCalled()
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
     })
-    expect(clearClipboardCutStateSpy).toHaveBeenCalledTimes(1)
-  })
 
-  it('does nothing at all when a move-paste names only items already in the destination', async () => {
-    // They are where the move was asked to put them. No dialog, no transfer, no
-    // "Moved 0 files" toast, and the clipboard survives so the next paste
-    // somewhere that matters still works.
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt', '/dest/sub'], isCut: true })
-    getCommonParentPathSpy.mockReturnValue('/dest')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
+    it('routes a no-file-URL clipboard to the content-paste fallback with the pane destination', async () => {
+        // Empty file-URL result no longer warns directly: it hands off to the
+        // paste-content fallback (gated by the setting). The fallback's
+        // `onNothingCreated` closure is what replicates today's warn toast.
+        readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
+        pasteClipboardContentAsFileSpy.mockResolvedValue(undefined)
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-    expect(addToastSpy).not.toHaveBeenCalled()
-    expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
-  })
-
-  it('still dispatches a move-paste when only SOME sources are already in the destination', async () => {
-    // The backend leaves the one already there alone and moves the other.
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt', '/x/b.txt'], isCut: true })
-    getCommonParentPathSpy.mockReturnValue('/')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({ operationType: 'move' })
-  })
-
-  it('still dispatches a COPY-paste of items already in the destination, which duplicates them', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/dest')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
-      operationType: 'copy',
-      sourcePaths: ['/dest/a.txt'],
-      destinationPath: '/dest',
+        expect(pasteClipboardContentAsFileSpy).toHaveBeenCalledTimes(1)
+        expect(pasteClipboardContentAsFileSpy.mock.calls[0][0]).toMatchObject({ volumeId: 'root', directory: '/dest' })
+        // The wired onNothingCreated still shows today's exact warn toast.
+        pasteClipboardContentAsFileSpy.mock.calls[0][0].onNothingCreated()
+        expect(addToastSpy).toHaveBeenCalledWith('No files on the clipboard. Copy files first with ⌘C.', {
+            level: 'warn',
+        })
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
     })
-  })
 
-  it('does nothing for a forceMove paste of items already in the destination either', async () => {
-    // ⌘⌥V takes the same fast path: the operation type decides, not how it was asked for.
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/dest')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
+    it('does NOT run the content fallback when file URLs are present (transfer path owns it)', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-    expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
-  })
-
-  it('does not mistake a nested source for one already in the destination', async () => {
-    // `/dest/sub/a.txt` lives a level down, so the move is real work.
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/sub/a.txt'], isCut: true })
-    getCommonParentPathSpy.mockReturnValue('/dest/sub')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
-
-    expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
-  })
-
-  it('forces a move when forceMove is set even for a non-cut clipboard', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root' })
-
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
-
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({ operationType: 'move' })
-    expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
-  })
-
-  it('threads the file/folder split when every clipboard kind flag is known', async () => {
-    readClipboardFilesSpy.mockResolvedValue({
-      paths: ['/x/a.txt', '/x/dir1', '/x/dir2'],
-      isCut: false,
-      isDirectory: [false, true, true],
+        expect(pasteClipboardContentAsFileSpy).not.toHaveBeenCalled()
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
     })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+    it('routes pasteAsMove (forceMove) with no file URLs to the SAME fallback (not a dead key)', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
+        pasteClipboardContentAsFileSpy.mockResolvedValue(undefined)
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
-      fileCount: 1,
-      folderCount: 2,
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
+
+        expect(pasteClipboardContentAsFileSpy).toHaveBeenCalledTimes(1)
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
     })
-  })
 
-  it('omits the split (composer falls back) when any clipboard kind flag is unknown', async () => {
-    readClipboardFilesSpy.mockResolvedValue({
-      paths: ['/x/a.txt', '/x/mystery'],
-      isCut: false,
-      isDirectory: [false, null],
+    it('starts a copy transfer for non-cut clipboard contents without forceMove', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ focusedPane: 'left', volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
+            operationType: 'copy',
+            sourcePaths: ['/x/a.txt'],
+            destinationPath: '/dest',
+            direction: 'left',
+            sourcePaneSide: 'right',
+            // Paste is one of the two gestures that end a single-item duplicate in the
+            // rename editor. The Duplicate command and drag dispatch the same copy and
+            // must answer `nothing` at their own call sites.
+            duplicateFollowUp: 'openRenameEditor',
+        })
+        expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
     })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+    it('starts a move transfer and clears cut state for cut clipboard contents', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: true })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ focusedPane: 'right', volumeId: 'root', path: '/dest' })
 
-    const props = dialogsStub.startTransferProgress.mock.calls[0][0]
-    expect(props.fileCount).toBeUndefined()
-    expect(props.folderCount).toBeUndefined()
-  })
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-  it('omits the split when the clipboard carries no kind flags (legacy shape)', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
-    getCommonParentPathSpy.mockReturnValue('/x')
-    const access = buildAccess({ volumeId: 'root', path: '/dest' })
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
+            operationType: 'move',
+            direction: 'right',
+            sourcePaneSide: 'left',
+        })
+        expect(clearClipboardCutStateSpy).toHaveBeenCalledTimes(1)
+    })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+    it('does nothing at all when a move-paste names only items already in the destination', async () => {
+        // They are where the move was asked to put them. No dialog, no transfer, no
+        // "Moved 0 files" toast, and the clipboard survives so the next paste
+        // somewhere that matters still works.
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt', '/dest/sub'], isCut: true })
+        getCommonParentPathSpy.mockReturnValue('/dest')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
 
-    const props = dialogsStub.startTransferProgress.mock.calls[0][0]
-    expect(props.fileCount).toBeUndefined()
-    expect(props.folderCount).toBeUndefined()
-  })
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
+        expect(addToastSpy).not.toHaveBeenCalled()
+        expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
+    })
+
+    it('still dispatches a move-paste when only SOME sources are already in the destination', async () => {
+        // The backend leaves the one already there alone and moves the other.
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt', '/x/b.txt'], isCut: true })
+        getCommonParentPathSpy.mockReturnValue('/')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({ operationType: 'move' })
+    })
+
+    it('still dispatches a COPY-paste of items already in the destination, which duplicates them', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/dest')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
+            operationType: 'copy',
+            sourcePaths: ['/dest/a.txt'],
+            destinationPath: '/dest',
+        })
+    })
+
+    it('does nothing for a forceMove paste of items already in the destination either', async () => {
+        // ⌘⌥V takes the same fast path: the operation type decides, not how it was asked for.
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/dest')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
+
+        expect(dialogsStub.startTransferProgress).not.toHaveBeenCalled()
+    })
+
+    it('does not mistake a nested source for one already in the destination', async () => {
+        // `/dest/sub/a.txt` lives a level down, so the move is real work.
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/dest/sub/a.txt'], isCut: true })
+        getCommonParentPathSpy.mockReturnValue('/dest/sub')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress).toHaveBeenCalledTimes(1)
+    })
+
+    it('forces a move when forceMove is set even for a non-cut clipboard', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(true)
+
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({ operationType: 'move' })
+        expect(clearClipboardCutStateSpy).not.toHaveBeenCalled()
+    })
+
+    it('threads the file/folder split when every clipboard kind flag is known', async () => {
+        readClipboardFilesSpy.mockResolvedValue({
+            paths: ['/x/a.txt', '/x/dir1', '/x/dir2'],
+            isCut: false,
+            isDirectory: [false, true, true],
+        })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        expect(dialogsStub.startTransferProgress.mock.calls[0][0]).toMatchObject({
+            fileCount: 1,
+            folderCount: 2,
+        })
+    })
+
+    it('omits the split (composer falls back) when any clipboard kind flag is unknown', async () => {
+        readClipboardFilesSpy.mockResolvedValue({
+            paths: ['/x/a.txt', '/x/mystery'],
+            isCut: false,
+            isDirectory: [false, null],
+        })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        const props = dialogsStub.startTransferProgress.mock.calls[0][0]
+        expect(props.fileCount).toBeUndefined()
+        expect(props.folderCount).toBeUndefined()
+    })
+
+    it('omits the split when the clipboard carries no kind flags (legacy shape)', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: ['/x/a.txt'], isCut: false })
+        getCommonParentPathSpy.mockReturnValue('/x')
+        const access = buildAccess({ volumeId: 'root', path: '/dest' })
+
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+
+        const props = dialogsStub.startTransferProgress.mock.calls[0][0]
+        expect(props.fileCount).toBeUndefined()
+        expect(props.folderCount).toBeUndefined()
+    })
 })
 
 describe('getSnapshotClipboardPaths', () => {
-  it('resolves snapshot paths for a search-results pane', () => {
-    resolveSnapshotPathsSpy.mockReturnValue(['/a.txt'])
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-7', selectedIndices: [0], cursorIndex: 0 })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
+    it('resolves snapshot paths for a search-results pane', () => {
+        resolveSnapshotPathsSpy.mockReturnValue(['/a.txt'])
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-7', selectedIndices: [0], cursorIndex: 0 })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
 
-    const result = createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()
+        const result = createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()
 
-    expect(resolveSnapshotPathsSpy).toHaveBeenCalledWith('sr-7', [0], 0)
-    expect(result).toEqual({ paths: ['/a.txt'], snapshotId: 'sr-7' })
-  })
+        expect(resolveSnapshotPathsSpy).toHaveBeenCalledWith('sr-7', [0], 0)
+        expect(result).toEqual({ paths: ['/a.txt'], snapshotId: 'sr-7' })
+    })
 
-  it('returns null when the focused pane is not a search-results pane', () => {
-    const access = buildAccess({ volumeId: 'root' })
+    it('returns null when the focused pane is not a search-results pane', () => {
+        const access = buildAccess({ volumeId: 'root' })
 
-    expect(createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()).toBeNull()
-    expect(resolveSnapshotPathsSpy).not.toHaveBeenCalled()
-  })
+        expect(createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()).toBeNull()
+        expect(resolveSnapshotPathsSpy).not.toHaveBeenCalled()
+    })
 
-  it('returns null when a search-results pane resolves to no paths', () => {
-    resolveSnapshotPathsSpy.mockReturnValue([])
-    const paneRef = buildPaneRef({ currentPath: 'search-results://sr-7' })
-    const access = buildAccess({ paneRef, volumeId: 'search-results' })
+    it('returns null when a search-results pane resolves to no paths', () => {
+        resolveSnapshotPathsSpy.mockReturnValue([])
+        const paneRef = buildPaneRef({ currentPath: 'search-results://sr-7' })
+        const access = buildAccess({ paneRef, volumeId: 'search-results' })
 
-    expect(createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()).toBeNull()
-  })
+        expect(createClipboardOperations(access, buildDialogs()).getSnapshotClipboardPaths()).toBeNull()
+    })
 })
 
 /**
@@ -557,34 +563,34 @@ describe('getSnapshotClipboardPaths', () => {
  * "no system clipboard" capability would.
  */
 describe('MTP clipboard-refusal equivalence', () => {
-  // The live set of volumeIds a focused pane can hold when copy/cut/paste fires.
-  const liveClipboardPaneIds = [
-    'root', // local main volume
-    'attached-1', // attached local volume
-    'smb-host-share', // mounted SMB share
-    'mtp-1234', // MTP device (location-id form)
-    'mtp-1234:0x00010001', // MTP storage (device:storage form)
-    'network', // the synthetic network browser (paste reaches this; copy/cut bail earlier)
-    'search-results', // the snapshot pane (clipboard blocked upstream by dispatch)
-  ]
+    // The live set of volumeIds a focused pane can hold when copy/cut/paste fires.
+    const liveClipboardPaneIds = [
+        'root', // local main volume
+        'attached-1', // attached local volume
+        'smb-host-share', // mounted SMB share
+        'mtp-1234', // MTP device (location-id form)
+        'mtp-1234:0x00010001', // MTP storage (device:storage form)
+        'network', // the synthetic network browser (paste reaches this; copy/cut bail earlier)
+        'search-results', // the snapshot pane (clipboard blocked upstream by dispatch)
+    ]
 
-  it('matches the old startsWith("mtp-") gate on the live pane-id set', () => {
-    for (const id of liveClipboardPaneIds) {
-      const oldGate = id.startsWith('mtp-')
-      const newGate = capabilitiesForReal(id).kind === 'mtp'
-      expect(newGate, `gate mismatch for ${id}`).toBe(oldGate)
-    }
-  })
+    it('matches the old startsWith("mtp-") gate on the live pane-id set', () => {
+        for (const id of liveClipboardPaneIds) {
+            const oldGate = id.startsWith('mtp-')
+            const newGate = capabilitiesForReal(id).kind === 'mtp'
+            expect(newGate, `gate mismatch for ${id}`).toBe(oldGate)
+        }
+    })
 
-  it('does not MTP-refuse a network paste (byte-identical: network falls through)', async () => {
-    readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
-    const access = buildAccess({ volumeId: 'network', path: 'smb://host' })
+    it('does not MTP-refuse a network paste (byte-identical: network falls through)', async () => {
+        readClipboardFilesSpy.mockResolvedValue({ paths: [], isCut: false })
+        const access = buildAccess({ volumeId: 'network', path: 'smb://host' })
 
-    await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
+        await createClipboardOperations(access, buildDialogs()).pasteFromClipboard(false)
 
-    // No MTP toast; the gate falls through to the real clipboard read, which
-    // here finds an empty clipboard — exactly the pre-conversion behavior.
-    expect(addToastSpy).not.toHaveBeenCalledWith('Use F5 to copy files to MTP devices', { level: 'info' })
-    expect(readClipboardFilesSpy).toHaveBeenCalled()
-  })
+        // No MTP toast; the gate falls through to the real clipboard read, which
+        // here finds an empty clipboard — exactly the pre-conversion behavior.
+        expect(addToastSpy).not.toHaveBeenCalledWith('Use F5 to copy files to MTP devices', { level: 'info' })
+        expect(readClipboardFilesSpy).toHaveBeenCalled()
+    })
 })

@@ -3,11 +3,11 @@
 
 import { writable } from 'svelte/store'
 import {
-  getIcons,
-  getCustomFolderIconIds,
-  refreshDirectoryIcons as refreshIconsCommand,
-  clearExtensionIconCache as clearExtensionIconCacheCommand,
-  clearDirectoryIconCache as clearDirectoryIconCacheCommand,
+    getIcons,
+    getCustomFolderIconIds,
+    refreshDirectoryIcons as refreshIconsCommand,
+    clearExtensionIconCache as clearExtensionIconCacheCommand,
+    clearDirectoryIconCache as clearDirectoryIconCacheCommand,
 } from './tauri-commands'
 
 const STORAGE_KEY = 'cmdr-icon-cache'
@@ -26,7 +26,7 @@ const PKG_KEY_PREFIX = 'pkg:'
 
 /** True for the unbounded per-path keys (`path:*` custom-icon folders + `pkg:*` packages). */
 function isPerPathKey(id: string): boolean {
-  return id.startsWith(PATH_KEY_PREFIX) || id.startsWith(PKG_KEY_PREFIX)
+    return id.startsWith(PATH_KEY_PREFIX) || id.startsWith(PKG_KEY_PREFIX)
 }
 
 /**
@@ -57,11 +57,11 @@ const memoryCache = new Map<string, string>()
 
 /** Number of per-path keys (`path:*` + `pkg:*`) currently held in `memoryCache`. */
 function countPathKeys(): number {
-  let count = 0
-  for (const key of memoryCache.keys()) {
-    if (isPerPathKey(key)) count++
-  }
-  return count
+    let count = 0
+    for (const key of memoryCache.keys()) {
+        if (isPerPathKey(key)) count++
+    }
+    return count
 }
 
 /**
@@ -71,21 +71,21 @@ function countPathKeys(): number {
  * keys are inserted as-is and never evicted by the cap.
  */
 function setCacheEntry(id: string, url: string): void {
-  if (isPerPathKey(id)) {
-    memoryCache.delete(id)
-    memoryCache.set(id, url)
-    while (countPathKeys() > pathKeyCap) {
-      // Front-most per-path key is the oldest; evict it.
-      for (const key of memoryCache.keys()) {
-        if (isPerPathKey(key)) {
-          memoryCache.delete(key)
-          break
+    if (isPerPathKey(id)) {
+        memoryCache.delete(id)
+        memoryCache.set(id, url)
+        while (countPathKeys() > pathKeyCap) {
+            // Front-most per-path key is the oldest; evict it.
+            for (const key of memoryCache.keys()) {
+                if (isPerPathKey(key)) {
+                    memoryCache.delete(key)
+                    break
+                }
+            }
         }
-      }
+    } else {
+        memoryCache.set(id, url)
     }
-  } else {
-    memoryCache.set(id, url)
-  }
 }
 
 /** Pending retry timer for timed-out prefetchIcons calls */
@@ -109,61 +109,61 @@ export const iconCacheCleared = writable(0)
 
 /** Load persisted cache from localStorage */
 function loadFromStorage(): void {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored) as Record<string, string>
-      for (const [id, url] of Object.entries(parsed)) {
-        // Defensive: skip any per-path (`path:`/`pkg:`) keys left by an older build.
-        // They're no longer persisted, and feeding them in would seed the
-        // bounded-keys-only cache.
-        if (isPerPathKey(id)) continue
-        memoryCache.set(id, url)
-      }
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+            const parsed = JSON.parse(stored) as Record<string, string>
+            for (const [id, url] of Object.entries(parsed)) {
+                // Defensive: skip any per-path (`path:`/`pkg:`) keys left by an older build.
+                // They're no longer persisted, and feeding them in would seed the
+                // bounded-keys-only cache.
+                if (isPerPathKey(id)) continue
+                memoryCache.set(id, url)
+            }
+        }
+    } catch {
+        // Ignore storage errors
     }
-  } catch {
-    // Ignore storage errors
-  }
 }
 
 /** Persist cache to localStorage */
 function saveToStorage(): void {
-  try {
-    const obj: Record<string, string> = {}
-    for (const [id, url] of memoryCache) {
-      // Don't persist per-path (`path:`/`pkg:`) keys — they're unbounded and
-      // session-scoped, and the Rust on-disk cache already persists them keyed by
-      // folder mtime. Only the bounded `dir` / `ext:` / `special:` keys survive
-      // restarts in localStorage.
-      if (isPerPathKey(id)) continue
-      obj[id] = url
+    try {
+        const obj: Record<string, string> = {}
+        for (const [id, url] of memoryCache) {
+            // Don't persist per-path (`path:`/`pkg:`) keys — they're unbounded and
+            // session-scoped, and the Rust on-disk cache already persists them keyed by
+            // folder mtime. Only the bounded `dir` / `ext:` / `special:` keys survive
+            // restarts in localStorage.
+            if (isPerPathKey(id)) continue
+            obj[id] = url
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj))
+    } catch {
+        // Ignore storage errors
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj))
-  } catch {
-    // Ignore storage errors
-  }
 }
 
 // Load on module init
 if (typeof localStorage !== 'undefined') {
-  loadFromStorage()
+    loadFromStorage()
 }
 
 /** Merges fetched icons into the cache, persists, and bumps the version counter. Returns true if any icons were added. */
 function applyIconsToCache(icons: Record<string, string>): boolean {
-  let changed = false
-  for (const [id, url] of Object.entries(icons)) {
-    const existing = memoryCache.get(id)
-    if (existing !== url) {
-      setCacheEntry(id, url)
-      changed = true
+    let changed = false
+    for (const [id, url] of Object.entries(icons)) {
+        const existing = memoryCache.get(id)
+        if (existing !== url) {
+            setCacheEntry(id, url)
+            changed = true
+        }
     }
-  }
-  if (changed) {
-    saveToStorage()
-    iconCacheVersion.update((v) => v + 1)
-  }
-  return changed
+    if (changed) {
+        saveToStorage()
+        iconCacheVersion.update((v) => v + 1)
+    }
+    return changed
 }
 
 /**
@@ -176,29 +176,29 @@ function applyIconsToCache(icons: Record<string, string>): boolean {
  * @param useAppIconsForDocuments - Whether to use app icons as fallback for documents
  */
 export async function prefetchIcons(iconIds: string[], useAppIconsForDocuments: boolean): Promise<void> {
-  const uncached = iconIds.filter((id) => !memoryCache.has(id))
-  if (uncached.length === 0) return
+    const uncached = iconIds.filter((id) => !memoryCache.has(id))
+    if (uncached.length === 0) return
 
-  // Cancel any pending retry: a new fetch supersedes it
-  clearTimeout(prefetchRetryTimer)
-  prefetchRetryTimer = undefined
+    // Cancel any pending retry: a new fetch supersedes it
+    clearTimeout(prefetchRetryTimer)
+    prefetchRetryTimer = undefined
 
-  // Deduplicate
-  const unique = [...new Set(uncached)]
-  const { data: icons, timedOut } = await getIcons(unique, useAppIconsForDocuments)
+    // Deduplicate
+    const unique = [...new Set(uncached)]
+    const { data: icons, timedOut } = await getIcons(unique, useAppIconsForDocuments)
 
-  applyIconsToCache(icons)
+    applyIconsToCache(icons)
 
-  if (timedOut) {
-    prefetchRetryTimer = setTimeout(() => {
-      prefetchRetryTimer = undefined
-      void getIcons(unique, useAppIconsForDocuments)
-        .then(({ data: retryIcons }) => applyIconsToCache(retryIcons))
-        .catch(() => {
-          // Give up silently on retry failure
-        })
-    }, retryDelayMs)
-  }
+    if (timedOut) {
+        prefetchRetryTimer = setTimeout(() => {
+            prefetchRetryTimer = undefined
+            void getIcons(unique, useAppIconsForDocuments)
+                .then(({ data: retryIcons }) => applyIconsToCache(retryIcons))
+                .catch(() => {
+                    // Give up silently on retry failure
+                })
+        }, retryDelayMs)
+    }
 }
 
 /**
@@ -218,24 +218,24 @@ export async function prefetchIcons(iconIds: string[], useAppIconsForDocuments: 
  * @param useAppIconsForDocuments - Passed through to the icon fetch
  */
 export async function prefetchCustomFolderIcons(
-  directoryPaths: string[],
-  useAppIconsForDocuments: boolean,
+    directoryPaths: string[],
+    useAppIconsForDocuments: boolean,
 ): Promise<void> {
-  if (directoryPaths.length === 0) return
-  // Only ask about dirs we don't already have a per-path icon for, to keep the
-  // getxattr batch small on re-scroll over the same rows.
-  const unknown = directoryPaths.filter((p) => !memoryCache.has(`${PATH_KEY_PREFIX}${p}`))
-  if (unknown.length === 0) return
+    if (directoryPaths.length === 0) return
+    // Only ask about dirs we don't already have a per-path icon for, to keep the
+    // getxattr batch small on re-scroll over the same rows.
+    const unknown = directoryPaths.filter((p) => !memoryCache.has(`${PATH_KEY_PREFIX}${p}`))
+    if (unknown.length === 0) return
 
-  let ids: string[]
-  try {
-    const { data } = await getCustomFolderIconIds(unknown)
-    ids = data
-  } catch {
-    return // Best-effort: keep the generic dir glyph.
-  }
-  if (ids.length === 0) return
-  await prefetchIcons(ids, useAppIconsForDocuments)
+    let ids: string[]
+    try {
+        const { data } = await getCustomFolderIconIds(unknown)
+        ids = data
+    } catch {
+        return // Best-effort: keep the generic dir glyph.
+    }
+    if (ids.length === 0) return
+    await prefetchIcons(ids, useAppIconsForDocuments)
 }
 
 /**
@@ -252,19 +252,19 @@ export async function prefetchCustomFolderIcons(
  * @param dirPath - The directory whose listing ended
  */
 export function evictPerPathIconsForDir(dirPath: string): void {
-  if (!dirPath) return
-  // Normalize to a child-prefix: keys are `path:/abs/child` or `pkg:/abs/child`.
-  const childPrefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`
-  let removed = false
-  for (const key of memoryCache.keys()) {
-    if (!isPerPathKey(key)) continue
-    const embeddedPath = key.slice(key.indexOf(':') + 1)
-    if (embeddedPath.startsWith(childPrefix)) {
-      memoryCache.delete(key)
-      removed = true
+    if (!dirPath) return
+    // Normalize to a child-prefix: keys are `path:/abs/child` or `pkg:/abs/child`.
+    const childPrefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`
+    let removed = false
+    for (const key of memoryCache.keys()) {
+        if (!isPerPathKey(key)) continue
+        const embeddedPath = key.slice(key.indexOf(':') + 1)
+        if (embeddedPath.startsWith(childPrefix)) {
+            memoryCache.delete(key)
+            removed = true
+        }
     }
-  }
-  if (removed) iconCacheVersion.update((v) => v + 1)
+    if (removed) iconCacheVersion.update((v) => v + 1)
 }
 
 /**
@@ -272,7 +272,21 @@ export function evictPerPathIconsForDir(dirPath: string): void {
  * Returns undefined if not cached.
  */
 export function getCachedIcon(iconId: string): string | undefined {
-  return memoryCache.get(iconId)
+    return memoryCache.get(iconId)
+}
+
+/**
+ * Gets a folder's Finder custom icon from the cache, or undefined when it has
+ * none (the overwhelmingly common case).
+ *
+ * A custom-icon folder keeps the generic `dir` iconId — the backend defers the
+ * `kHasCustomIcon` getxattr off the bulk-listing hot path — so its icon arrives
+ * under a `path:{dir}` key that no entry ever points at. Renderers must ask by
+ * PATH here, not by `iconId`, or `prefetchCustomFolderIcons` fetches and caches
+ * an icon nothing ever draws.
+ */
+export function getCachedCustomFolderIcon(directoryPath: string): string | undefined {
+    return memoryCache.get(`${PATH_KEY_PREFIX}${directoryPath}`)
 }
 
 /**
@@ -289,30 +303,30 @@ export function getCachedIcon(iconId: string): string | undefined {
  * @public
  */
 export async function refreshDirectoryIcons(
-  directoryPaths: string[],
-  extensions: string[],
-  useAppIconsForDocuments: boolean,
+    directoryPaths: string[],
+    extensions: string[],
+    useAppIconsForDocuments: boolean,
 ): Promise<void> {
-  if (directoryPaths.length === 0 && extensions.length === 0) return
+    if (directoryPaths.length === 0 && extensions.length === 0) return
 
-  // Cancel any pending retry: a new refresh supersedes it
-  clearTimeout(refreshRetryTimer)
-  refreshRetryTimer = undefined
+    // Cancel any pending retry: a new refresh supersedes it
+    clearTimeout(refreshRetryTimer)
+    refreshRetryTimer = undefined
 
-  const { data: icons, timedOut } = await refreshIconsCommand(directoryPaths, extensions, useAppIconsForDocuments)
+    const { data: icons, timedOut } = await refreshIconsCommand(directoryPaths, extensions, useAppIconsForDocuments)
 
-  applyIconsToCache(icons)
+    applyIconsToCache(icons)
 
-  if (timedOut) {
-    refreshRetryTimer = setTimeout(() => {
-      refreshRetryTimer = undefined
-      void refreshIconsCommand(directoryPaths, extensions, useAppIconsForDocuments)
-        .then(({ data: retryIcons }) => applyIconsToCache(retryIcons))
-        .catch(() => {
-          // Give up silently on retry failure
-        })
-    }, retryDelayMs)
-  }
+    if (timedOut) {
+        refreshRetryTimer = setTimeout(() => {
+            refreshRetryTimer = undefined
+            void refreshIconsCommand(directoryPaths, extensions, useAppIconsForDocuments)
+                .then(({ data: retryIcons }) => applyIconsToCache(retryIcons))
+                .catch(() => {
+                    // Give up silently on retry failure
+                })
+        }, retryDelayMs)
+    }
 }
 
 /**
@@ -321,32 +335,32 @@ export async function refreshDirectoryIcons(
  * After calling this, extension icons will be re-fetched with the new setting.
  */
 export async function clearExtensionIconCache(): Promise<void> {
-  // Cancel pending retries: old icon IDs are now invalidated
-  clearTimeout(prefetchRetryTimer)
-  prefetchRetryTimer = undefined
-  clearTimeout(refreshRetryTimer)
-  refreshRetryTimer = undefined
+    // Cancel pending retries: old icon IDs are now invalidated
+    clearTimeout(prefetchRetryTimer)
+    prefetchRetryTimer = undefined
+    clearTimeout(refreshRetryTimer)
+    refreshRetryTimer = undefined
 
-  // Clear backend cache
-  await clearExtensionIconCacheCommand()
+    // Clear backend cache
+    await clearExtensionIconCacheCommand()
 
-  // Clear frontend cache (extension icons only)
-  for (const key of memoryCache.keys()) {
-    if (key.startsWith('ext:')) {
-      memoryCache.delete(key)
+    // Clear frontend cache (extension icons only)
+    for (const key of memoryCache.keys()) {
+        if (key.startsWith('ext:')) {
+            memoryCache.delete(key)
+        }
     }
-  }
 
-  // Persist the change
-  saveToStorage()
+    // Persist the change
+    saveToStorage()
 
-  // Notify list components to re-fetch icons for visible files
-  // This must happen BEFORE incrementing iconCacheVersion so components
-  // can re-fetch before re-rendering with the cleared cache
-  iconCacheCleared.update((v) => v + 1)
+    // Notify list components to re-fetch icons for visible files
+    // This must happen BEFORE incrementing iconCacheVersion so components
+    // can re-fetch before re-rendering with the cleared cache
+    iconCacheCleared.update((v) => v + 1)
 
-  // Trigger reactive update so components re-fetch icons
-  iconCacheVersion.update((v) => v + 1)
+    // Trigger reactive update so components re-fetch icons
+    iconCacheVersion.update((v) => v + 1)
 }
 
 /**
@@ -355,33 +369,33 @@ export async function clearExtensionIconCache(): Promise<void> {
  * folder icons with the current accent color baked in.
  */
 export async function clearDirectoryIconCache(): Promise<void> {
-  // Cancel pending retries: old icon IDs are now invalidated
-  clearTimeout(prefetchRetryTimer)
-  prefetchRetryTimer = undefined
-  clearTimeout(refreshRetryTimer)
-  refreshRetryTimer = undefined
+    // Cancel pending retries: old icon IDs are now invalidated
+    clearTimeout(prefetchRetryTimer)
+    prefetchRetryTimer = undefined
+    clearTimeout(refreshRetryTimer)
+    refreshRetryTimer = undefined
 
-  await clearDirectoryIconCacheCommand()
+    await clearDirectoryIconCacheCommand()
 
-  for (const key of memoryCache.keys()) {
-    if (key === 'dir' || key === 'symlink-dir' || isPerPathKey(key) || key.startsWith(SPECIAL_KEY_PREFIX)) {
-      memoryCache.delete(key)
+    for (const key of memoryCache.keys()) {
+        if (key === 'dir' || key === 'symlink-dir' || isPerPathKey(key) || key.startsWith(SPECIAL_KEY_PREFIX)) {
+            memoryCache.delete(key)
+        }
     }
-  }
 
-  saveToStorage()
-  iconCacheCleared.update((v) => v + 1)
-  iconCacheVersion.update((v) => v + 1)
+    saveToStorage()
+    iconCacheCleared.update((v) => v + 1)
+    iconCacheVersion.update((v) => v + 1)
 }
 
 /** Test-only: clears the in-memory cache so each test starts from a known state. */
 export function _resetIconCacheForTests(): void {
-  memoryCache.clear()
+    memoryCache.clear()
 }
 
 /** Test-only: applies fetched icons through the normal cache path (LRU + persist). */
 export function _applyIconsToCacheForTests(icons: Record<string, string>): void {
-  applyIconsToCache(icons)
+    applyIconsToCache(icons)
 }
 
 /** Test-only: the `path:`-key LRU cap, exposed so tests don't hard-code the value. */

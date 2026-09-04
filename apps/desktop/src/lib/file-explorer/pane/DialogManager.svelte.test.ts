@@ -17,13 +17,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, unmount, flushSync, type ComponentProps } from 'svelte'
 
 vi.mock('$lib/ui/AlertDialog.svelte', async () => ({
-  default: (await import('../../../../test/fixtures/dialog-throw-fixture.svelte')).default,
+    default: (await import('../../../../test/fixtures/dialog-throw-fixture.svelte')).default,
 }))
 
 // A marker stands in for the progress dialog: the real one dispatches a backend
 // operation on mount, and what's under test here is how many of it render.
 vi.mock('../../file-operations/transfer/TransferProgressDialog.svelte', async () => ({
-  default: (await import('../../../../test/fixtures/dialog-marker-fixture.svelte')).default,
+    default: (await import('../../../../test/fixtures/dialog-marker-fixture.svelte')).default,
 }))
 
 import DialogManager from './DialogManager.svelte'
@@ -33,186 +33,189 @@ type DialogManagerProps = ComponentProps<typeof DialogManager>
 
 /** Every prop `DialogManager` needs, with nothing open and no-op callbacks. */
 function baseProps(onDialogRenderError: (error: unknown) => void): DialogManagerProps {
-  const noop = (): void => {}
-  return {
-    onDialogRenderError,
-    showTransferDialog: false,
-    transferDialogProps: null,
-    showTransferProgressDialog: false,
-    transferProgressProps: null,
-    adoptedProgressProps: null,
-    showNewFolderDialog: false,
-    newFolderDialogProps: null,
-    showNewFileDialog: false,
-    newFileDialogProps: null,
-    showAlertDialog: false,
-    alertDialogProps: null,
-    showTransferErrorDialog: false,
-    transferErrorProps: null,
-    showArchivePasswordDialog: false,
-    archivePasswordProps: null,
-    showDeleteDialog: false,
-    deleteDialogProps: null,
-    onTransferConfirm: noop,
-    onTransferCancel: noop,
-    onTransferComplete: noop,
-    onTransferCancelled: noop,
-    onTransferError: noop,
-    onTransferQueue: noop,
-    onAdoptedComplete: noop,
-    onAdoptedCancelled: noop,
-    onAdoptedError: noop,
-    onAdoptedQueue: noop,
-    onTransferErrorClose: noop,
-    onArchivePasswordSubmit: noop,
-    onArchivePasswordCancel: noop,
-    onNewFolderCreated: noop,
-    onNewFolderCancel: noop,
-    onNewFileCreated: noop,
-    onNewFileCancel: noop,
-    onAlertClose: noop,
-    onDeleteConfirm: noop,
-    onDeleteCancel: noop,
-  }
+    const noop = (): void => {}
+    return {
+        onDialogRenderError,
+        showTransferDialog: false,
+        transferDialogProps: null,
+        showTransferProgressDialog: false,
+        transferProgressProps: null,
+        adoptedProgressProps: null,
+        showNewFolderDialog: false,
+        newFolderDialogProps: null,
+        showNewFileDialog: false,
+        newFileDialogProps: null,
+        showAlertDialog: false,
+        alertDialogProps: null,
+        showTransferErrorDialog: false,
+        transferErrorProps: null,
+        showArchivePasswordDialog: false,
+        archivePasswordProps: null,
+        showDeleteDialog: false,
+        deleteDialogProps: null,
+        onTransferConfirm: noop,
+        onTransferCancel: noop,
+        onTransferComplete: noop,
+        onTransferCancelled: noop,
+        onTransferError: noop,
+        onTransferQueue: noop,
+        onAdoptedComplete: noop,
+        onAdoptedCancelled: noop,
+        onAdoptedError: noop,
+        onAdoptedQueue: noop,
+        onTransferErrorClose: noop,
+        onArchivePasswordSubmit: noop,
+        onArchivePasswordCancel: noop,
+        onNewFolderCreated: noop,
+        onNewFolderCancel: noop,
+        onNewFileCreated: noop,
+        onNewFileCancel: noop,
+        onAlertClose: noop,
+        onDeleteConfirm: noop,
+        onDeleteCancel: noop,
+    }
 }
 
 /** The props for an open alert dialog, which the mock makes throw on render. */
 function openAlertProps(onDialogRenderError: (error: unknown) => void): DialogManagerProps {
-  return {
-    ...baseProps(onDialogRenderError),
-    showAlertDialog: true,
-    alertDialogProps: { title: 'Heads up', message: 'Something to say' },
-  }
+    return {
+        ...baseProps(onDialogRenderError),
+        showAlertDialog: true,
+        alertDialogProps: { title: 'Heads up', message: 'Something to say' },
+    }
 }
 
 describe('DialogManager error boundary', () => {
-  let host: HTMLDivElement
-  let component: Record<string, unknown> | null = null
+    let host: HTMLDivElement
+    let component: Record<string, unknown> | null = null
 
-  beforeEach(() => {
-    host = document.createElement('div')
-    document.body.appendChild(host)
-  })
+    beforeEach(() => {
+        host = document.createElement('div')
+        document.body.appendChild(host)
+    })
 
-  afterEach(() => {
-    if (component) {
-      void unmount(component)
-      component = null
-    }
-    host.remove()
-  })
+    afterEach(() => {
+        if (component) {
+            void unmount(component)
+            component = null
+        }
+        host.remove()
+    })
 
-  it('hands a dialog that throws during render to the recovery callback instead of propagating', () => {
-    const onDialogRenderError = vi.fn()
-    const props = openAlertProps(onDialogRenderError)
+    it('hands a dialog that throws during render to the recovery callback instead of propagating', () => {
+        const onDialogRenderError = vi.fn()
+        const props = openAlertProps(onDialogRenderError)
 
-    // Mounting must NOT throw: the boundary is what stands between a broken
-    // dialog and a webview with a suppressed keyboard and a blank screen.
-    expect(() => {
-      component = mount(DialogManager, { target: host, props }) as Record<string, unknown>
-      flushSync()
-    }).not.toThrow()
+        // Mounting must NOT throw: the boundary is what stands between a broken
+        // dialog and a webview with a suppressed keyboard and a blank screen.
+        expect(() => {
+            component = mount(DialogManager, { target: host, props }) as Record<string, unknown>
+            flushSync()
+        }).not.toThrow()
 
-    expect(onDialogRenderError).toHaveBeenCalledTimes(1)
-    expect(onDialogRenderError.mock.calls[0][0]).toBeInstanceOf(Error)
-    expect((onDialogRenderError.mock.calls[0][0] as Error).message).toContain('blew up while rendering')
-  })
+        expect(onDialogRenderError).toHaveBeenCalledTimes(1)
+        expect(onDialogRenderError.mock.calls[0][0]).toBeInstanceOf(Error)
+        expect((onDialogRenderError.mock.calls[0][0] as Error).message).toContain('blew up while rendering')
+    })
 
-  it('renders nothing after the failure, so no half-built dialog is left on screen', () => {
-    const props = openAlertProps(vi.fn())
+    it('renders nothing after the failure, so no half-built dialog is left on screen', () => {
+        const props = openAlertProps(vi.fn())
 
-    component = mount(DialogManager, { target: host, props }) as Record<string, unknown>
-    flushSync()
+        component = mount(DialogManager, { target: host, props }) as Record<string, unknown>
+        flushSync()
 
-    expect(host.querySelector('[role="dialog"], [role="alertdialog"]')).toBeNull()
-    expect(host.textContent.trim()).toBe('')
-  })
+        expect(host.querySelector('[role="dialog"], [role="alertdialog"]')).toBeNull()
+        expect(host.textContent.trim()).toBe('')
+    })
 
-  it('stays quiet and mounts normally when no dialog is open', () => {
-    const onDialogRenderError = vi.fn()
+    it('stays quiet and mounts normally when no dialog is open', () => {
+        const onDialogRenderError = vi.fn()
 
-    component = mount(DialogManager, { target: host, props: baseProps(onDialogRenderError) }) as Record<string, unknown>
-    flushSync()
+        component = mount(DialogManager, { target: host, props: baseProps(onDialogRenderError) }) as Record<
+            string,
+            unknown
+        >
+        flushSync()
 
-    expect(onDialogRenderError).not.toHaveBeenCalled()
-  })
+        expect(onDialogRenderError).not.toHaveBeenCalled()
+    })
 })
 
 describe('DialogManager progress dialog', () => {
-  let host: HTMLDivElement
-  let component: Record<string, unknown> | null = null
+    let host: HTMLDivElement
+    let component: Record<string, unknown> | null = null
 
-  beforeEach(() => {
-    host = document.createElement('div')
-    document.body.appendChild(host)
-  })
-
-  afterEach(() => {
-    if (component) {
-      void unmount(component)
-      component = null
-    }
-    host.remove()
-  })
-
-  const adopted: AdoptedOperationData = {
-    operationId: 'op-1',
-    operationType: 'copy',
-    sourcePath: '/src',
-    destinationPath: '/dst',
-    reverses: null,
-  }
-
-  const dispatching: TransferProgressPropsData = {
-    operationType: 'copy',
-    sourcePaths: ['/src/a.txt'],
-    sourceFolderPath: '/src',
-    sourcePaneSide: 'left',
-    destinationPath: '/dst',
-    sortColumn: 'name',
-    sortOrder: 'ascending',
-    previewId: null,
-    sourceVolumeId: 'local',
-    duplicateFollowUp: 'nothing',
-  }
-
-  function markers(): NodeListOf<Element> {
-    return host.querySelectorAll('[data-testid="progress-dialog"]')
-  }
-
-  function render(props: Partial<DialogManagerProps>) {
-    component = mount(DialogManager, {
-      target: host,
-      props: { ...baseProps(vi.fn()), ...props },
-    }) as Record<string, unknown>
-    flushSync()
-  }
-
-  it('shows the adopted view when the queue handed an operation over', () => {
-    render({ showTransferProgressDialog: true, adoptedProgressProps: adopted })
-
-    expect(markers()).toHaveLength(1)
-    expect(markers()[0].getAttribute('data-adopted')).toBe('op-1')
-  })
-
-  it('shows the dispatching view when this window started the operation', () => {
-    render({ showTransferProgressDialog: true, transferProgressProps: dispatching })
-
-    expect(markers()).toHaveLength(1)
-    expect(markers()[0].getAttribute('data-adopted')).toBe('')
-  })
-
-  it('never stacks two progress dialogs, even with both slots filled', () => {
-    // `foregroundOperation` refuses an occupied slot, so this state can't occur
-    // upstream today. The markup is a chain so that stays true for free: one
-    // careless edit in `dialog-state` must not put two modals over a transfer.
-    render({
-      showTransferProgressDialog: true,
-      adoptedProgressProps: adopted,
-      transferProgressProps: dispatching,
+    beforeEach(() => {
+        host = document.createElement('div')
+        document.body.appendChild(host)
     })
 
-    expect(markers()).toHaveLength(1)
-    expect(markers()[0].getAttribute('data-adopted')).toBe('op-1')
-  })
+    afterEach(() => {
+        if (component) {
+            void unmount(component)
+            component = null
+        }
+        host.remove()
+    })
+
+    const adopted: AdoptedOperationData = {
+        operationId: 'op-1',
+        operationType: 'copy',
+        sourcePath: '/src',
+        destinationPath: '/dst',
+        reverses: null,
+    }
+
+    const dispatching: TransferProgressPropsData = {
+        operationType: 'copy',
+        sourcePaths: ['/src/a.txt'],
+        sourceFolderPath: '/src',
+        sourcePaneSide: 'left',
+        destinationPath: '/dst',
+        sortColumn: 'name',
+        sortOrder: 'ascending',
+        previewId: null,
+        sourceVolumeId: 'local',
+        duplicateFollowUp: 'nothing',
+    }
+
+    function markers(): NodeListOf<Element> {
+        return host.querySelectorAll('[data-testid="progress-dialog"]')
+    }
+
+    function render(props: Partial<DialogManagerProps>) {
+        component = mount(DialogManager, {
+            target: host,
+            props: { ...baseProps(vi.fn()), ...props },
+        }) as Record<string, unknown>
+        flushSync()
+    }
+
+    it('shows the adopted view when the queue handed an operation over', () => {
+        render({ showTransferProgressDialog: true, adoptedProgressProps: adopted })
+
+        expect(markers()).toHaveLength(1)
+        expect(markers()[0].getAttribute('data-adopted')).toBe('op-1')
+    })
+
+    it('shows the dispatching view when this window started the operation', () => {
+        render({ showTransferProgressDialog: true, transferProgressProps: dispatching })
+
+        expect(markers()).toHaveLength(1)
+        expect(markers()[0].getAttribute('data-adopted')).toBe('')
+    })
+
+    it('never stacks two progress dialogs, even with both slots filled', () => {
+        // `foregroundOperation` refuses an occupied slot, so this state can't occur
+        // upstream today. The markup is a chain so that stays true for free: one
+        // careless edit in `dialog-state` must not put two modals over a transfer.
+        render({
+            showTransferProgressDialog: true,
+            adoptedProgressProps: adopted,
+            transferProgressProps: dispatching,
+        })
+
+        expect(markers()).toHaveLength(1)
+        expect(markers()[0].getAttribute('data-adopted')).toBe('op-1')
+    })
 })
