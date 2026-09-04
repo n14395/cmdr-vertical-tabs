@@ -23,6 +23,7 @@ const SECTION_TITLE_KEY: Partial<Record<string, MessageKey>> = {
   'Zoom and density': 'settings.section.zoomAndDensity',
   'File and folder sizes': 'settings.section.fileAndFolderSizes',
   Listing: 'settings.section.listing',
+  Tabs: 'settings.section.tabs',
   Behavior: 'settings.section.behavior',
   'Navigation & file ops': 'settings.section.navigationAndFileOps',
   Archives: 'settings.section.archives',

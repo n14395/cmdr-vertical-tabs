@@ -25,6 +25,7 @@
         'Zoom and density': 'settings.summary.zoomAndDensity',
         'File and folder sizes': 'settings.summary.fileAndFolderSizes',
         Listing: 'settings.summary.listing',
+        Tabs: 'settings.summary.tabs',
         'Navigation & file ops': 'settings.summary.navigationAndFileOps',
         Archives: 'settings.summary.archives',
         Notifications: 'settings.summary.notifications',

@@ -345,6 +345,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "分頁列位置",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "「頂端」會在每個檔案列表上方顯示水平分頁列。「側邊」會在列表旁邊顯示垂直分頁列，拖移邊緣就能調整大小。",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "頂端",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "側邊",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "側邊分頁位置",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "垂直分頁列靠在每個窗格的哪一邊。適用於「分頁列位置」設為「側邊」時。",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "左側",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "外側",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "內側",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "允許更改副檔名",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1435,6 +1471,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "分頁",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "行為",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1771,6 +1811,10 @@
   "settings.summary.listing": "文件圖像、目錄排序，以及簡潔模式的欄寬。",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "分頁列位置，以及垂直分頁列靠在哪一邊。",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "點兩下前往上層資料夾，以及重新命名檔案時的行為。",
   "@settings.summary.navigationAndFileOps": {

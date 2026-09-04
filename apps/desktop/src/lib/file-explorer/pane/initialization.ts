@@ -32,6 +32,7 @@ export interface InitializedState {
   rightTabMgr: TabManager
   focusedPane: 'left' | 'right'
   leftPaneWidthPercent: number
+  sideTabStripWidth: number
 }
 
 /**
@@ -191,5 +192,6 @@ export async function loadPersistedState(): Promise<InitializedState> {
     rightTabMgr,
     focusedPane: status.focusedPane,
     leftPaneWidthPercent: status.leftPaneWidthPercent,
+    sideTabStripWidth: status.sideTabStripWidth,
   }
 }

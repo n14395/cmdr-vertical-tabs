@@ -347,6 +347,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "Position der Tab-Leiste",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "„Oben“ zeigt über jeder Dateiliste eine horizontale Tab-Leiste. „Seitlich“ zeigt die Tabs in einer vertikalen Leiste daneben, deren Breite sich durch Ziehen an der Kante anpassen lässt.",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Oben",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Seitlich",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "Platzierung seitlicher Tabs",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "An welcher Kante jedes Bereichs die vertikale Tab-Leiste sitzt. Gilt, solange die Position der Tab-Leiste „Seitlich“ ist.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Links",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Außenkanten",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Innenkanten",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "Änderungen der Dateiendung erlauben",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1442,6 +1478,11 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "Tabs",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50",
+    "sameAsSourceJustification": "'Tabs' is the standard DE plural of the kept loanword 'Tab' (macOS/Safari de: 'Tab fixieren', 'Alle Tabs einblenden'); spelled identically to English, matching menu.bar.tab."
+  },
   "settings.section.behavior": "Verhalten",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1778,6 +1819,10 @@
   "settings.summary.listing": "Dokumentsymbole, Ordnersortierung und Spaltenbreite im Kompaktmodus.",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "Position der Tab-Leiste und die Kante, an der die vertikalen Tab-Leisten sitzen.",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "Navigation per Doppelklick zum übergeordneten Ordner und das Verhalten beim Umbenennen von Dateien.",
   "@settings.summary.navigationAndFileOps": {

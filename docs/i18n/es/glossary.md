@@ -2044,3 +2044,30 @@ el destino).
   está en el destino»), `reversión` es el término asentado para el rollback (`rollbackUnavailableTooltip`), y `Cancelar`
   es la etiqueta del botón vecino (`fileOperations.button.cancel`), así que entra tal cual · `high`.
 - Sin `sameAsSourceJustification`; ningún valor lleva apóstrofo, así que no hay duplicación ICU (`''`).
+
+## Las pestañas verticales (2026-09-04; `settings.section.tabs`, `settings.appearance.tabBarPosition.*`, `.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`)
+
+Superficie nueva: Ajustes > Apariencia > Pestañas, con la posición de la barra de pestañas (arriba o a un lado) y, en
+modo lateral, en qué borde de cada panel se coloca la franja vertical.
+
+- **tab bar → `barra de pestañas`** · Safari `es` ("Mostrar barra de pestañas", menú Visualización); calca el molde de
+  `barra lateral` (glosario). Reutiliza `pestaña` (glosario, macOS Finder "Nueva pestaña") · high
+- **vertical tab strip → `franja vertical de pestañas`** (suelta, `la franja`) · compuesto, sin fuente directa: ni macOS
+  ni Safari nombran la tira vertical; Firefox/Edge `es` hablan de "pestañas verticales" pero no de la tira. `franja` es
+  la palabra corriente para una banda de la interfaz y no choca con `columna` (columnas de la lista) ni `panel` (pane).
+  El sentido "rayas" de `Filas con franjas` convive sin conflicto · tentative, review
+- **Top / Side (opciones de posición) → `Superior` / `Lateral`** · compuesto: par adjetival paralelo, en línea con
+  `barra lateral`; macOS usa sustantivos de lugar para la posición del Dock ("Izquierda/Abajo/Derecha"), pero `Arriba` /
+  `Al lado` no forman par natural como etiquetas de esta pareja. Las descripciones los citan con mayúscula ("Superior
+  muestra…", "…sea Lateral") · tentative, review
+- **placement → `ubicación`** · reutiliza `ubicación` (glosario, macOS "Ubicación:"); distingue la etiqueta
+  `Ubicación de las pestañas laterales` de su vecina `Posición de la barra de pestañas` (dos "posición" en la misma
+  página se pisarían) · high
+- **Left / Outer edges / Inner edges → `Izquierda` / `Bordes exteriores` / `Bordes interiores`** · `Izquierda` sigue el
+  molde macOS del Dock; `borde` ya es la palabra del catálogo para el canto de una superficie
+  (`settings.viewer.wordWrap.description`, "al borde de la ventana"); `exterior/interior` estándar. Vigilar el ancho de
+  los botones (`Bordes exteriores` ~40 % más largo que "Outer edges") · high
+- **`resizeAriaLabel` → `Redimensionar barra de pestañas`** · espeja el verbo y la forma sin artículo de su hermano
+  `fileExplorer.pane.resizePanesAriaLabel` ("Redimensionar paneles") y las órdenes cortas sin artículo ya asentadas
+  ("Copiar nombre de archivo") · high
+- Sin `sameAsSourceJustification`; ningún valor lleva apóstrofo, así que no hay duplicación ICU (`''`).

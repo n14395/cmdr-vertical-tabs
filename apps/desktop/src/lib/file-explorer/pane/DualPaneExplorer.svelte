@@ -34,6 +34,8 @@
 
     import { canGoBack, type NavigationHistory } from '../navigation/navigation-history'
     import TabBar from '../tabs/TabBar.svelte'
+    import TabStripResizer from '../tabs/TabStripResizer.svelte'
+    import { stripIsAfterPane, DEFAULT_TAB_STRIP_WIDTH } from '../tabs/tab-strip-layout'
     import {
         getActiveTab,
         getAllTabs,
@@ -103,7 +105,12 @@
     import { initIndexEvents } from '$lib/indexing/index'
     import { createIndexEventHandler } from './index-events'
     import { loadPersistedState } from './initialization'
-    import { getDirectorySortMode, getShowHiddenFiles } from '$lib/settings/reactive-settings.svelte'
+    import {
+        getDirectorySortMode,
+        getShowHiddenFiles,
+        getSideTabPlacement,
+        getTabBarPosition,
+    } from '$lib/settings/reactive-settings.svelte'
     import { getSetting, onSettingChange } from '$lib/settings'
     import { setReopenClosedTabEnabled, onMenuBarRebuilt, activateWindowMenu } from '$lib/tauri-commands'
     import { resyncMenuAccelerators } from '$lib/shortcuts'
@@ -165,6 +172,11 @@
     // (`setFocusedPane` / `setLeftPaneWidthPercent`).
     const focusedPane = $derived(explorerState.getFocusedPane())
     const leftPaneWidthPercent = $derived(explorerState.getLeftPaneWidthPercent())
+    // Side (vertical) tabs: the position/placement SETTINGS plus the strip width,
+    // which is layout state like the pane split (drag-resized, drag-end persisted).
+    const sideTabs = $derived(getTabBarPosition() === 'side')
+    const sideTabPlacement = $derived(getSideTabPlacement())
+    const sideTabStripWidth = $derived(explorerState.getSideTabStripWidth())
     // Dotfile visibility is the `listing.showHiddenFiles` SETTING, not pane state:
     // one value both panes read, shared with the Settings window and the View menu.
     const showHiddenFiles = $derived(getShowHiddenFiles())
@@ -631,6 +643,7 @@
         explorerState.setFocusedPane(persistedState.focusedPane)
         await updateFocusedPane(persistedState.focusedPane)
         explorerState.setLeftPaneWidthPercent(persistedState.leftPaneWidthPercent)
+        explorerState.setSideTabStripWidth(persistedState.sideTabStripWidth)
 
         initialized = true
         syncPinTabMenu()
@@ -732,6 +745,19 @@
     function handlePaneResizeReset() {
         explorerState.setLeftPaneWidthPercent(50)
         persistence.persistLayout(50)
+    }
+
+    function handleTabStripResize(widthPx: number) {
+        explorerState.setSideTabStripWidth(widthPx)
+    }
+
+    function handleTabStripResizeEnd() {
+        persistence.persistTabStripWidth(sideTabStripWidth)
+    }
+
+    function handleTabStripResizeReset() {
+        explorerState.setSideTabStripWidth(DEFAULT_TAB_STRIP_WIDTH)
+        persistence.persistTabStripWidth(DEFAULT_TAB_STRIP_WIDTH)
     }
 
     /** Activates inline rename on the focused pane's cursor item. */
@@ -1286,8 +1312,11 @@
 
 {#snippet paneBlock(paneId: 'left' | 'right')}
     {@const tabMgr = getTabMgr(paneId)}
+    {@const stripAfter = sideTabs && stripIsAfterPane(paneId, sideTabPlacement)}
     <div
         class="pane-wrapper"
+        class:tabs-side={sideTabs}
+        class:tabs-side-after={stripAfter}
         class:drop-target-active={dragDrop.getDropTargetPane() === paneId}
         style="width: {getPaneWidth(paneId)}%"
         bind:this={paneWrapperEls[paneId]}
@@ -1297,6 +1326,8 @@
             activeTabId={tabMgr.activeTabId}
             {paneId}
             maxTabs={MAX_TABS_PER_PANE}
+            orientation={sideTabs ? 'vertical' : 'horizontal'}
+            stripWidth={sideTabStripWidth}
             onTabSwitch={(tabId: TabId) => {
                 switchToTab(paneId, tabId)
             }}
@@ -1316,6 +1347,15 @@
                 handleFocus(paneId)
             }}
         />
+        {#if sideTabs}
+            <TabStripResizer
+                currentWidth={sideTabStripWidth}
+                stripIsAfter={stripAfter}
+                onResize={handleTabStripResize}
+                onResizeEnd={handleTabStripResizeEnd}
+                onReset={handleTabStripResizeReset}
+            />
+        {/if}
         <!--suppress JSUnresolvedReference -->
         {#key getActiveTab(tabMgr).id}
             <FilePane
@@ -1502,6 +1542,18 @@
         height: 100%;
         min-width: 0;
         position: relative;
+    }
+
+    /* Side (vertical) tabs: the wrapper turns into a row of
+       [tab strip | resizer | file pane]. `row-reverse` handles the mirrored
+       placements ('outer' right pane, 'inner' left pane) without reordering
+       the DOM, keeping the resizer adjacent to the strip either way. */
+    .pane-wrapper.tabs-side {
+        flex-direction: row;
+    }
+
+    .pane-wrapper.tabs-side-after {
+        flex-direction: row-reverse;
     }
 
     .pane-wrapper.drop-target-active::after {

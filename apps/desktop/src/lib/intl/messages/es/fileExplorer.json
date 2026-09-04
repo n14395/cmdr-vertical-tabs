@@ -1109,6 +1109,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Redimensionar barra de pestañas",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, one {archivo} many {archivos} other {archivos}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

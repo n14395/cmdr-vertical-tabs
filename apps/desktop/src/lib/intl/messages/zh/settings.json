@@ -345,6 +345,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "标签页栏位置",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "“顶部”会在每个文件列表上方显示水平标签页栏。“侧边”会在文件列表旁边以垂直标签页栏的形式显示标签页，拖动它的边缘可调整大小。",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "顶部",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "侧边",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "侧边标签页位置",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "垂直标签页栏靠在每个窗格的哪一侧。仅在标签页栏位置为“侧边”时生效。",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "左侧",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "外侧",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "内侧",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "允许更改文件扩展名",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1435,6 +1471,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "标签页",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "行为",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1771,6 +1811,10 @@
   "settings.summary.listing": "文稿图标、目录排序，以及简洁模式的列宽。",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "标签页栏位置，以及垂直标签页栏靠在哪一侧。",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "双击前往上层文件夹，以及重命名文件时的行为。",
   "@settings.summary.navigationAndFileOps": {

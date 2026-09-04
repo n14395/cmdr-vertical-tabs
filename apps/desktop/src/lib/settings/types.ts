@@ -238,6 +238,20 @@ export type AskCmdrChatMemorySize = 'auto' | '16000' | '32000' | '60000' | '1280
  */
 export type LanguageSetting = 'system' | (string & {})
 
+/**
+ * Where each pane's tab bar renders: `'top'` is the horizontal strip above the
+ * file list; `'side'` is a vertical, resizable strip beside it.
+ */
+export type TabBarPosition = 'top' | 'side'
+
+/**
+ * Which pane edge a side (vertical) tab strip sits on. `'left'` puts it on the
+ * left edge of each pane; `'outer'` mirrors the strips to the window edges;
+ * `'inner'` mirrors them toward the center, flanking the pane divider. Only
+ * consulted while `appearance.tabBarPosition` is `'side'`.
+ */
+export type SideTabPlacement = 'left' | 'outer' | 'inner'
+
 export interface SettingsValues {
   // Appearance
   'appearance.language': LanguageSetting
@@ -246,6 +260,8 @@ export interface SettingsValues {
   'appearance.uiDensity': UiDensity
   'appearance.useAppIconsForDocuments': boolean
   'appearance.showFunctionKeyBar': boolean
+  'appearance.tabBarPosition': TabBarPosition
+  'appearance.sideTabPlacement': SideTabPlacement
   'appearance.fileSizeFormat': FileSizeFormat
   'appearance.sizeColors': SizeColorsPalette
   'appearance.dateColors': DateColorsPalette

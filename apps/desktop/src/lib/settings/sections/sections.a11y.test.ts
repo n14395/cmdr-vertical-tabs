@@ -88,6 +88,7 @@ import NetworkSection from './NetworkSection.svelte'
 import NotificationsSection from './NotificationsSection.svelte'
 import SearchSection from './SearchSection.svelte'
 import ShortcutPill from './ShortcutPill.svelte'
+import TabsSection from './TabsSection.svelte'
 
 /**
  * Installs this block's `getSetting` for its own tests only. Call inside a
@@ -434,6 +435,24 @@ describe('ListingSection a11y', () => {
   it('default has no a11y violations', async () => {
     const target = container()
     mount(ListingSection, { target, props: { searchQuery: '' } })
+    await tick()
+    await expectNoA11yViolations(target)
+  })
+})
+
+/** Tier 3 a11y tests for `TabsSection.svelte`. */
+describe('TabsSection a11y', () => {
+  useSettings((key: string) => {
+    if (key === 'appearance.tabBarPosition') return 'top'
+    if (key === 'appearance.sideTabPlacement') return 'left'
+    return undefined
+  })
+
+  // Default = top position, so the placement toggle group renders DISABLED —
+  // the state the a11y contract has to hold for too.
+  it('default (placement disabled) has no a11y violations', async () => {
+    const target = container()
+    mount(TabsSection, { target, props: { searchQuery: '' } })
     await tick()
     await expectNoA11yViolations(target)
   })

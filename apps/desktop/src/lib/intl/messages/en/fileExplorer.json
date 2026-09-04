@@ -1608,6 +1608,10 @@
     "description": "Accessibility label and tooltip for the button that opens a new tab.",
     "screenshot": "main-window.png"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Resize tab bar",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "description": "Accessibility label for the draggable divider beside a pane's vertical tab bar (shown while the tab bar position setting is \"Side\"). Dragging it changes the tab bar's width; double-clicking resets it."
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, one {file} other {files}}",
   "@fileExplorer.summary.fileNoun": {
     "description": "The noun \"file(s)\" used in the status-bar selection summary, e.g. \"3 of 10 files\". A separate count (shown nearby in styled markup) precedes it; this key supplies only the singular/plural noun.",

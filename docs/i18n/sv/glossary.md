@@ -2057,3 +2057,43 @@ mellan två filsystem har nått sitt sista steg (originalen tas bort, allt ligge
   på målet”), `ångra` är det satta verbet för rollback (`rollbackUnavailableTooltip`: ”går inte att ångra”), och
   `Avbryt` är knappens egen etikett (`fileOperations.button.cancel`), så den står oböjd · `high`.
 - Inga `sameAsSourceJustification`; ingen apostrof i värdena, så ICU-dubbleringen `''` blir aldrig aktuell.
+
+## Vertikala flikar (2026-09-04; `settings.appearance.tabBarPosition.*` + `sideTabPlacement.*`, `settings.section/summary.tabs`, `fileExplorer.tabBar.resizeAriaLabel`)
+
+Ny yta: flikfältet kan nu stå överst (klassiskt, vågrätt) eller vid sidan (en lodrät, storleksändringsbar rad flikar
+bredvid fillistan), plus var sidoflikarna hamnar (vänster/ytterkanter/innerkanter). Referenspilen var inte tillgänglig
+vid passet; macOS-belägg nedan är ur minnet av svensk macOS, inte pilverifierade.
+
+- **tab bar → `flikfält`** (neutrum: ett flikfält, bestämt `flikfältet`, bestämd plural `flikfälten`) · macOS AppKit
+  ("Flikfält", redan citerat i style.md:s flik-post) · `high`. Kontrollen heter `flikfält` överallt; ingen konkurrerande
+  benämning.
+- **vertical tab strip → `det lodräta flikfältet`** · den lodräta remsan ÄR flikfältet, så den får inget eget substantiv
+  (ingen `flikremsa`/`fliklist`); engelskans "strip" är bara sidolägets form. Beskrivande arrangemang skrivs
+  `i en lodrät rad` (tabBarPosition.description), men det är en beskrivning, aldrig ett namn på kontrollen · `high`
+  (princip: en sak, ett namn).
+- **vertical / horizontal → `lodrät` / `vågrät`** · MS-terminologi (vertical → "lodrät", horizontal → "vågrät");
+  Apple-svenska använder samma par i justeringssammanhang. Webbläsarnas funktionsnamn "vertikala flikar" (Firefox/Edge
+  sv) noterat som alternativ, men macOS/MS-paret vinner för beskrivande prosa · `high`.
+- **position (var ett gränssnittselement sitter) → `placering`; "Tab bar position" → `Flikfältets placering`** · macOS
+  System Settings använder "placering" för Dockens skärmposition ("Placering på skärmen"; ur minnet, ej pilverifierat);
+  naturlig svenska för var ett element hamnar. Etikettmönstret bestämd genitiv (`Flikfältets placering`,
+  `Sidoflikarnas placering`) matchar katalogens etikettstil · `high` (ordvalet), belägget oflaggat tills pilen kan
+  kollas.
+- **Top / Side (lägesalternativen) → `Överst` / `Vid sidan`** · "överst" är Apple-svenskans standardadverb för
+  överst-läget (Finder "Ha mappar överst"); "Vid sidan" är komponerad naturlig svenska ("vid sidan av" = bredvid) och
+  undviker "På sidan", som kan läsas som sida = page. `Överst` `high`, `Vid sidan` `tentative` (ingen källa har ett
+  side-läge som knappetikett; flagga för granskning). I beskrivningsprosa citeras alternativen med svenska citattecken
+  (”Överst”, ”Vid sidan”) enligt katalogkonventionen för refererade etiketter.
+- **side tabs → `sidoflikar`** (bestämd plural `sidoflikarna`) · komponerad på det etablerade sido-mönstret (sidofält,
+  sidopanel); flikarna heter fortfarande `flikar`, `sido-` är bara läget · `tentative` (komponerad; granska mot
+  alternativet "vertikala flikar").
+- **Outer edges / Inner edges (placeringsalternativ) → `Ytterkanter` / `Innerkanter`** · `ytterkant`/`innerkant` är
+  ordboksord (SAOL); sammansättningarna är stramare knappetiketter än "yttre kanter"/"inre kanter". Obestämd plural som
+  i engelskan · `high` (ordboksord; lågrisk).
+- **"which edge … sits on" → `vilken kant … ligger mot`** · `kant` är satt (viewer-passets "fönsterkanten"); `ligga mot`
+  = vila mot en kant, naturlig svenska för en remsa längs en kant · `high` (komponerad; lågrisk).
+- **Resize tab bar (aria på draghandtaget) → `Ändra storlek på flikfältet`** · speglar syskonet
+  `pane.resizePanesAriaLabel` ("Ändra storlek på paneler") med samma verbfras; bestämd form för det enskilda fältet ·
+  `high`.
+- Inga `sameAsSourceJustification`; ingen apostrof i värdena, så ICU-dubbleringen `''` blir aldrig aktuell. Inga
+  platshållare eller taggar i källorna, inga införda.

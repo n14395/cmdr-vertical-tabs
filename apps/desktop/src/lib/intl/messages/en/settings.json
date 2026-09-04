@@ -445,6 +445,44 @@
     "description": "Label for the number field setting the maximum Brief-mode column width in pixels. It sits on the same line as the \"Limit to\" option and is only active while that option is picked. \"Brief\" is a view-mode name."
   },
 
+  "settings.appearance.tabBarPosition.label": "Tab bar position",
+  "@settings.appearance.tabBarPosition.label": {
+    "description": "Label for the picker controlling where each file pane's tab bar renders: horizontally on top of the pane, or as a vertical strip on its side. In Settings > Appearance > Tabs."
+  },
+  "settings.appearance.tabBarPosition.description": "Top shows a horizontal tab bar above each file list. Side shows tabs in a vertical strip beside it, resizable by dragging its edge.",
+  "@settings.appearance.tabBarPosition.description": {
+    "description": "Help text for the tab-bar-position setting. \"Top\" and \"Side\" name the two options of the same setting (translate consistently with them)."
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Top",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "description": "Tab-bar-position option: a horizontal tab bar above each file list (the default). Short toggle-button label."
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Side",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "description": "Tab-bar-position option: a vertical tab strip beside each file list. Short toggle-button label."
+  },
+
+  "settings.appearance.sideTabPlacement.label": "Side tab placement",
+  "@settings.appearance.sideTabPlacement.label": {
+    "description": "Label for the picker controlling which edge of each pane the vertical tab strip sits on. Only active while the tab bar position is \"Side\". In Settings > Appearance > Tabs."
+  },
+  "settings.appearance.sideTabPlacement.description": "Which edge of each pane the vertical tab strip sits on. Applies while the tab bar position is Side.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "description": "Help text for the side-tab-placement setting. \"Side\" names an option of the tab-bar-position setting (translate consistently with it)."
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Left",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "description": "Side-tab-placement option: both panes keep their tab strip on their own left edge. Short toggle-button label."
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Outer edges",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "description": "Side-tab-placement option: the tab strips mirror to the window's outer edges (left pane's strip on the far left, right pane's on the far right). Short toggle-button label."
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Inner edges",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "description": "Side-tab-placement option: the tab strips mirror toward the center of the window, meeting at the divider between the two panes. Short toggle-button label."
+  },
+
   "settings.fileOperations.allowFileExtensionChanges.label": "Allow file extension changes",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "description": "Label for the picker controlling what happens when a rename changes a file's extension. In Settings > Behavior > File operations.",
@@ -1813,6 +1851,10 @@
     "description": "Settings subsection title under Appearance: Listing (file-list display options). Sidebar and page heading.",
     "screenshot": "settings-appearance.png"
   },
+  "settings.section.tabs": "Tabs",
+  "@settings.section.tabs": {
+    "description": "Settings subsection title under Appearance: Tabs (tab bar position and side-tab placement). Sidebar and page heading."
+  },
   "settings.section.behavior": "Behavior",
   "@settings.section.behavior": {
     "description": "Top-level Settings section title: Behavior. Sidebar and page heading.",
@@ -2229,6 +2271,10 @@
   "settings.summary.listing": "Document icons, directory sorting, and Brief mode column width.",
   "@settings.summary.listing": {
     "description": "One-line summary shown under the \"Listing\" subsection heading. \"directory\" = folder; \"Brief\" is a Cmdr view-mode name (translate consistently)."
+  },
+  "settings.summary.tabs": "Tab bar position, and which edge the vertical tab strips sit on.",
+  "@settings.summary.tabs": {
+    "description": "One-line summary shown under the \"Tabs\" subsection heading. \"Tab bar position\" is the label of a setting on that page (translate consistently)."
   },
   "settings.summary.navigationAndFileOps": "Double-click-to-parent navigation, and behavior when renaming files.",
   "@settings.summary.navigationAndFileOps": {

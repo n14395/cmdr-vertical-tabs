@@ -480,4 +480,41 @@ export const appearanceSettings: SettingDefinitionSource[] = [
       step: 25,
     },
   },
+
+  // ========================================================================
+  // Appearance › Tabs
+  // ========================================================================
+  {
+    id: 'appearance.tabBarPosition',
+    section: ['Appearance', 'Tabs'],
+    labelKey: 'settings.appearance.tabBarPosition.label',
+    descriptionKey: 'settings.appearance.tabBarPosition.description',
+    keywords: ['tab', 'tabs', 'bar', 'position', 'vertical', 'horizontal', 'side', 'top', 'strip'],
+    type: 'enum',
+    default: 'top',
+    component: 'toggle-group',
+    constraints: {
+      options: [
+        { value: 'top', labelKey: 'settings.appearance.tabBarPosition.opt.top' },
+        { value: 'side', labelKey: 'settings.appearance.tabBarPosition.opt.side' },
+      ],
+    },
+  },
+  {
+    id: 'appearance.sideTabPlacement',
+    section: ['Appearance', 'Tabs'],
+    labelKey: 'settings.appearance.sideTabPlacement.label',
+    descriptionKey: 'settings.appearance.sideTabPlacement.description',
+    keywords: ['tab', 'tabs', 'vertical', 'placement', 'edge', 'left', 'outer', 'inner', 'side', 'mirror'],
+    type: 'enum',
+    default: 'left',
+    component: 'toggle-group',
+    constraints: {
+      options: [
+        { value: 'left', labelKey: 'settings.appearance.sideTabPlacement.opt.left' },
+        { value: 'outer', labelKey: 'settings.appearance.sideTabPlacement.opt.outer' },
+        { value: 'inner', labelKey: 'settings.appearance.sideTabPlacement.opt.inner' },
+      ],
+    },
+  },
 ]

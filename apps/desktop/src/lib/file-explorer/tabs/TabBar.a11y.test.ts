@@ -8,6 +8,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount, tick } from 'svelte'
 import TabBar from './TabBar.svelte'
+import TabStripResizer from './TabStripResizer.svelte'
 import { expectNoA11yViolations } from '$lib/test-a11y'
 import type { TabState } from './tab-types'
 
@@ -91,6 +92,50 @@ describe('TabBar a11y', () => {
         onNewTab: noop,
         onContextMenu: noop,
         onPaneFocus: noop,
+      },
+    })
+    await tick()
+    await expectNoA11yViolations(target)
+  })
+
+  it('vertical (side) mode has no a11y violations', async () => {
+    const target = document.createElement('div')
+    document.body.appendChild(target)
+    mount(TabBar, {
+      target,
+      props: {
+        tabs: [makeTab('t1', '/Users/test/pinned', true), makeTab('t2', '/Users/test/Documents')],
+        activeTabId: 't2',
+        paneId: 'left',
+        maxTabs: 10,
+        orientation: 'vertical',
+        stripWidth: 200,
+        onTabSwitch: noop,
+        onTabClose: noop,
+        onTabMiddleClick: noop,
+        onNewTab: noop,
+        onContextMenu: noop,
+        onPaneFocus: noop,
+      },
+    })
+    await tick()
+    await expectNoA11yViolations(target)
+  })
+})
+
+/** Tier 3 a11y test for `TabStripResizer.svelte` (the side strip's drag handle). */
+describe('TabStripResizer a11y', () => {
+  it('has no a11y violations', async () => {
+    const target = document.createElement('div')
+    document.body.appendChild(target)
+    mount(TabStripResizer, {
+      target,
+      props: {
+        currentWidth: 180,
+        stripIsAfter: false,
+        onResize: noop,
+        onResizeEnd: noop,
+        onReset: noop,
       },
     })
     await tick()

@@ -98,3 +98,67 @@ describe('TabBar narrow tabs', () => {
     expect(target.querySelectorAll('.tab.narrow')).toHaveLength(0)
   })
 })
+
+/**
+ * Vertical (side) mode: the strip announces its orientation on the tablist,
+ * takes its width from the `stripWidth` prop, and skips the Chrome-style
+ * shoulder wedges (they exist to merge the active tab with the path bar below,
+ * a neighbor a side strip doesn't have).
+ */
+describe('TabBar vertical mode', () => {
+  let target: HTMLElement
+
+  beforeEach(() => {
+    document.body.innerHTML = ''
+    target = document.createElement('div')
+    document.body.appendChild(target)
+  })
+
+  function mountWith(orientation: 'horizontal' | 'vertical', stripWidth?: number) {
+    mount(TabBar, {
+      target,
+      props: {
+        tabs: [makeTab('t1', '/Users/test/one'), makeTab('t2', '/Users/test/two')],
+        activeTabId: 't1',
+        paneId: 'left',
+        maxTabs: 10,
+        orientation,
+        stripWidth,
+        onTabSwitch: noop,
+        onTabClose: noop,
+        onTabMiddleClick: noop,
+        onNewTab: noop,
+        onContextMenu: noop,
+        onPaneFocus: noop,
+      },
+    })
+  }
+
+  it('marks the bar and tablist vertical and applies the strip width', async () => {
+    mountWith('vertical', 220)
+    await tick()
+
+    const bar = target.querySelector('.tab-bar')
+    expect(bar?.classList.contains('vertical')).toBe(true)
+    expect((bar as HTMLElement).style.width).toBe('220px')
+    expect(target.querySelector('[role="tablist"]')?.getAttribute('aria-orientation')).toBe('vertical')
+  })
+
+  it('renders no shoulder wedges on the active tab', async () => {
+    mountWith('vertical', 220)
+    await tick()
+
+    expect(target.querySelectorAll('.tab-shoulder')).toHaveLength(0)
+  })
+
+  it('keeps the horizontal default: no vertical class, no width, shoulders present', async () => {
+    mountWith('horizontal')
+    await tick()
+
+    const bar = target.querySelector('.tab-bar')
+    expect(bar?.classList.contains('vertical')).toBe(false)
+    expect((bar as HTMLElement).style.width).toBe('')
+    expect(target.querySelector('[role="tablist"]')?.getAttribute('aria-orientation')).toBeNull()
+    expect(target.querySelectorAll('.tab-shoulder')).toHaveLength(2)
+  })
+})

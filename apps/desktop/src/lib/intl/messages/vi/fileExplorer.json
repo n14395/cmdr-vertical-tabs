@@ -1106,6 +1106,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Đổi kích cỡ thanh tab",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, other {tệp}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

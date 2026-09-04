@@ -1106,6 +1106,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Lapsáv átméretezése",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, one {fájl} other {fájl}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

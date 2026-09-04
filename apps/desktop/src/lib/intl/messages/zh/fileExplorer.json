@@ -1104,6 +1104,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "调整标签页栏大小",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, other {个文件}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

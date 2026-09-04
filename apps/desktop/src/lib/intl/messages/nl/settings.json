@@ -347,6 +347,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "Positie van de tabbladbalk",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "Boven toont een horizontale tabbladbalk boven elke bestandenlijst. Zijkant toont tabbladen in een verticale strook ernaast, die je vergroot of verkleint door de rand te verslepen.",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Boven",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Zijkant",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "Plaatsing van tabbladen aan de zijkant",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "Aan welke rand van elk paneel de verticale tabbladen staan. Geldt zolang de positie van de tabbladbalk op Zijkant staat.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Links",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Buitenranden",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Binnenranden",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "Wijzigingen van bestandsextensie toestaan",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1441,6 +1477,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "Tabbladen",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "Gedrag",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1777,6 +1817,10 @@
   "settings.summary.listing": "Documentsymbolen, mapsortering, en kolombreedte in de weergave Kort.",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "Positie van de tabbladbalk, en aan welke rand de verticale tabbladen staan.",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "Navigeren naar de bovenliggende map met dubbelklik, en gedrag bij het wijzigen van bestandsnamen.",
   "@settings.summary.navigationAndFileOps": {

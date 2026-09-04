@@ -3,6 +3,7 @@
     import AppearanceZoomSection from '$lib/settings/sections/AppearanceZoomSection.svelte'
     import AppearanceSizesSection from '$lib/settings/sections/AppearanceSizesSection.svelte'
     import ListingSection from '$lib/settings/sections/ListingSection.svelte'
+    import TabsSection from '$lib/settings/sections/TabsSection.svelte'
     import NavigationAndFileOpsSection from '$lib/settings/sections/NavigationAndFileOpsSection.svelte'
     import ArchivesSection from '$lib/settings/sections/ArchivesSection.svelte'
     import NotificationsSection from '$lib/settings/sections/NotificationsSection.svelte'
@@ -98,6 +99,11 @@
         {#if shouldShowSection(['Appearance', 'Listing'])}
             <section data-section-id="appearance-listing">
                 <ListingSection {searchQuery} />
+            </section>
+        {/if}
+        {#if shouldShowSection(['Appearance', 'Tabs'])}
+            <section data-section-id="appearance-tabs">
+                <TabsSection {searchQuery} />
             </section>
         {/if}
 

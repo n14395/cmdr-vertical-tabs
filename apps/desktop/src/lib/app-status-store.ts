@@ -5,6 +5,11 @@ import type { Store } from '@tauri-apps/plugin-store'
 import type { SortColumn } from './file-explorer/types'
 import { defaultSortOrders } from './file-explorer/types'
 import type { PersistedTab, PersistedPaneTabs } from './file-explorer/tabs/tab-types'
+import {
+  DEFAULT_TAB_STRIP_WIDTH,
+  MIN_TAB_STRIP_WIDTH,
+  MAX_TAB_STRIP_WIDTH,
+} from './file-explorer/tabs/tab-strip-layout'
 import { resolveValidPath } from './file-explorer/navigation/path-resolution'
 import { resolveStorePath } from './settings/store-path'
 
@@ -27,6 +32,8 @@ export interface AppStatus {
   rightSortBy: SortColumn
   /** Left pane width as percentage (25-75). Default: 50 */
   leftPaneWidthPercent: number
+  /** Side (vertical) tab strip width in px (`tab-strip-layout.ts` bounds). Default: 180 */
+  sideTabStripWidth: number
   /** Whether the Ask Cmdr rail is open. Default: false */
   askCmdrRailOpen: boolean
   /** Ask Cmdr rail width in px (280-520). Default: 340 */
@@ -54,6 +61,7 @@ const DEFAULT_STATUS: AppStatus = {
   leftSortBy: DEFAULT_SORT_BY,
   rightSortBy: DEFAULT_SORT_BY,
   leftPaneWidthPercent: DEFAULT_LEFT_PANE_WIDTH_PERCENT,
+  sideTabStripWidth: DEFAULT_TAB_STRIP_WIDTH,
   askCmdrRailOpen: false,
   askCmdrRailWidth: DEFAULT_ASK_CMDR_RAIL_WIDTH,
   firstRunLayoutApplied: false,
@@ -106,6 +114,13 @@ function parseRailWidth(raw: unknown): number {
   return DEFAULT_ASK_CMDR_RAIL_WIDTH
 }
 
+function parseTabStripWidth(raw: unknown): number {
+  if (typeof raw === 'number' && raw >= MIN_TAB_STRIP_WIDTH && raw <= MAX_TAB_STRIP_WIDTH) {
+    return raw
+  }
+  return DEFAULT_TAB_STRIP_WIDTH
+}
+
 export async function loadAppStatus(pathExists: (p: string) => Promise<boolean>): Promise<AppStatus> {
   try {
     const store = await getStore()
@@ -120,6 +135,7 @@ export async function loadAppStatus(pathExists: (p: string) => Promise<boolean>)
     const leftSortBy = parseSortColumn(await store.get('leftSortBy'))
     const rightSortBy = parseSortColumn(await store.get('rightSortBy'))
     const leftPaneWidthPercent = parsePaneWidthPercent(await store.get('leftPaneWidthPercent'))
+    const sideTabStripWidth = parseTabStripWidth(await store.get('sideTabStripWidth'))
     const askCmdrRailOpen = (await store.get('askCmdrRailOpen')) === true
     const askCmdrRailWidth = parseRailWidth(await store.get('askCmdrRailWidth'))
     const firstRunLayoutApplied = (await store.get('firstRunLayoutApplied')) === true
@@ -140,6 +156,7 @@ export async function loadAppStatus(pathExists: (p: string) => Promise<boolean>)
       leftSortBy,
       rightSortBy,
       leftPaneWidthPercent,
+      sideTabStripWidth,
       askCmdrRailOpen,
       askCmdrRailWidth,
       firstRunLayoutApplied,
@@ -204,6 +221,9 @@ async function doSaveAppStatus(status: Partial<AppStatus>): Promise<void> {
     }
     if (status.leftPaneWidthPercent !== undefined) {
       await store.set('leftPaneWidthPercent', status.leftPaneWidthPercent)
+    }
+    if (status.sideTabStripWidth !== undefined) {
+      await store.set('sideTabStripWidth', status.sideTabStripWidth)
     }
     if (status.askCmdrRailOpen !== undefined) {
       await store.set('askCmdrRailOpen', status.askCmdrRailOpen)

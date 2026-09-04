@@ -1852,3 +1852,32 @@ Microsoft zh-Hans TBX Tier 2, Nautilus/Thunar/Dolphin/TC/DC zh-CN Tier 3. Reuses
   的说法（“已经在目标位置了”），`回滚` 是已定的术语（`rollbackUnavailableTooltip`），`取消`
   直接用旁边按钮自己的标签（`fileOperations.button.cancel`），按目录惯例加上引号 · `high`。
 - 无 `sameAsSourceJustification`；两个值都不含撇号。
+
+### Vertical tabs settings (Settings > Appearance > Tabs + tab-strip resize handle, 2026-09-04)
+
+The reference pile was unavailable for this pass; evidence comes from the LIVE Safari `zh_CN` bundle on this machine
+plus the settled catalog terms.
+
+- **tab bar** · `标签页栏` · Safari `zh_CN` (`MainMenu.strings` `202.title` "Show Tab Bar" → `显示标签页栏`;
+  `TabsPreferences.strings` `在标签页栏中显示颜色`, tooltip `以单独标签页栏的形式显示标签页`); composed on the settled
+  `标签页` so the app never calls a tab two things (verified on macOS 27.0 (26A5425a), `plutil` over
+  `/Applications/Safari.app`, 2026-09-04) · `high`
+- **vertical tab strip (the Side rendering of the tab bar)** · `垂直标签页栏` · `垂直` + the settled `标签页栏`; matches
+  how Firefox and Edge name their vertical-tabs feature in zh-CN (`垂直标签页`, from general knowledge, NOT
+  pile-verified — neither browser is installed here). One head noun (`标签页栏`) across top and side keeps the three
+  strings coherent; the strip never gets a second name like `标签条` · `high`
+- **Top / Side (tab-bar-position toggle labels)** · `顶部` / `侧边` · standard Chinese positional labels; `侧边` is the
+  position word (as in `侧边栏`), deliberately NOT Finder's noun `边栏` (that names the sidebar widget, not an edge),
+  and it pairs with the placement set below · `high`
+- **Left / Outer edges / Inner edges (side-tab-placement toggle labels)** · `左侧` / `外侧` / `内侧` · one parallel
+  `…侧` set, tight toggle-button length; `外侧`/`内侧` carry the mirrored outer/inner-edge meaning and the description's
+  `哪一侧` question makes the frame explicit · `high`
+- **Side tab placement (label)** · `侧边标签页位置` · `侧边` (the option above) + `标签页` + `位置`; "placement" and
+  "position" both map to `位置` in Chinese, and the two labels stay distinct because the head nouns differ
+  (`标签页栏位置` vs `侧边标签页位置`) · `high`
+- **Resize tab bar (drag-handle aria)** · `调整标签页栏大小` · mirrors the settled sibling
+  `fileExplorer.pane.resizePanesAriaLabel` `调整窗格大小` verb shape exactly · `high`
+- Descriptions quote their own option labels with full-width `“…”` (`“顶部”会…`, `仅在标签页栏位置为“侧边”时生效`), the
+  shape `settings.appearance.language.description` already uses (`“跟随系统”会采用你 Mac 的语言`); "Applies while…" →
+  `仅在…时生效` per `settings.listing.briefColumnWidthMode.description`.
+- 无 `sameAsSourceJustification`（十二个值都与英文不同）；所有值不含撇号，也没有占位符。

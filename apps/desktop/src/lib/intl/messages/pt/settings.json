@@ -346,6 +346,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "Posição da barra de abas",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "Superior mostra uma barra de abas horizontal acima de cada lista de arquivos. Lateral mostra as abas em uma faixa vertical ao lado dela, redimensionável arrastando a borda.",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Superior",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Lateral",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "Posicionamento das abas laterais",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "Em qual borda de cada painel fica a faixa vertical de abas. Vale enquanto a posição da barra de abas for Lateral.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Esquerda",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Bordas externas",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Bordas internas",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "Permitir mudanças de extensão de arquivo",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1437,6 +1473,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "Abas",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "Comportamento",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1772,6 +1812,10 @@
   "settings.summary.listing": "Ícones de documento, ordenação de pastas e largura de coluna no modo Resumido.",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "Posição da barra de abas e em qual borda ficam as faixas verticais de abas.",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "Navegação com clique duplo para a pasta superior e comportamento ao renomear arquivos.",
   "@settings.summary.navigationAndFileOps": {

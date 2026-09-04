@@ -15,6 +15,8 @@ import {
   type SizeDisplayMode,
   type BriefColumnWidthMode,
   type AppColor,
+  type TabBarPosition,
+  type SideTabPlacement,
   densityMappings,
 } from '$lib/settings'
 import { formatDateForDisplay, type FormattedDate } from './format-utils'
@@ -31,6 +33,8 @@ let customDateTimeFormat = $state<string>('YYYY-MM-DD HH:mm')
 let fileSizeFormat = $state<FileSizeFormat>('binary')
 let useAppIconsForDocuments = $state<boolean>(true)
 let showFunctionKeyBar = $state<boolean>(true)
+let tabBarPosition = $state<TabBarPosition>('top')
+let sideTabPlacement = $state<SideTabPlacement>('left')
 let showHiddenFiles = $state<boolean>(false)
 let directorySortMode = $state<DirectorySortMode>('likeFiles')
 let appColor = $state<AppColor>('cmdr-gold')
@@ -86,6 +90,8 @@ async function runInit(options?: { restrictedWindow?: boolean }): Promise<void> 
     fileSizeFormat = getSetting('appearance.fileSizeFormat')
     useAppIconsForDocuments = getSetting('appearance.useAppIconsForDocuments')
     showFunctionKeyBar = getSetting('appearance.showFunctionKeyBar')
+    tabBarPosition = getSetting('appearance.tabBarPosition')
+    sideTabPlacement = getSetting('appearance.sideTabPlacement')
     showHiddenFiles = getSetting('listing.showHiddenFiles')
     directorySortMode = getSetting('listing.directorySortMode')
     appColor = getSetting('appearance.appColor')
@@ -146,6 +152,12 @@ function applySettingChange(id: string, value: unknown): void {
       break
     case 'appearance.showFunctionKeyBar':
       showFunctionKeyBar = value as boolean
+      break
+    case 'appearance.tabBarPosition':
+      tabBarPosition = value as TabBarPosition
+      break
+    case 'appearance.sideTabPlacement':
+      sideTabPlacement = value as SideTabPlacement
       break
     case 'listing.showHiddenFiles':
       showHiddenFiles = value as boolean
@@ -251,6 +263,16 @@ export function getUseAppIconsForDocuments(): boolean {
 /** Get whether the bottom function key bar (F-key command buttons) is shown. */
 export function getShowFunctionKeyBar(): boolean {
   return showFunctionKeyBar
+}
+
+/** Get where each pane's tab bar renders: `'top'` (horizontal) or `'side'` (vertical strip). */
+export function getTabBarPosition(): TabBarPosition {
+  return tabBarPosition
+}
+
+/** Get which pane edge the side (vertical) tab strips sit on. Only consulted while `getTabBarPosition()` is `'side'`. */
+export function getSideTabPlacement(): SideTabPlacement {
+  return sideTabPlacement
 }
 
 /**

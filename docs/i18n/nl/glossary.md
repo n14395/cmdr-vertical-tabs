@@ -2296,3 +2296,41 @@ bestemming staat).
   bestemming”), `terugdraaien` is de vaste term voor rollback (`rollbackUnavailableTooltip`), en `Annuleer` is het label
   van de knop ernaast (`fileOperations.button.cancel`), dus het staat er onveranderd in · `high`.
 - Geen `sameAsSourceJustification`; geen apostrof in de waarden.
+
+## Verticale tabbladen: de Tabbladen-pagina in Instellingen (`settings.section.tabs`, `settings.summary.tabs`, `settings.appearance.tabBarPosition.*`, `settings.appearance.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`, 2026-09-04)
+
+De referentiestapel (`_ignored/i18n/`) was op deze machine niet beschikbaar; bronnen buiten de catalogus komen uit
+modelkennis van gelokaliseerde macOS- en browser-UI en zijn zo gemarkeerd. De tabbladtermen zelf (`tabblad`,
+`tabbladen`) waren al gevestigd (macOS Finder, glossarium boven).
+
+- tab bar → `tabbladbalk` · Safari `nl` noemt de balk zo („Toon tabbladbalk” in het Weergave-menu; iPadOS-instellingen
+  „Compacte tabbladbalk” / „Aparte tabbladbalk”), en de samenstelling volgt het gevestigde `tabblad` + `balk`, naast de
+  catalogus-eigen `Functietoetsbalk` en macOS' `menubalk` (bron: modelkennis, stapel niet beschikbaar, 2026-09-04) ·
+  high
+- vertical tabs / vertical tab strip(s) → `verticale tabbladen` · Firefox en Edge `nl` noemen hun zijtabbladenfunctie
+  „Verticale tabbladen” (modelkennis, 2026-09-04); gebruikt waar het Engels „vertical tab strip(s)” zegt en de strook
+  zelf niet het onderwerp is · high
+- (vertical) strip (het UI-element zelf) → `verticale strook` · beschrijvend Nederlands; geen gevestigde UI-term voor
+  een tabbladstrook, en een gemunte samenstelling als `tabbladstrook` voegt niets toe · tentative
+- placement → `plaatsing` · Microsoft-terminologie (`placement`→`plaatsing`; modelkennis, 2026-09-04) · high
+- top / side (positie-opties, toggleknoppen) → `Boven` / `Zijkant` · Windows `nl` gebruikt `Boven` voor de
+  taakbalklocatie en macOS' Dock-paneel „Positie op het scherm” gebruikt de reeks `Links`/`Onder`/`Rechts`, dus `Boven`
+  past in die familie; `Zijkant` is het zelfstandig naamwoord voor „Side” (beide modelkennis, 2026-09-04) · high voor
+  `Boven`, tentative voor `Zijkant` (zie REVIEW FLAGS)
+- outer edges / inner edges (plaatsings-opties) → `Buitenranden` / `Binnenranden` · standaardsamenstellingen van `rand`
+  (edge→`rand`, standaard NL); kort genoeg voor een toggleknop · high
+- resize (de tabbladbalk, aria) → `Tabbladbalk vergroten of verkleinen` · spiegelt het gevestigde
+  `fileExplorer.pane.resizePanesAriaLabel` („Panelen vergroten of verkleinen”) werkwoord voor werkwoord · high
+- drag (een rand om te vergroten/verkleinen) → `de rand verslepen` · gangbaar NL voor het slepen van een greep of rand;
+  `slepen` zonder voorvoegsel leest hier als dragen · tentative
+- Geen `sameAsSourceJustification` nodig: alle twaalf waarden wijken af van het Engels. Geen apostrof in de waarden.
+
+REVIEW FLAGS (verticale-tabbladen-pas):
+
+- `Zijkant` als toggleknop naast `Boven`: zelfstandig naamwoord naast een bijwoord. Alternatief `Opzij` leest als een
+  actie („ga opzij”), dus `Zijkant` won; bevestig dat het paar in de echte toggle goed leest.
+- `Plaatsing van tabbladen aan de zijkant` (label, 38 tekens tegen 18 in het Engels): gekozen omdat het de optienaam
+  `Zijkant` letterlijk echoot; het kortere gemunte `Plaatsing van zijtabbladen` is de terugvaloptie als het label te
+  breed blijkt.
+- De browser-bronnen (Safari „tabbladbalk”, Firefox/Edge „verticale tabbladen”) komen uit modelkennis omdat de
+  referentiestapel hier niet beschikbaar was; controleer ze bij de volgende stapel-pas.

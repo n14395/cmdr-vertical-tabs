@@ -346,6 +346,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "Posición de la barra de pestañas",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "Superior muestra una barra de pestañas horizontal encima de cada lista de archivos. Lateral muestra las pestañas en una franja vertical al lado, que puedes redimensionar arrastrando su borde.",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Superior",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Lateral",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "Ubicación de las pestañas laterales",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "En qué borde de cada panel se sitúa la franja vertical de pestañas. Se aplica mientras la posición de la barra de pestañas sea Lateral.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Izquierda",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Bordes exteriores",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Bordes interiores",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "Permitir cambios de extensión de archivo",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1437,6 +1473,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "Pestañas",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "Comportamiento",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1772,6 +1812,10 @@
   "settings.summary.listing": "Iconos de documentos, ordenación de carpetas y ancho de columna en el modo Breve.",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "Posición de la barra de pestañas y en qué borde se sitúan las franjas verticales de pestañas.",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "Navegación con doble clic a la carpeta superior y comportamiento al renombrar archivos.",
   "@settings.summary.navigationAndFileOps": {

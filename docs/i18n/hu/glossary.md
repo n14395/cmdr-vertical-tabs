@@ -2332,3 +2332,36 @@ célhelyen van).
   szomszédos gomb saját felirata (`fileOperations.button.cancel`), így ragozás nélkül áll a mondatban · `high`.
 - A `Cmdrt` tárgyeset a márkanév kiejtés szerinti ragozása (style.md); nincs `sameAsSourceJustification`, és egyik érték
   sem tartalmaz aposztrófot.
+
+## Függőleges lapok: a lapsáv-pozíció beállításai (`settings.section/summary.tabs`, `settings.appearance.tabBarPosition.*`, `settings.appearance.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`, 2026-09-04)
+
+Új Beállítások-aloldal (Megjelenés > Lapok): a lapsáv felülre vagy oldalra tehető, oldalt pedig választható, melyik
+szélre kerüljön. A gitignore-olt referencia-pile e passz alatt nem volt elérhető; a források a szótár, a katalógus és a
+honosított böngészők ismert felületei (webes ellenőrzéssel, 2026-09-04).
+
+- **tab bar → `lapsáv`** · Firefox hu UI (a lapsáv helyi menüje: „a lapsávra”), magyar Apple-sajtó a Safari lapsávjára
+  („Fekvő lapsáv”, gadgetarq hu Safari 15-cikk; web, 2026-09-04); mintája a settled sidebar = `oldalsáv` (mac) és a
+  katalógus `-sáv` összetételei (`folyamatsáv`, „piros sáv”) · high. A `lap` a settled tab-terminus, tehát a `lapsáv` az
+  egyetlen driftmentes összetétel.
+- **vertical tabs / vertical tab strip → `függőleges lapok` / `függőleges lapsáv`** · Firefox 136 hu hivatalos felülete
+  és support.mozilla.org hu („Függőleges lapok”, „vízszintes és függőleges lapok” a Böngésző elrendezése alatt; web,
+  2026-09-04), magyar tech-sajtó ugyanígy a Chrome/Edge funkcióra · high. A „strip”-re nem kell külön szó: függőlegesen
+  a sáv MAGA a lapsáv, a `függőleges` jelző visz minden megkülönböztetést.
+- **position (a lapsáv helye) → `helye`** (`Lapsáv helye`, mondatban `a lapsáv helye`) · a szótár settled
+  `location → hely` szava; a Windows hu tálca-beállítás mintája („A tálca helye a képernyőn”) · high. Nem `pozíció`: a
+  birtokos `helye` a címkék nominális stílusának bevett alakja (`Licenc típusa`).
+- **placement → `elhelyezés`** (`Oldalsó lapok elhelyezése`) · ms („placement” = `elhelyezés`), a katalógus
+  `Elhelyezés a képernyőn` regisztere · high.
+- **edge (a panel/ablak széle) → `szél`** (`Külső szélek` / `Belső szélek`; kérdésben `melyik szélén`) · a katalógus már
+  használja (`az ablak szélénél` a wordWrap-kulcsokban), ms · high.
+- **A pozíció-opciók rövid címkéi: Top → `Felül`, Side → `Oldalt`; a placement-opciók: Left → `Balra`, Outer edges →
+  `Külső szélek`, Inner edges → `Belső szélek`** · a hol?-kérdésre felelő határozós alak a magyar UI-konvenció a
+  pozícióválasztókban (macOS Dock „Pozíció a képernyőn” opciói, igazításválasztók `Balra` alakja) · high a
+  `Felül`/`Oldalt`/`Balra`, tentative a `Külső szélek`/`Belső szélek` páros (nincs honosított előkép — egyik böngésző
+  sem tükrözi a lapsávokat két panelre; az angol „Outer/Inner edges” hű, feszes fordítása).
+- A leírások az opciónevet a ház stílusa szerint idézőjelezik (`A „Felül” …`, `amíg a lapsáv helye „Oldalt”`), pontosan
+  úgy, ahogy a `settings.appearance.language.description` teszi (`A „Rendszer szerinti” a Mac nyelvét követi.`).
+- A `fileExplorer.tabBar.resizeAriaLabel` = `Lapsáv átméretezése` a `resizePanesAriaLabel` (`Panelek átméretezése`)
+  igéjét tükrözi, ahogy a brief kéri.
+- Nincs `sameAsSourceJustification` (mind a 12 érték eltér az angoltól), és egyik érték sem tartalmaz aposztrófot, tehát
+  az ICU `''` szabálya nem lép be.

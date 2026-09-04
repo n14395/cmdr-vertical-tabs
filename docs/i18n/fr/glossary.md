@@ -2433,3 +2433,30 @@ tout est déjà arrivé à destination).
   elle passe telle quelle · `high`.
 - Pas de `sameAsSourceJustification`. Les apostrophes des valeurs sont doublées pour ICU (`jusqu''à`, `n''est`,
   `qu''il`).
+
+## Onglets verticaux : position de la barre d'onglets et placement latéral (2026-09-04 ; `settings.section.tabs`, `settings.summary.tabs`, `settings.appearance.tabBarPosition.*`, `settings.appearance.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`)
+
+Nouvelle page Réglages > Apparence > Onglets : la barre d'onglets de chaque panneau peut passer en haut ou sur le côté,
+et la bande verticale se place à gauche, sur les bords extérieurs, ou sur les bords intérieurs.
+
+- **tab bar → `barre d'onglets`** · macOS Finder `fr` (« Masquer la barre d'onglets », menu Présentation), déjà cité par
+  l'entrée `tab → onglet` du guide de style · high.
+- **tab strip (la bande verticale d'onglets empilés) → `bande d'onglets` (« bande d'onglets verticale »)** · coinage
+  descriptif : `barre d'onglets` reste la barre (l'objet que le réglage positionne), `bande` nomme la variante verticale
+  que l'anglais appelle `strip`. ❌ Pas `barre latérale d'onglets` : `barre latérale` est réservé à la sidebar (Finder).
+  Les navigateurs `fr` (Edge, Firefox) parlent d'« onglets verticaux » sans nommer la bande elle-même ; la pile de
+  référence n'est pas disponible sur cette machine · tentative — à confirmer en revue.
+- **Tab bar position → `Position de la barre d'onglets`** ; options **Top → `En haut`**, **Side → `Sur le côté`** ·
+  adverbiaux de position, la forme française naturelle pour répondre à « Position … » ; courts pour la rangée de deux
+  boutons. Les descriptions citent les options entre guillemets (« En haut » affiche…), sur le modèle de
+  `settings.appearance.language.description` (« Par défaut du système » suit…) · high.
+- **Side tab placement → `Placement des onglets latéraux`** · `latéral` fait écho à l'option « Sur le côté » sans
+  toucher à `barre latérale` ; `placement` distinct de `position` comme en anglais · high.
+- Options du placement : **Left → `À gauche`**, **Outer edges → `Bords extérieurs`**, **Inner edges →
+  `Bords intérieurs`** · `bord` est le mot macOS pour _edge_ ; adverbial pour la gauche, noms pour les paires de bords,
+  même panachage que l'anglais (Left / Outer edges) · high.
+- **Resize tab bar (aria) → `Redimensionner la barre d'onglets`** · calque exact de
+  `fileExplorer.pane.resizePanesAriaLabel` (« Redimensionner les panneaux »), même verbe pour la commande vocale · high.
+- Pas de `sameAsSourceJustification` : les douze valeurs diffèrent de l'anglais. Apostrophes doublées pour ICU
+  (`d''onglets`, `S''applique`) ; espace ASCII avant `;` et guillemets « … » à espaces normales, réglage typographique
+  du catalogue.

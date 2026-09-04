@@ -952,3 +952,34 @@ so the live bundles ARE the Tier-1 source here; read the `zh_TW` key of each `.l
   的說法（「已經在目標位置了」），`復原` 是已定的術語（`rollbackUnavailableTooltip`），`取消`
   直接用旁邊按鈕自己的標籤（`fileOperations.button.cancel`），依目錄慣例加上引號 · `high`。
 - 無 `sameAsSourceJustification`；兩個值都不含撇號。
+
+## Vertical tabs settings (`settings.section.tabs`, `settings.appearance.tabBarPosition.*`, `settings.appearance.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`, 2026-09-04)
+
+The Settings > Appearance > Tabs page: tab bar position (Top/Side) and side-tab placement (Left/Outer/Inner), plus the
+drag handle that resizes the vertical strip. Live evidence below is macOS 26.6.2 (build 25G83) `.loctable`s under
+`/System/Library/ExtensionKit/Extensions`, `/System/Applications`, and `/System/Library/CoreServices`, key-matched,
+2026-09-04.
+
+- **tab bar** · `分頁列` · composed on the settled `分頁` (tab) + the `〜列` bar suffix the catalog already ships
+  Apple-attested (`工具列`, `狀態列`, `路徑列`, `功能鍵列`); also what zh-TW browsers whose tab word is `分頁` call the
+  bar · `high`. ❌ Never `標籤列`: `標籤` is this catalog's TAG word (`style.md` § Notes).
+- **vertical tab strip** · `垂直分頁列` · deliberately the SAME noun as the tab bar plus a `垂直` qualifier, never a
+  second noun: one element in two orientations, and the app must not call it two things. Apple attests the qualifier
+  shape (`Vertical align top` → `垂直頂端對齊`, live), and `垂直分頁` is the vertical-tabs feature name in zh-Hant
+  browsers whose tab word is `分頁` · `high`
+- **Top / Side (the position options)** · `頂端` / `側邊` · exact key matches in the live corpus (`Top` → `頂端`, `side`
+  → `側邊`, `Side Button` → `側邊按鈕`; `top of screen` → `螢幕頂端` throughout Mission Control copy) · `high`
+- **Left / Outer edges / Inner edges (the placement options)** · `左側` / `外側` / `內側` · `左側` is already the
+  catalog's window-side word (`commands.paneLeftVolumeChooser.label` `開啟左側卷宗選擇器`); `外側` / `內側` are composed
+  — zero live-corpus hits, but they are the everyday Traditional outer/inner-side pair and mirror each other exactly as
+  the English options do, tight enough for toggle buttons · `medium-high`, worth a native reviewer's eye.
+- **Side tab placement (the label)** · `側邊分頁位置` · sits beside `分頁列位置` (Tab bar position). English splits
+  "position"/"placement"; Chinese takes `位置` for both, and the labels stay distinct by subject (the bar vs the side
+  tabs) · `medium-high`
+- **Resize tab bar (the drag handle's aria)** · `調整分頁列大小` · mirrors `fileExplorer.pane.resizePanesAriaLabel`
+  (`調整窗格大小`) verb for verb · `high`
+- Drag is `拖移` (Apple's verb, already in `settings.advanced.dragThreshold.*`). `拖曳` also survives in two shipped
+  values (`viewer.statusBar.hint.image`, `settings.mediaIndex.importanceThreshold.previewNone`) — an existing
+  inconsistency, recorded here rather than widened.
+- All 12 values differ from English, so none needs a `sameAsSourceJustification`; no apostrophes in the batch, so ICU's
+  `''` rule doesn't bite here.

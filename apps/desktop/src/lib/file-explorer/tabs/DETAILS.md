@@ -8,7 +8,12 @@ here.
 - `tab-types.ts`: type definitions (`TabId`, `TabState`, `PersistedTab`, `PersistedPaneTabs`, `UnreachableState`)
 - `tab-state-manager.svelte.ts`: reactive state manager (`$state()`); all tab operations + the closed-tab stack. Max 10
   tabs per pane
-- `TabBar.svelte`: tab bar UI (always visible, Chrome-style shrinking tabs, pin icons, close buttons, context menu)
+- `TabBar.svelte`: tab bar UI (always visible, Chrome-style shrinking tabs, pin icons, close buttons, context menu).
+  Renders horizontally (top) or vertically (side strip); see § Vertical (side) tabs
+- `tab-strip-layout.ts`: pure side-strip layout rules: per-pane edge from `appearance.sideTabPlacement`
+  (`stripIsAfterPane`) and the width bounds/clamp (see `tab-strip-layout.test.ts`)
+- `TabStripResizer.svelte`: the drag handle between a side strip and its file pane (pointer-capture drag, double-click
+  resets to the default width)
 - `tab-label.ts`: `deriveTabLabel(path)` (see `tab-label.test.ts`)
 - `tab-state-manager.test.ts`: unit tests for the state manager
 
@@ -51,6 +56,30 @@ here.
 - **Pinned-tab navigation auto-creates a new tab.** Pinning preserves a location; navigating in-place would make pinning
   meaningless. The new tab inherits the target path and appears after the pinned tab. Falls back to in-place only at the
   cap (10) to avoid blocking the user.
+
+## Vertical (side) tabs
+
+`appearance.tabBarPosition = 'side'` (Settings > Appearance > Tabs) turns each pane's bar into a full-height vertical
+strip of stacked full-width rows; `appearance.sideTabPlacement` picks the edge (`'left'` both panes, `'outer'` /
+`'inner'` mirrored). Both settings are read reactively in `DualPaneExplorer`, so switching re-lays-out live with no
+remount (`{#key}` is untouched).
+
+- **The horizontal geometry tricks deliberately DON'T port.** Shoulders, the +1px seam overhang, gap absorption, and
+  `align-items: end` all exist to merge the active tab with the path bar BELOW it. A side strip has no such neighbor, so
+  rows are a plain list: `--radius-sm` corners, gap-separated, accent band on the LEFT edge (same self-clipping
+  full-size `::after` box, gradient turned `to right`).
+- **Placement is expressed in CSS, not DOM order.** `DualPaneExplorer`'s `.pane-wrapper.tabs-side` is `row`;
+  `.tabs-side-after` is `row-reverse` (strip on the pane's right edge). The mapping pane+placement → before/after is the
+  pure `stripIsAfterPane` in `tab-strip-layout.ts`. `row-reverse` keeps `TabStripResizer` adjacent to the strip on both
+  sides with a single DOM shape.
+- **Width is layout state, not a setting.** One shared px width for both strips, held in the explorer store
+  (`sideTabStripWidth`), clamped by `clampTabStripWidth` (100-400, default 180 = the horizontal max tab width),
+  persisted to `app-status.json` at drag-END only via `persistTabStripWidth` (same rule and reason as the pane split;
+  see `persistence-subscriber.svelte.ts`). `TabStripResizer` flips its drag direction via `stripIsAfter` so dragging
+  toward the file list always shrinks the strip.
+- The narrow-tab close-button drop (`useInlineSize`, 80px threshold) stays active in vertical mode: a strip dragged near
+  its minimum is exactly the too-narrow-for-a-close-button case.
+- The tablist carries `aria-orientation="vertical"` in this mode.
 
 ## Unreachable tabs
 

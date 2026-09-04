@@ -343,6 +343,42 @@
   "@settings.listing.briefColumnWidthMaxPx.label": {
     "sourceHash": "9d045cd"
   },
+  "settings.appearance.tabBarPosition.label": "Vị trí thanh tab",
+  "@settings.appearance.tabBarPosition.label": {
+    "sourceHash": "0e22eab"
+  },
+  "settings.appearance.tabBarPosition.description": "Trên cùng hiển thị thanh tab ngang phía trên mỗi danh sách tệp. Bên cạnh hiển thị các tab thành một thanh dọc kế bên, có thể đổi kích cỡ bằng cách kéo cạnh của thanh.",
+  "@settings.appearance.tabBarPosition.description": {
+    "sourceHash": "7dca614"
+  },
+  "settings.appearance.tabBarPosition.opt.top": "Trên cùng",
+  "@settings.appearance.tabBarPosition.opt.top": {
+    "sourceHash": "d5cdfcf"
+  },
+  "settings.appearance.tabBarPosition.opt.side": "Bên cạnh",
+  "@settings.appearance.tabBarPosition.opt.side": {
+    "sourceHash": "630ef00"
+  },
+  "settings.appearance.sideTabPlacement.label": "Cách đặt thanh tab dọc",
+  "@settings.appearance.sideTabPlacement.label": {
+    "sourceHash": "00e45fd"
+  },
+  "settings.appearance.sideTabPlacement.description": "Thanh tab dọc nằm ở cạnh nào của mỗi khung. Áp dụng khi vị trí thanh tab là Bên cạnh.",
+  "@settings.appearance.sideTabPlacement.description": {
+    "sourceHash": "27551a3"
+  },
+  "settings.appearance.sideTabPlacement.opt.left": "Bên trái",
+  "@settings.appearance.sideTabPlacement.opt.left": {
+    "sourceHash": "58eb903"
+  },
+  "settings.appearance.sideTabPlacement.opt.outer": "Cạnh ngoài",
+  "@settings.appearance.sideTabPlacement.opt.outer": {
+    "sourceHash": "6450b66"
+  },
+  "settings.appearance.sideTabPlacement.opt.inner": "Cạnh trong",
+  "@settings.appearance.sideTabPlacement.opt.inner": {
+    "sourceHash": "8ed1c93"
+  },
   "settings.fileOperations.allowFileExtensionChanges.label": "Cho phép đổi đuôi tệp",
   "@settings.fileOperations.allowFileExtensionChanges.label": {
     "sourceHash": "9bc0b3a"
@@ -1433,6 +1469,10 @@
   "@settings.section.listing": {
     "sourceHash": "fc7f1aa"
   },
+  "settings.section.tabs": "Tab",
+  "@settings.section.tabs": {
+    "sourceHash": "8e5ea50"
+  },
   "settings.section.behavior": "Hành vi",
   "@settings.section.behavior": {
     "sourceHash": "edf8d3f"
@@ -1769,6 +1809,10 @@
   "settings.summary.listing": "Biểu tượng tài liệu, sắp xếp thư mục, và độ rộng cột chế độ Rút gọn.",
   "@settings.summary.listing": {
     "sourceHash": "7756e95"
+  },
+  "settings.summary.tabs": "Vị trí thanh tab, và các thanh tab dọc nằm ở cạnh nào.",
+  "@settings.summary.tabs": {
+    "sourceHash": "da90cf6"
   },
   "settings.summary.navigationAndFileOps": "Điều hướng bằng bấm đúp tới thư mục cha, và hành vi khi đổi tên tệp.",
   "@settings.summary.navigationAndFileOps": {

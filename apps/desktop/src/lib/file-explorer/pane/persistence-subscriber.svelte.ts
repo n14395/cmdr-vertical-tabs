@@ -44,7 +44,8 @@
  *   width persists ONLY at drag-end (`handlePaneResizeEnd` / `…Reset`). So layout
  *   is NOT reactive: the component calls `persistLayout(percent)` from the
  *   drag-end handlers explicitly. Same single module (A5), drag-end-only semantics
- *   preserved (PR3).
+ *   preserved (PR3). The side tab strips' width (`persistTabStripWidth`) follows
+ *   the same drag-end-only rule for the same reason.
  * - **`last-used-path` (`volumeId → path` map).** This is a DELTA, not a snapshot:
  *   on a volume switch the OLD path of the OLD volume is recorded, a value the
  *   store no longer holds by the time an effect could read it. `navigate()` owns
@@ -128,6 +129,8 @@ export interface PersistenceSubscriber {
   /** Persist the layout split. Called from the drag-END handlers only, never per
    *  frame, so the width persists exactly when it does today. */
   persistLayout: (leftPaneWidthPercent: number) => void
+  /** Persist the side (vertical) tab strips' width. Drag-END only, like `persistLayout`. */
+  persistTabStripWidth: (widthPx: number) => void
 }
 
 /**
@@ -217,6 +220,9 @@ export function initPersistenceSubscriber(deps: PersistenceSubscriberDeps): Pers
     },
     persistLayout: (leftPaneWidthPercent) => {
       saveAppStatus({ leftPaneWidthPercent })
+    },
+    persistTabStripWidth: (widthPx) => {
+      saveAppStatus({ sideTabStripWidth: widthPx })
     },
   }
 }

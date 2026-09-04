@@ -1110,6 +1110,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Tab-Leiste anpassen",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, one {Datei} other {Dateien}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

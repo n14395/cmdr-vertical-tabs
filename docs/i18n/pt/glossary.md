@@ -1893,3 +1893,33 @@ movimentação entre dois sistemas de arquivos chega ao último passo (apagar os
   destino»), `reversão` é o termo assentado para o rollback (`rollbackUnavailableTooltip`), e `Cancelar` é o rótulo do
   botão ao lado (`fileOperations.button.cancel`), então entra sem mudança · `high`.
 - Sem `sameAsSourceJustification`; nenhum valor tem apóstrofo.
+
+## Abas verticais: posição da barra e as abas laterais (`settings.section/summary.tabs`, `settings.appearance.tabBarPosition.*`/`sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`, 2026-09-04)
+
+Superfície nova: Ajustes > Aparência > Abas, com a posição da barra de abas (Superior / Lateral) e, no modo Lateral, em
+qual borda de cada painel a faixa vertical de abas fica.
+
+- tab bar · **barra de abas** · vocabulário de abas do Safari pt-BR (a fonte da seção Menus nativos acima; o menu
+  Visualizar traz „Mostrar Barra de Abas”, aqui em sentence case como todo o catálogo); a pilha de referência não está
+  nesta máquina, então o valor não foi re-minerado agora · high.
+- Top / Side (opções de posição) · **Superior** / **Lateral** · adjetivos concordando com „posição”, o molde pt-BR do
+  macOS para opções de posição (Dock > „Posição na tela”: Esquerda / Inferior / Direita); „Superior” aqui é posição da
+  barra, sem choque com „pasta superior” (navegação), que nunca divide uma tela com este rótulo · high.
+- side tabs (a família do modo Lateral) · **abas laterais** · composto sobre a opção **Lateral** para a família inteira
+  ler como uma coisa só; os navegadores pt-BR chamam o recurso de „abas verticais” (Firefox) / „guias verticais” (Edge),
+  mas o rótulo do Cmdr precisa ecoar a opção „Lateral” do ajuste irmão · high.
+- placement (vs position) · **posicionamento** · o inglês distingue „position” (da barra) e „placement” (das abas
+  laterais); pt espelha com **posição** / **posicionamento**, dois substantivos da mesma família sem colidir · high.
+- vertical tab strip · **faixa vertical de abas** (plural: **faixas verticais de abas**) · descritivo; **faixa** já é a
+  palavra de banda/tira no catálogo („por faixa”, „faixa visível”) e não há fonte direta na pilha para „strip” de abas ·
+  tentative — revisar com um falante.
+- edge (de painel/janela) · **borda** · já assentado no catálogo („na borda da janela”,
+  `viewer.statusBar.badge .wrapTooltip`); Outer/Inner edges → **Bordas externas** / **Bordas internas**, e Left →
+  **Esquerda** (opção de posição do Dock no macOS pt-BR) · high.
+- resize tab bar (aria) · **Redimensionar barra de abas** · espelha `fileExplorer.pane.resizePanesAriaLabel`
+  („Redimensionar painéis”): mesmo verbo, sem artigo · confirmed.
+- „Applies while …” · **Vale enquanto … for Lateral** · o molde „Vale …” já assentado nas descrições de ajustes
+  (`stripedRows`, `showHiddenFiles`, `closedTabHistorySize`), com o futuro do subjuntivo que o „enquanto” condicional
+  pede · high.
+- Sem `sameAsSourceJustification`: os 12 valores diferem do inglês. Nenhum valor tem apóstrofo, então não há `''` no
+  lote.

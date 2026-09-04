@@ -3,9 +3,10 @@
  * out of `DualPaneExplorer`'s component closures into one module so consumers
  * read state directly instead of through `explorerRef` getters.
  *
- * Owns three of the component's fields:
+ * Owns these of the component's fields:
  * - `focusedPane` — which pane has focus (`'left' | 'right'`),
  * - `leftPaneWidthPercent` — the layout split (the right pane is the remainder),
+ * - `sideTabStripWidth` — the side (vertical) tab strips' shared px width,
  * - the two **tab-manager holders** `leftTabMgr` / `rightTabMgr`, each a
  *   `$state<TabManager>` reference.
  *
@@ -49,6 +50,7 @@
 
 import { DEFAULT_VOLUME_ID } from '$lib/tauri-commands'
 import { createTabManager, type TabManager } from '../tabs/tab-state-manager.svelte'
+import { DEFAULT_TAB_STRIP_WIDTH } from '../tabs/tab-strip-layout'
 import { createInitialTabState } from './tab-operations'
 
 /** Default left/right split: an even 50/50 layout. */
@@ -74,6 +76,11 @@ export interface ExplorerState {
   /** Sets the left pane's width percentage. */
   setLeftPaneWidthPercent: (percent: number) => void
 
+  /** Returns the side (vertical) tab strips' shared width in px. Reactive. */
+  getSideTabStripWidth: () => number
+  /** Sets the side tab strips' width. The single writer of `sideTabStripWidth`. */
+  setSideTabStripWidth: (widthPx: number) => void
+
   /** Returns the LIVE tab-manager holder for `pane` (never a copy/snapshot). Reactive. */
   getTabMgr: (pane: 'left' | 'right') => TabManager
   /** Swaps the tab-manager holder for `pane` (e.g. when loading persisted tabs). */
@@ -97,6 +104,7 @@ export interface ExplorerState {
 export function createExplorerState(): ExplorerState {
   let focusedPane = $state<'left' | 'right'>('left')
   let leftPaneWidthPercent = $state(DEFAULT_PANE_WIDTH_PERCENT)
+  let sideTabStripWidth = $state(DEFAULT_TAB_STRIP_WIDTH)
   let leftTabMgr = $state<TabManager>(createDefaultTabMgr())
   let rightTabMgr = $state<TabManager>(createDefaultTabMgr())
   let railFocused = $state(false)
@@ -110,6 +118,11 @@ export function createExplorerState(): ExplorerState {
     getLeftPaneWidthPercent: () => leftPaneWidthPercent,
     setLeftPaneWidthPercent: (percent) => {
       leftPaneWidthPercent = percent
+    },
+
+    getSideTabStripWidth: () => sideTabStripWidth,
+    setSideTabStripWidth: (widthPx) => {
+      sideTabStripWidth = widthPx
     },
 
     getTabMgr: (pane) => (pane === 'left' ? leftTabMgr : rightTabMgr),
@@ -141,6 +154,7 @@ export const explorerState = createExplorerState()
 export function _resetForTesting(): void {
   explorerState.setFocusedPane('left')
   explorerState.setLeftPaneWidthPercent(DEFAULT_PANE_WIDTH_PERCENT)
+  explorerState.setSideTabStripWidth(DEFAULT_TAB_STRIP_WIDTH)
   explorerState.setTabMgr('left', createDefaultTabMgr())
   explorerState.setTabMgr('right', createDefaultTabMgr())
   explorerState.setRailFocused(false)

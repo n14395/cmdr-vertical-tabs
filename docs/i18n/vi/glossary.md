@@ -2073,3 +2073,36 @@ giữa hai hệ thống tệp bước sang chặng cuối (xóa các bản gốc
   đích”), `hoàn tác` là từ đã chốt cho rollback (`rollbackUnavailableTooltip`), và `Hủy` là nhãn của nút bên cạnh
   (`fileOperations.button.cancel`) nên giữ nguyên · `high`.
 - Không có `sameAsSourceJustification`; không giá trị nào chứa dấu nháy đơn.
+
+## Tab dọc: trang Cài đặt > Giao diện > Tab (2026-09-04; `settings.section/summary.tabs`, `settings.appearance.tabBarPosition.*`, `.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`)
+
+12 khóa cho tính năng tab dọc: mục cài đặt mới "Tab" dưới Giao diện (vị trí thanh tab + cách đặt thanh tab dọc) và nhãn
+trợ năng của tay kéo đổi kích cỡ. Dùng lại các thuật ngữ đã chốt (tab → `tab`, khung → `khung`, danh sách tệp →
+`danh sách tệp`, kéo → `kéo` như `Ngưỡng kéo`, đổi kích cỡ → `Đổi kích cỡ` như `Đổi kích cỡ khung`). Kho tham chiếu
+không có trên máy này; bằng chứng Tier 1 lấy từ các trích dẫn đã kiểm chứng sẵn trong glossary/style. Thuật ngữ mới:
+
+- **tab bar → `thanh tab`** · Finder `vi` `Ẩn Thanh Tab` (`Wup-0E-2Ap.title`, trích dẫn đã kiểm chứng 2026-08-30 trong
+  mục quét tab/thẻ ở trên), viết thường theo quy tắc sentence case của Cmdr. "Tab bar position" → `Vị trí thanh tab`
+  (position → `vị trí`, chuẩn MS). `high`.
+- **vertical tab strip → `thanh tab dọc`** (CÙNG danh từ đầu với thanh tab, cố ý) · tiếng Anh tách "bar"/"strip" chỉ là
+  văn phong: dải dọc CHÍNH LÀ thanh tab của khung khi nằm bên cạnh, nên tiếng Việt gọi một thứ bằng một tên. `dọc` là từ
+  chuẩn cho "vertical" (Edge `vi` gọi tính năng tương ứng là "tab dọc" — trí nhớ mô hình, chưa soi kho). Trong câu mô tả
+  đứng ngay sau `các tab` thì lược `tab` thành `một thanh dọc` cho khỏi lặp. Không dùng `dải`: catalog đã dùng `dải` cho
+  vùng chọn (`commands.selectionMcpSelect.label`). `tentative` (cấu trúc chắc, nhưng chưa có chuỗi kho cho "strip").
+- **Top / Side (hai nhãn nút của vị trí thanh tab) → `Trên cùng` / `Bên cạnh`** · `trên cùng` là "top" theo nghĩa vị trí
+  (chuẩn MS); `bên cạnh` là "at the side", khớp cách catalog nói "bên cạnh" (kế bên) và đọc tự nhiên trong câu "vị trí
+  thanh tab là Bên cạnh". Hai câu mô tả mở đầu bằng đúng nhãn nút, như tiếng Anh. `high` (trên cùng) / `tentative` (bên
+  cạnh — không có nguồn kho cho nhãn "Side" đứng một mình).
+- **placement (cách bố trí, phân biệt với position) → `cách đặt`** · hai cài đặt đứng cạnh nhau; nếu cả hai cùng mở đầu
+  `Vị trí…` thì khó phân biệt khi lướt, nên "Side tab placement" → `Cách đặt thanh tab dọc` (nhãn gọi đúng vật được đặt:
+  thanh tab dọc, theo `@key` tiếng Anh). `tentative`.
+- **edge (cạnh của khung/cửa sổ) → `cạnh`; Outer edges / Inner edges → `Cạnh ngoài` / `Cạnh trong`** · `cạnh` là "edge"
+  chuẩn MS; bỏ dấu số nhiều (tiếng Việt không đánh dấu số, `Các cạnh ngoài` dài vô ích trên nút). "Left" trong hàng nút
+  này là `Bên trái` (không phải `Cạnh trái`): mỗi khung giữ thanh ở mé trái CỦA CHÍNH NÓ, không phải cạnh trái cửa sổ,
+  và catalog đã nói `bên trái` khắp nơi. `high` (cạnh) / `tentative` (cặp nhãn Cạnh ngoài/Cạnh trong).
+- **`resizeAriaLabel` → `Đổi kích cỡ thanh tab`** · soi đúng khuôn `fileExplorer.pane.resizePanesAriaLabel`
+  (`Đổi kích cỡ khung`), cùng động từ, cùng cấu trúc, cho voice control gọi hai tay kéo cùng một kiểu. `high`.
+- Mục cài đặt "Tabs" → `Tab` trần (không `Các tab`): các tên mục của catalog không dùng `Các` (`Thông báo`, `Tệp nén`),
+  Finder `vi` đặt tên menu Tab là `Tab` (`menu.bar.tab`), và dòng tóm tắt ngay dưới đã nói rõ nội dung. Khác chuỗi gốc
+  "Tabs" (thiếu s) nên không cần `sameAsSourceJustification`.
+- Không giá trị nào chứa dấu nháy đơn nên không phát sinh `''` của ICU; không có placeholder hay thẻ nào.

@@ -345,6 +345,8 @@ The **writers** (A2 — exactly one mutator per field, all inside the store modu
 
 - **`focusedPane`**: `setFocusedPane`
 - **`leftPaneWidthPercent`**: `setLeftPaneWidthPercent`
+- **`sideTabStripWidth`**: `setSideTabStripWidth` (the side tab strips' shared px width; see `../tabs/DETAILS.md` §
+  Vertical (side) tabs)
 - **`leftTabMgr`**: `setTabMgr('left', …)`
 - **`rightTabMgr`**: `setTabMgr('right', …)`
 - **`railFocused`**: `setRailFocused` (the Ask Cmdr rail's parallel focus flag — a third focus region alongside the

@@ -8,7 +8,10 @@ tabs.
 - **`tab-types.ts`**: `TabId`, `TabState`, `PersistedTab`, `PersistedPaneTabs`, `UnreachableState`
 - **`tab-state-manager.svelte.ts`**: Reactive `$state()` manager; all tab ops (add, close, switch, cycle, pin) + the
   closed-tab stack
-- **`TabBar.svelte`**: Tab bar UI (always visible, Chrome-style shrinking tabs, pins, close buttons, context menu)
+- **`TabBar.svelte`**: Tab bar UI (always visible, Chrome-style shrinking tabs, pins, close buttons, context menu). Two
+  orientations: horizontal (top, default) and vertical (the side strip, per `appearance.tabBarPosition`)
+- **`tab-strip-layout.ts`** + **`TabStripResizer.svelte`**: side-strip layout rules (per-pane edge from
+  `appearance.sideTabPlacement`, width bounds) and the drag handle resizing the strip
 - **`tab-label.ts`**: `deriveTabLabel(path)`, the tab title
 - **`tab-analytics.ts`**: the event vocabulary. Emitted from `pane/tab-operations.ts`, ❌ never from the pure state
   manager (unit tests drive it directly).

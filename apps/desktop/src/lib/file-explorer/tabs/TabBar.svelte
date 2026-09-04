@@ -14,6 +14,10 @@
         activeTabId: TabId
         paneId: 'left' | 'right'
         maxTabs: number
+        /** Bar layout: the horizontal strip above the pane (default), or the vertical side strip. */
+        orientation?: 'horizontal' | 'vertical'
+        /** The vertical strip's width in px (`tab-strip-layout.ts` bounds). Ignored when horizontal. */
+        stripWidth?: number
         onTabSwitch: (tabId: TabId) => void
         onTabClose: (tabId: TabId) => void
         onTabMiddleClick: (tabId: TabId) => void
@@ -27,6 +31,8 @@
         activeTabId,
         paneId,
         maxTabs,
+        orientation = 'horizontal',
+        stripWidth,
         onTabSwitch,
         onTabClose,
         onTabMiddleClick,
@@ -34,6 +40,8 @@
         onContextMenu,
         onPaneFocus,
     }: Props = $props()
+
+    const vertical = $derived(orientation === 'vertical')
 
     const isSingleTab = $derived(tabs.length === 1)
     const isAtMax = $derived(tabs.length >= maxTabs)
@@ -116,8 +124,19 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="tab-bar" onclick={onPaneFocus} ondblclick={handleTabBarDblClick}>
-    <div class="tab-list" role="tablist" aria-label={tString('fileExplorer.tabBar.paneTabsAriaLabel', { paneId })}>
+<div
+    class="tab-bar"
+    class:vertical
+    style:width={vertical && stripWidth !== undefined ? `${stripWidth}px` : undefined}
+    onclick={onPaneFocus}
+    ondblclick={handleTabBarDblClick}
+>
+    <div
+        class="tab-list"
+        role="tablist"
+        aria-orientation={vertical ? 'vertical' : undefined}
+        aria-label={tString('fileExplorer.tabBar.paneTabsAriaLabel', { paneId })}
+    >
         {#each tabs as tab, index (tab.id)}
             {@const isActive = tab.id === activeTabId}
             {@const isAfterActive = index > 0 && tabs[index - 1].id === activeTabId}
@@ -146,13 +165,14 @@
                     handleContextMenu(e, tab.id)
                 }}
             >
-                {#if isActive}
+                {#if isActive && !vertical}
                     <!-- Chrome-style "shoulders": small concave quarter-
                          circle wedges that stick out past the active tab's
                          bottom corners, carving a smooth rounded notch into
                          the adjacent inactive tabs. They share the active
                          tab's bg color so the tab reads as "flowing into"
-                         the path bar surface below. -->
+                         the path bar surface below. Horizontal mode only:
+                         a vertical strip has no path bar to flow into. -->
                     <span class="tab-shoulder tab-shoulder-left" aria-hidden="true"></span>
                     <span class="tab-shoulder tab-shoulder-right" aria-hidden="true"></span>
                 {/if}
@@ -552,5 +572,77 @@
     .new-tab-btn.disabled {
         opacity: 0.3;
         cursor: default;
+    }
+
+    /* ==================================================================
+       Vertical (side) mode: the bar becomes a full-height strip of
+       stacked full-width rows. The horizontal mode's geometry tricks
+       (title-bar flush, shoulder wedges, seam-hiding overhang, gap
+       absorption) all exist to merge the active tab with the path bar
+       BELOW it; a side strip has no such neighbor, so rows are a plain
+       list: rounded, gap-separated, with the accent band on the LEFT
+       edge. Width comes from the inline style (`stripWidth` prop).
+       ================================================================== */
+
+    .tab-bar.vertical {
+        flex-direction: column;
+        align-items: stretch;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
+        flex-shrink: 0;
+        padding: var(--spacing-xxs);
+        gap: var(--spacing-xxs);
+        overflow: hidden;
+    }
+
+    .tab-bar.vertical .tab-list {
+        flex-direction: column;
+        flex: 0 1 auto;
+        align-items: stretch;
+        min-height: 0;
+        overflow-y: auto;
+        gap: var(--spacing-xxs);
+    }
+
+    .tab-bar.vertical .tab {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        flex: 0 0 auto;
+        height: var(--spacing-tab-bar-height);
+        border-radius: var(--radius-sm);
+    }
+
+    /* No hairline separators between stacked rows: the row gap does that job. */
+    .tab-bar.vertical .tab::before {
+        content: none;
+    }
+
+    /* Rows don't absorb gaps or hang into a neighboring surface: reset the
+       horizontal mode's negative margins and the +1px seam-cover height. The
+       row keeps clipping its content (no shoulders to let escape). */
+    .tab-bar.vertical .tab.active {
+        height: var(--spacing-tab-bar-height);
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* Accent band along the active row's LEFT edge (the top edge is just
+       another row boundary here). Same self-clipping full-size box as the
+       horizontal band, so it sweeps the row's rounded corners. */
+    .tab-bar.vertical .tab.active::after {
+        background: linear-gradient(to right, var(--color-accent) 0 2px, transparent 2px);
+    }
+
+    /* Rows read as a list: labels align left, not centered. */
+    .tab-bar.vertical .tab-label {
+        text-align: start;
+    }
+
+    /* Below the tab list, indented to line up with the rows' labels. */
+    .tab-bar.vertical .new-tab-btn {
+        align-self: flex-start;
+        margin-left: var(--spacing-xxs);
     }
 </style>

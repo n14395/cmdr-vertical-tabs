@@ -1107,6 +1107,10 @@
   "@fileExplorer.tabBar.newTabAriaLabel": {
     "sourceHash": "1e08fda"
   },
+  "fileExplorer.tabBar.resizeAriaLabel": "Ändra storlek på flikfältet",
+  "@fileExplorer.tabBar.resizeAriaLabel": {
+    "sourceHash": "f2dcd51"
+  },
   "fileExplorer.summary.fileNoun": "{count, plural, one {fil} other {filer}}",
   "@fileExplorer.summary.fileNoun": {
     "sourceHash": "46012b1"

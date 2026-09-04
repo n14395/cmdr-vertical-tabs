@@ -1936,3 +1936,34 @@ alles liegt schon am Ziel).
   schon am Ziel“), `zurücknehmen` ist das Verb zum schon gesetzten `Rücknahme`, und `Abbrechen` ist die Beschriftung der
   Nachbarschaltfläche (`fileOperations.button.cancel`), also steht sie unverändert im Satz · `high`.
 - Kein `sameAsSourceJustification`; kein Apostroph in den Werten, die ICU-Dopplung `''` entfällt.
+
+## Vertikale Tabs: die Einstellungsseite „Tabs“ (2026-09-04; `settings.section.tabs`, `settings.summary.tabs`, `settings.appearance.tabBarPosition.*`, `settings.appearance.sideTabPlacement.*`, `fileExplorer.tabBar.resizeAriaLabel`)
+
+Neue Oberfläche: Einstellungen > Erscheinungsbild > Tabs, mit der Position der Tab-Leiste (oben oder seitlich) und der
+Platzierung der seitlichen Tab-Leisten. Die Referenzsammlung war für diesen Durchgang nicht verfügbar; Quellen sind der
+bestehende Katalog, das Glossar und macOS-/Browser-Wissen aus dem Gedächtnis, entsprechend markiert.
+
+- tab bar → `Tab-Leiste` · macOS de rendert „Show Tab Bar“ als „Tab-Leiste einblenden“ (AppKit-Fenster-Tabs,
+  Safari/Terminal, aus dem Gedächtnis, nicht gegen die Referenzsammlung verifiziert); passt zum Katalogmuster
+  `Tab-Limit` und zur `-leiste`-Familie (`Seitenleiste`, `Statusleiste`, `Funktionstastenleiste`) · high für das Wort,
+  tentative für die Schreibweise (Bindestrich vs. geschlossenes „Tableiste“) — bei nächster Gelegenheit gegen die
+  Referenzsammlung prüfen.
+- vertical tab strip → `vertikale Tab-Leiste`; anaphorisch kurz `vertikale Leiste`, wenn „Tabs“ schon im Satz steht ·
+  eine Wortfamilie statt des englischen bar/strip-Paars (die App darf die Leiste nicht zweimal benennen); Firefox de
+  nennt das Feature „Vertikale Tabs“, Edge de „Vertikale Registerkarten“ (MS-`Registerkarte` abgelehnt, tab → Tab
+  gesetzt) · high. ❌ Kein „Streifen“ für strip.
+- Top / Side (Optionsbeschriftungen des Positionswählers) → `Oben` / `Seitlich` · Register wie
+  `settings.theme.mode.opt.*` („Hell“/„Dunkel“); `Seitlich` statt des Substantivs „Seite“, das mit page → Seite
+  (PDF-Seiten) kollidieren würde · high. In Beschreibungen werden die Optionsnamen „…“-zitiert, wie „Systemstandard“ in
+  `settings.appearance.language.description`.
+- placement → `Platzierung` („Platzierung seitlicher Tabs“) · MS-Terminologie (placement → Platzierung); bewusst vom
+  Geschwisterlabel `Position der Tab-Leiste` unterschieden, wie das Englische position/placement trennt · high
+- edge (eines Bereichs / einer Leiste) → `Kante` · MS-Terminologie (edge → Kante/Rand; „Kante“ ist die geometrische
+  Objektkante, „Rand“ der Seitenrand) · high
+- Outer edges / Inner edges (Optionsbeschriftungen) → `Außenkanten` / `Innenkanten` · Standard-DE-Komposita zu Kante;
+  kompakt genug für die Dreierreihe neben `Links` · high
+- resize (die Tab-Leiste per Ziehgriff) → `anpassen` („Tab-Leiste anpassen“) · spiegelt das gesetzte
+  `fileExplorer.pane.resizePanesAriaLabel` „Bereiche anpassen“ (dasselbe Verb für beide Ziehgriffe, Voice Control) ·
+  high
+- `sameAsSourceJustification` gesetzt: `settings.section.tabs` („Tabs“, identischer Loanword-Plural, wie
+  `menu.bar.tab`).
