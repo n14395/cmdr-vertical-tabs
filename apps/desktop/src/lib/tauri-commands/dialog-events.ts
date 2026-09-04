@@ -207,11 +207,11 @@ export function onPersistRestrictedSetting(handler: (payload: PersistRestrictedS
 }
 
 /**
- * A mouse's dedicated back / forward side button (X1/X2) was released over the
- * main window. macOS only, from the AppKit event monitor in `mouse_nav.rs`:
- * WKWebView doesn't hand those buttons to the DOM, so on macOS this is the only
- * way they arrive. On Linux the DOM path in `routes/(main)/mouse-nav.ts` reads
- * them straight off the event. Both ends dispatch the same bus command.
+ * A back / forward navigation gesture (a mouse's X1/X2 side button, or the swipe
+ * a Logi Options+ mouse substitutes for it) finished over the main window. macOS
+ * only, from the AppKit event monitor in `mouse_nav.rs`, which is the only way
+ * either shape arrives there. On Linux the DOM path in `routes/(main)/mouse-nav.ts`
+ * reads the buttons straight off the event. Both ends dispatch the same bus command.
  */
 export function onMouseNav(handler: (direction: MouseNavDirection) => void): Promise<UnlistenFn> {
   return events.mouseNav.listen((event) => {

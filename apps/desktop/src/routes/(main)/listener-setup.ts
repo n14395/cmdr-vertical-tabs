@@ -589,10 +589,11 @@ export async function setupDialogListeners(ctx: ListenerSetupContext): Promise<v
 
 /** Sync file-scoped menu items with main window focus state. */
 /**
- * The macOS half of the mouse's back / forward side buttons: AppKit reads the
- * buttons (`src-tauri/src/mouse_nav.rs`) because WKWebView doesn't hand them to
- * the DOM, and this turns the direction into the same `nav.back` / `nav.forward`
- * dispatch the `⌘[` / `⌘]` shortcuts and the Linux DOM path make.
+ * The macOS half of the mouse's back / forward navigation: AppKit reads it
+ * (`src-tauri/src/mouse_nav.rs`) because a Logi Options+ mouse posts a swipe
+ * gesture rather than a button, so nothing reaches the DOM. This turns the
+ * direction into the same `nav.back` / `nav.forward` dispatch the `⌘[` / `⌘]`
+ * shortcuts and the Linux DOM path make.
  *
  * Gated by the same modal guard as the keyboard path, so the buttons stay inert
  * while a dialog is up. Left untagged for the cross-source dedup: a mouse button

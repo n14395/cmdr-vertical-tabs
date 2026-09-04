@@ -63,7 +63,7 @@
     "macOS": {
       "bundleName": "Cmdr",
       "minimumSystemVersion": "10.15",
-      "signingIdentity": "Developer ID Application: Rymdskottkarra AB (83H6YAQMNP)",
+      "signingIdentity": "Developer ID Application: Nicholas Fay (P52946XHRJ)",
       "entitlements": "./Entitlements.plist",
       "files": {
         "Resources/Assets.car": "resources/Assets.car"

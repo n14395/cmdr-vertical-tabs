@@ -10,9 +10,12 @@
  *   numbers the side buttons per the UI Events spec: 3 is the fourth button (X1,
  *   "back"), 4 is the fifth (X2, "forward"). We branch on those numeric codes,
  *   never a name string, so this never depends on OS/locale wording.
- * - **AppKit** (`navCommandForDirection`), on macOS, where WKWebView doesn't
- *   deliver those buttons to the DOM at all. `src-tauri/src/mouse_nav.rs` reads
- *   `NSEvent.buttonNumber` and emits the direction as a typed `mouse-nav` event.
+ * - **AppKit** (`navCommandForDirection`), on macOS, where the mouse's driver
+ *   decides what the press becomes: a Logi Options+ mouse posts a swipe gesture
+ *   and no mouse button at all, so nothing reaches the DOM path.
+ *   `src-tauri/src/mouse_nav.rs` reads both shapes and emits the direction as a
+ *   typed `mouse-nav` event. What each device delivers, measured:
+ *   `docs/notes/mx-side-buttons-swipe-2026-09-04.md`.
  */
 import type { CommandId } from '$lib/commands'
 import type { MouseNavDirection } from '$lib/ipc/bindings'
