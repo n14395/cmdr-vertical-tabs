@@ -16,6 +16,13 @@ for the real-folder ids (`special:*` / `pkg:*` / `path:*`), keyed by folder mtim
 `clear_directory_icon_cache` drops the keys macOS appearance-tints (`dir`, `symlink-dir`, `path:*`, `pkg:*`,
 `special:*`) plus the whole disk cache, on a theme/accent change.
 
+**Gotcha: changing how a BOUNDED icon is produced needs a `CACHE_SCHEMA` bump** (`$lib/icon-cache`). Those keys persist
+to localStorage and are refetched only on a miss, so an install that already ran the old build keeps serving the old
+pixels forever — the fix ships, nothing moves on screen, and it reads as the fix not working. It bit the `dir`-sampling
+fix below: the backend was correct, every machine still drew the house. The stamp lives in the persisted envelope
+(`{ version, icons }`); a mismatch or a pre-stamp bare map discards the lot and refetches. ❌ Never leave it alone
+because "the key didn't change" — the key not changing is exactly the hazard.
+
 ## Tier A: the generic folder sample (`folder_sample_path`)
 
 `dir` / `symlink-dir` cover ~99% of rows, and their icon comes from asking the OS about one stand-in directory.

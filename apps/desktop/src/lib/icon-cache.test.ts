@@ -4,233 +4,275 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 // in these tests (we drive the cache via the test-only helpers), but they must exist
 // as mocks so the import resolves without a real Tauri runtime.
 vi.mock('./tauri-commands', () => ({
-  getIcons: vi.fn(),
-  getCustomFolderIconIds: vi.fn(),
-  refreshDirectoryIcons: vi.fn(),
-  clearExtensionIconCache: vi.fn(),
-  clearDirectoryIconCache: vi.fn(),
+    getIcons: vi.fn(),
+    getCustomFolderIconIds: vi.fn(),
+    refreshDirectoryIcons: vi.fn(),
+    clearExtensionIconCache: vi.fn(),
+    clearDirectoryIconCache: vi.fn(),
 }))
 
 import {
-  getCachedIcon,
-  evictPerPathIconsForDir,
-  prefetchCustomFolderIcons,
-  _resetIconCacheForTests,
-  _applyIconsToCacheForTests,
-  _pathKeyCapForTests,
+    getCachedIcon,
+    evictPerPathIconsForDir,
+    prefetchCustomFolderIcons,
+    _resetIconCacheForTests,
+    _applyIconsToCacheForTests,
+    _pathKeyCapForTests,
 } from './icon-cache'
 import { getIcons, getCustomFolderIconIds } from './tauri-commands'
 
 const STORAGE_KEY = 'cmdr-icon-cache'
 
 function storedKeys(): string[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return []
-  return Object.keys(JSON.parse(raw) as Record<string, string>)
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    return Object.keys((JSON.parse(raw) as { icons: Record<string, string> }).icons)
 }
 
 describe('icon-cache path: key bounding', () => {
-  beforeEach(() => {
-    _resetIconCacheForTests()
-    localStorage.clear()
-  })
-
-  it('does not persist path: keys to localStorage, but persists bounded keys', () => {
-    _applyIconsToCacheForTests({
-      dir: 'dir-url',
-      'ext:txt': 'txt-url',
-      'symlink-dir': 'symlink-url',
-      'path:/Users/me/Folder': 'folder-url',
-      'path:/Users/me/Other': 'other-url',
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
     })
 
-    const keys = storedKeys()
-    // path: keys are session-only.
-    expect(keys).not.toContain('path:/Users/me/Folder')
-    expect(keys).not.toContain('path:/Users/me/Other')
-    expect(keys.some((k) => k.startsWith('path:'))).toBe(false)
-    // Bounded keys still persist.
-    expect(keys).toEqual(expect.arrayContaining(['dir', 'ext:txt', 'symlink-dir']))
-  })
+    it('does not persist path: keys to localStorage, but persists bounded keys', () => {
+        _applyIconsToCacheForTests({
+            dir: 'dir-url',
+            'ext:txt': 'txt-url',
+            'symlink-dir': 'symlink-url',
+            'path:/Users/me/Folder': 'folder-url',
+            'path:/Users/me/Other': 'other-url',
+        })
 
-  it('keeps path: keys available in the in-memory cache (just not persisted)', () => {
-    _applyIconsToCacheForTests({ 'path:/Users/me/Folder': 'folder-url' })
-    expect(getCachedIcon('path:/Users/me/Folder')).toBe('folder-url')
-  })
+        const keys = storedKeys()
+        // path: keys are session-only.
+        expect(keys).not.toContain('path:/Users/me/Folder')
+        expect(keys).not.toContain('path:/Users/me/Other')
+        expect(keys.some((k) => k.startsWith('path:'))).toBe(false)
+        // Bounded keys still persist.
+        expect(keys).toEqual(expect.arrayContaining(['dir', 'ext:txt', 'symlink-dir']))
+    })
 
-  it('LRU-caps path: keys in memory, evicting the oldest first', () => {
-    const cap = _pathKeyCapForTests
-    const icons: Record<string, string> = {}
-    // Insert one more than the cap. Map preserves insertion order, so /folder/0 is oldest.
-    for (let n = 0; n <= cap; n++) {
-      icons[`path:/folder/${String(n)}`] = `url-${String(n)}`
-    }
-    // Apply one at a time so insertion order is deterministic (a single object would
-    // preserve order anyway, but per-call mirrors real batched fetches).
-    for (const [id, url] of Object.entries(icons)) {
-      _applyIconsToCacheForTests({ [id]: url })
-    }
+    it('keeps path: keys available in the in-memory cache (just not persisted)', () => {
+        _applyIconsToCacheForTests({ 'path:/Users/me/Folder': 'folder-url' })
+        expect(getCachedIcon('path:/Users/me/Folder')).toBe('folder-url')
+    })
 
-    // Oldest evicted, newest retained.
-    expect(getCachedIcon('path:/folder/0')).toBeUndefined()
-    expect(getCachedIcon(`path:/folder/${String(cap)}`)).toBe(`url-${String(cap)}`)
+    it('LRU-caps path: keys in memory, evicting the oldest first', () => {
+        const cap = _pathKeyCapForTests
+        const icons: Record<string, string> = {}
+        // Insert one more than the cap. Map preserves insertion order, so /folder/0 is oldest.
+        for (let n = 0; n <= cap; n++) {
+            icons[`path:/folder/${String(n)}`] = `url-${String(n)}`
+        }
+        // Apply one at a time so insertion order is deterministic (a single object would
+        // preserve order anyway, but per-call mirrors real batched fetches).
+        for (const [id, url] of Object.entries(icons)) {
+            _applyIconsToCacheForTests({ [id]: url })
+        }
 
-    // Exactly `cap` path: keys remain (count via a fresh probe set).
-    let remaining = 0
-    for (let n = 0; n <= cap; n++) {
-      if (getCachedIcon(`path:/folder/${String(n)}`) !== undefined) remaining++
-    }
-    expect(remaining).toBe(cap)
-  })
+        // Oldest evicted, newest retained.
+        expect(getCachedIcon('path:/folder/0')).toBeUndefined()
+        expect(getCachedIcon(`path:/folder/${String(cap)}`)).toBe(`url-${String(cap)}`)
 
-  it('never evicts non-path: keys regardless of how many path: keys arrive', () => {
-    _applyIconsToCacheForTests({ dir: 'dir-url', 'ext:png': 'png-url', file: 'file-url' })
+        // Exactly `cap` path: keys remain (count via a fresh probe set).
+        let remaining = 0
+        for (let n = 0; n <= cap; n++) {
+            if (getCachedIcon(`path:/folder/${String(n)}`) !== undefined) remaining++
+        }
+        expect(remaining).toBe(cap)
+    })
 
-    for (let n = 0; n < _pathKeyCapForTests * 3; n++) {
-      _applyIconsToCacheForTests({ [`path:/folder/${String(n)}`]: `url-${String(n)}` })
-    }
+    it('never evicts non-path: keys regardless of how many path: keys arrive', () => {
+        _applyIconsToCacheForTests({ dir: 'dir-url', 'ext:png': 'png-url', file: 'file-url' })
 
-    expect(getCachedIcon('dir')).toBe('dir-url')
-    expect(getCachedIcon('ext:png')).toBe('png-url')
-    expect(getCachedIcon('file')).toBe('file-url')
-  })
+        for (let n = 0; n < _pathKeyCapForTests * 3; n++) {
+            _applyIconsToCacheForTests({ [`path:/folder/${String(n)}`]: `url-${String(n)}` })
+        }
+
+        expect(getCachedIcon('dir')).toBe('dir-url')
+        expect(getCachedIcon('ext:png')).toBe('png-url')
+        expect(getCachedIcon('file')).toBe('file-url')
+    })
 })
 
 describe('icon-cache pkg: keys (Tier C packages)', () => {
-  beforeEach(() => {
-    _resetIconCacheForTests()
-    localStorage.clear()
-  })
-
-  it('does not persist pkg: keys to localStorage', () => {
-    _applyIconsToCacheForTests({
-      'pkg:/Applications/Safari.app': 'safari-url',
-      dir: 'dir-url',
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
     })
-    const keys = storedKeys()
-    expect(keys.some((k) => k.startsWith('pkg:'))).toBe(false)
-    expect(keys).toContain('dir')
-  })
 
-  it('keeps pkg: keys available in memory', () => {
-    _applyIconsToCacheForTests({ 'pkg:/Applications/Safari.app': 'safari-url' })
-    expect(getCachedIcon('pkg:/Applications/Safari.app')).toBe('safari-url')
-  })
+    it('does not persist pkg: keys to localStorage', () => {
+        _applyIconsToCacheForTests({
+            'pkg:/Applications/Safari.app': 'safari-url',
+            dir: 'dir-url',
+        })
+        const keys = storedKeys()
+        expect(keys.some((k) => k.startsWith('pkg:'))).toBe(false)
+        expect(keys).toContain('dir')
+    })
 
-  it('shares one LRU budget across path: and pkg: keys', () => {
-    const cap = _pathKeyCapForTests
-    // Fill the whole budget with pkg: keys.
-    for (let n = 0; n < cap; n++) {
-      _applyIconsToCacheForTests({ [`pkg:/Applications/App${String(n)}.app`]: `url-${String(n)}` })
-    }
-    // A single path: key now evicts the oldest pkg: key — both share the cap.
-    _applyIconsToCacheForTests({ 'path:/Users/me/Custom': 'custom-url' })
-    expect(getCachedIcon('pkg:/Applications/App0.app')).toBeUndefined()
-    expect(getCachedIcon('path:/Users/me/Custom')).toBe('custom-url')
-  })
+    it('keeps pkg: keys available in memory', () => {
+        _applyIconsToCacheForTests({ 'pkg:/Applications/Safari.app': 'safari-url' })
+        expect(getCachedIcon('pkg:/Applications/Safari.app')).toBe('safari-url')
+    })
+
+    it('shares one LRU budget across path: and pkg: keys', () => {
+        const cap = _pathKeyCapForTests
+        // Fill the whole budget with pkg: keys.
+        for (let n = 0; n < cap; n++) {
+            _applyIconsToCacheForTests({ [`pkg:/Applications/App${String(n)}.app`]: `url-${String(n)}` })
+        }
+        // A single path: key now evicts the oldest pkg: key — both share the cap.
+        _applyIconsToCacheForTests({ 'path:/Users/me/Custom': 'custom-url' })
+        expect(getCachedIcon('pkg:/Applications/App0.app')).toBeUndefined()
+        expect(getCachedIcon('path:/Users/me/Custom')).toBe('custom-url')
+    })
 })
 
 describe('evictPerPathIconsForDir', () => {
-  beforeEach(() => {
-    _resetIconCacheForTests()
-    localStorage.clear()
-  })
-
-  it('evicts only the direct children of the ended directory', () => {
-    _applyIconsToCacheForTests({
-      'path:/Users/me/Work/CustomA': 'a',
-      'pkg:/Users/me/Work/Foo.app': 'foo',
-      'path:/Users/me/Other/CustomB': 'b', // a sibling dir, must survive
-      dir: 'dir-url',
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
     })
 
-    evictPerPathIconsForDir('/Users/me/Work')
+    it('evicts only the direct children of the ended directory', () => {
+        _applyIconsToCacheForTests({
+            'path:/Users/me/Work/CustomA': 'a',
+            'pkg:/Users/me/Work/Foo.app': 'foo',
+            'path:/Users/me/Other/CustomB': 'b', // a sibling dir, must survive
+            dir: 'dir-url',
+        })
 
-    expect(getCachedIcon('path:/Users/me/Work/CustomA')).toBeUndefined()
-    expect(getCachedIcon('pkg:/Users/me/Work/Foo.app')).toBeUndefined()
-    // Sibling dir's icon and bounded keys untouched.
-    expect(getCachedIcon('path:/Users/me/Other/CustomB')).toBe('b')
-    expect(getCachedIcon('dir')).toBe('dir-url')
-  })
+        evictPerPathIconsForDir('/Users/me/Work')
 
-  it('handles a trailing slash and a no-op empty path', () => {
-    _applyIconsToCacheForTests({ 'path:/a/b/C': 'c' })
-    evictPerPathIconsForDir('') // no-op
-    expect(getCachedIcon('path:/a/b/C')).toBe('c')
-    evictPerPathIconsForDir('/a/b/')
-    expect(getCachedIcon('path:/a/b/C')).toBeUndefined()
-  })
+        expect(getCachedIcon('path:/Users/me/Work/CustomA')).toBeUndefined()
+        expect(getCachedIcon('pkg:/Users/me/Work/Foo.app')).toBeUndefined()
+        // Sibling dir's icon and bounded keys untouched.
+        expect(getCachedIcon('path:/Users/me/Other/CustomB')).toBe('b')
+        expect(getCachedIcon('dir')).toBe('dir-url')
+    })
+
+    it('handles a trailing slash and a no-op empty path', () => {
+        _applyIconsToCacheForTests({ 'path:/a/b/C': 'c' })
+        evictPerPathIconsForDir('') // no-op
+        expect(getCachedIcon('path:/a/b/C')).toBe('c')
+        evictPerPathIconsForDir('/a/b/')
+        expect(getCachedIcon('path:/a/b/C')).toBeUndefined()
+    })
 })
 
 describe('prefetchCustomFolderIcons', () => {
-  beforeEach(() => {
-    _resetIconCacheForTests()
-    localStorage.clear()
-    vi.mocked(getCustomFolderIconIds).mockReset()
-    vi.mocked(getIcons).mockReset()
-  })
-
-  it('asks the backend only about dirs without a cached path: icon', async () => {
-    // Pre-seed one dir as already having a custom icon.
-    _applyIconsToCacheForTests({ 'path:/Users/me/Known': 'known' })
-    vi.mocked(getCustomFolderIconIds).mockResolvedValue({ data: [], timedOut: false })
-
-    await prefetchCustomFolderIcons(['/Users/me/Known', '/Users/me/Unknown'], true)
-
-    expect(getCustomFolderIconIds).toHaveBeenCalledTimes(1)
-    // Only the uncached dir is queried.
-    expect(getCustomFolderIconIds).toHaveBeenCalledWith(['/Users/me/Unknown'])
-  })
-
-  it('fetches the returned custom-folder ids through getIcons', async () => {
-    vi.mocked(getCustomFolderIconIds).mockResolvedValue({
-      data: ['path:/Users/me/Custom'],
-      timedOut: false,
-    })
-    vi.mocked(getIcons).mockResolvedValue({
-      data: { 'path:/Users/me/Custom': 'custom-url' },
-      timedOut: false,
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
+        vi.mocked(getCustomFolderIconIds).mockReset()
+        vi.mocked(getIcons).mockReset()
     })
 
-    await prefetchCustomFolderIcons(['/Users/me/Custom'], false)
+    it('asks the backend only about dirs without a cached path: icon', async () => {
+        // Pre-seed one dir as already having a custom icon.
+        _applyIconsToCacheForTests({ 'path:/Users/me/Known': 'known' })
+        vi.mocked(getCustomFolderIconIds).mockResolvedValue({ data: [], timedOut: false })
 
-    expect(getIcons).toHaveBeenCalledWith(['path:/Users/me/Custom'], false)
-    expect(getCachedIcon('path:/Users/me/Custom')).toBe('custom-url')
-  })
+        await prefetchCustomFolderIcons(['/Users/me/Known', '/Users/me/Unknown'], true)
 
-  it('does nothing on an empty input and never throws on backend error', async () => {
-    await prefetchCustomFolderIcons([], true)
-    expect(getCustomFolderIconIds).not.toHaveBeenCalled()
+        expect(getCustomFolderIconIds).toHaveBeenCalledTimes(1)
+        // Only the uncached dir is queried.
+        expect(getCustomFolderIconIds).toHaveBeenCalledWith(['/Users/me/Unknown'])
+    })
 
-    vi.mocked(getCustomFolderIconIds).mockRejectedValue(new Error('boom'))
-    await expect(prefetchCustomFolderIcons(['/x'], true)).resolves.toBeUndefined()
-  })
+    it('fetches the returned custom-folder ids through getIcons', async () => {
+        vi.mocked(getCustomFolderIconIds).mockResolvedValue({
+            data: ['path:/Users/me/Custom'],
+            timedOut: false,
+        })
+        vi.mocked(getIcons).mockResolvedValue({
+            data: { 'path:/Users/me/Custom': 'custom-url' },
+            timedOut: false,
+        })
+
+        await prefetchCustomFolderIcons(['/Users/me/Custom'], false)
+
+        expect(getIcons).toHaveBeenCalledWith(['path:/Users/me/Custom'], false)
+        expect(getCachedIcon('path:/Users/me/Custom')).toBe('custom-url')
+    })
+
+    it('does nothing on an empty input and never throws on backend error', async () => {
+        await prefetchCustomFolderIcons([], true)
+        expect(getCustomFolderIconIds).not.toHaveBeenCalled()
+
+        vi.mocked(getCustomFolderIconIds).mockRejectedValue(new Error('boom'))
+        await expect(prefetchCustomFolderIcons(['/x'], true)).resolves.toBeUndefined()
+    })
 })
 
 describe('icon-cache special: keys (Tier B)', () => {
-  beforeEach(() => {
-    _resetIconCacheForTests()
-    localStorage.clear()
-  })
-
-  it('persists special: keys to localStorage alongside the bounded keys', () => {
-    _applyIconsToCacheForTests({
-      'special:downloads': 'dl-url',
-      'special:applications': 'apps-url',
-      dir: 'dir-url',
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
     })
 
-    const keys = storedKeys()
-    expect(keys).toEqual(expect.arrayContaining(['special:downloads', 'special:applications', 'dir']))
-  })
+    it('persists special: keys to localStorage alongside the bounded keys', () => {
+        _applyIconsToCacheForTests({
+            'special:downloads': 'dl-url',
+            'special:applications': 'apps-url',
+            dir: 'dir-url',
+        })
 
-  it('never evicts special: keys when many path: keys arrive (they are not LRU-capped)', () => {
-    _applyIconsToCacheForTests({ 'special:downloads': 'dl-url' })
+        const keys = storedKeys()
+        expect(keys).toEqual(expect.arrayContaining(['special:downloads', 'special:applications', 'dir']))
+    })
 
-    for (let n = 0; n < _pathKeyCapForTests * 3; n++) {
-      _applyIconsToCacheForTests({ [`path:/folder/${String(n)}`]: `url-${String(n)}` })
-    }
+    it('never evicts special: keys when many path: keys arrive (they are not LRU-capped)', () => {
+        _applyIconsToCacheForTests({ 'special:downloads': 'dl-url' })
 
-    expect(getCachedIcon('special:downloads')).toBe('dl-url')
-  })
+        for (let n = 0; n < _pathKeyCapForTests * 3; n++) {
+            _applyIconsToCacheForTests({ [`path:/folder/${String(n)}`]: `url-${String(n)}` })
+        }
+
+        expect(getCachedIcon('special:downloads')).toBe('dl-url')
+    })
+})
+
+/**
+ * Bounded keys persist and are only refetched on a miss, so a build that changes
+ * how one is PRODUCED (`dir` no longer sampling `~`, whose house badge every
+ * folder wore) ships the fix and moves no pixels on any machine that already ran
+ * the old build. The schema stamp is what forces those entries to be re-fetched.
+ */
+describe('icon-cache persisted-schema invalidation', () => {
+    beforeEach(() => {
+        _resetIconCacheForTests()
+        localStorage.clear()
+        vi.resetModules()
+    })
+
+    it('discards a pre-schema flat map, so a stale bounded icon cannot outlive the build that made it', async () => {
+        // Exactly what every build before the stamp wrote: a bare id -> url map.
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ dir: 'stale-house-badged-url', 'ext:txt': 'txt-url' }))
+
+        const fresh = await import('./icon-cache')
+
+        expect(fresh.getCachedIcon('dir')).toBeUndefined()
+        expect(fresh.getCachedIcon('ext:txt')).toBeUndefined()
+        expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    })
+
+    it('discards a map stamped with an older schema', async () => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, icons: { dir: 'stale-url' } }))
+
+        const fresh = await import('./icon-cache')
+
+        expect(fresh.getCachedIcon('dir')).toBeUndefined()
+    })
+
+    it('still round-trips what the current build wrote', async () => {
+        _applyIconsToCacheForTests({ dir: 'dir-url', 'ext:txt': 'txt-url' })
+
+        const fresh = await import('./icon-cache')
+
+        expect(fresh.getCachedIcon('dir')).toBe('dir-url')
+        expect(fresh.getCachedIcon('ext:txt')).toBe('txt-url')
+    })
 })
